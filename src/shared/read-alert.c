@@ -46,6 +46,7 @@
 #define OLDSHA1_BEGIN_SZ  17
 #define NEWSHA1_BEGIN     "New sha1sum is : "
 #define NEWSHA1_BEGIN_SZ  17
+#define CHANGES_BEGIN   "What changed:\n"
 
 
 void FreeAlertData(alert_data *al_data)
@@ -104,6 +105,10 @@ void FreeAlertData(alert_data *al_data)
         free(al_data->new_sha1);
         al_data->new_sha1 = NULL;
     }
+    if (al_data->changes) {
+        free(al_data->changes);
+        al_data->changes = NULL;
+    }
     if (al_data->log) {
         p = al_data->log;
 
@@ -149,6 +154,7 @@ alert_data *GetAlertData(int flag, FILE *fp)
     char *new_md5 = NULL;
     char *old_sha1 = NULL;
     char *new_sha1 = NULL;
+    char *changes = NULL;
     char **log = NULL;
 #ifdef LIBGEOIP_ENABLED
     char *geoipdatasrc = NULL;
@@ -188,7 +194,7 @@ alert_data *GetAlertData(int flag, FILE *fp)
                 al_data->new_md5 = new_md5;
                 al_data->old_sha1 = old_sha1;
                 al_data->new_sha1 = new_sha1;
-
+                al_data->changes = changes;
 
                 return (al_data);
             }
@@ -408,6 +414,36 @@ alert_data *GetAlertData(int flag, FILE *fp)
                 free(new_sha1);
                 os_strdup(p, new_sha1);
             }
+            /* File changes */
+            else if (strncmp(CHANGES_BEGIN, str, strlen(CHANGES_BEGIN)) == 0) {
+                size_t n = 0;
+                size_t z = 0;
+
+                free(changes);
+                os_calloc(1024, 1, p);
+
+                while (fgets(str, OS_BUFFER_SIZE, fp) && strcmp(str, "\n")) {
+                    z = strlen(str);
+                    str[z--] = '\0';
+
+                    if (n + z + 2 > 1023)
+                        break;
+
+                    if (n) {
+                        p[n++] = '\\';
+                        p[n++] = 'n';
+                    }
+
+                    strncpy(&p[n], str, z);
+                    n += z;
+                }
+
+                os_strdup(p, changes);
+                free(p);
+
+                if (fseek(fp, -1L, SEEK_CUR) < 0)
+                    merror("ossec: ERROR: at GetAlertData(): fseek(): %s", strerror(errno));
+            }
             /* It is a log message */
             else if (log_size < 20) {
                 os_clearnl(str, p);
@@ -490,6 +526,12 @@ l_error:
             free(new_sha1);
             new_sha1 = NULL;
         }
+
+        if (changes) {
+            free(changes);
+            changes = NULL;
+        }
+
         while (log_size > 0) {
             log_size--;
             if (log[log_size]) {
@@ -533,6 +575,7 @@ l_error:
     free(new_md5);
     free(old_sha1);
     free(new_sha1);
+    free(changes);
     free(filename);
 #ifdef LIBGEOIP_ENABLED
     free(geoipdatasrc);

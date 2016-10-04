@@ -35,6 +35,7 @@ typedef struct _alert_data {
     char *old_sha1;
     char *new_sha1;
     char **log;
+    char *changes;
 #ifdef LIBGEOIP_ENABLED
     char *geoipdatasrc;
     char *geoipdatadst;

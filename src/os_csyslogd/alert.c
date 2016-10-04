@@ -113,6 +113,7 @@ int OS_Alert_SendSyslog(alert_data *al_data, const SyslogConfig *syslog_config)
         field_add_string(syslog_msg, OS_SIZE_2048, " Current MD5: %s;", al_data->new_md5 );
         field_add_string(syslog_msg, OS_SIZE_2048, " Previous SHA1: %s;", al_data->old_sha1 );
         field_add_string(syslog_msg, OS_SIZE_2048, " Current SHA1: %s;", al_data->new_sha1 );
+        field_add_string(syslog_msg, OS_SIZE_2048, " Changes: %s;", al_data->changes );
         field_add_truncated(syslog_msg, OS_SIZE_2048, " %s", al_data->log[0], 2 );
     } else if (syslog_config->format == CEF_CSYSLOG) {
         snprintf(syslog_msg, OS_SIZE_2048,
