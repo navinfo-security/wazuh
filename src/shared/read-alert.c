@@ -46,7 +46,9 @@
 #define OLDSHA1_BEGIN_SZ  17
 #define NEWSHA1_BEGIN     "New sha1sum is : "
 #define NEWSHA1_BEGIN_SZ  17
-#define CHANGES_BEGIN   "What changed:\n"
+
+#define CHANGES_BEGIN               "What changed:\n"
+#define CHANGES_AGENTLESS_BEGIN     "ossec: agentless: Change detected:"
 
 
 void FreeAlertData(alert_data *al_data)
@@ -415,7 +417,7 @@ alert_data *GetAlertData(int flag, FILE *fp)
                 os_strdup(p, new_sha1);
             }
             /* File changes */
-            else if (strncmp(CHANGES_BEGIN, str, strlen(CHANGES_BEGIN)) == 0) {
+            else if (!strncmp(CHANGES_BEGIN, str, strlen(CHANGES_BEGIN))) {
                 size_t n = 0;
                 size_t z = 0;
 
@@ -456,6 +458,39 @@ alert_data *GetAlertData(int flag, FILE *fp)
                         }
                     }
                     issyscheck = 0;
+                }
+
+                if (!strncmp(CHANGES_AGENTLESS_BEGIN, str, strlen(CHANGES_AGENTLESS_BEGIN))) {
+                    size_t n = 0;
+                    size_t z = 0;
+
+                    free(changes);
+                    os_calloc(1024, 1, p);
+
+                    strncpy(p, str, n = strlen(str));
+                    p[n++] = ' ';
+
+                    while (fgets(str, OS_BUFFER_SIZE, fp) && strcmp(str, "\n")) {
+                        z = strlen(str);
+                        str[z--] = '\0';
+
+                        if (n + z + 2 > 1023)
+                            break;
+
+                        if (n) {
+                            p[n++] = '\\';
+                            p[n++] = 'n';
+                        }
+
+                        strncpy(&p[n], str, z);
+                        n += z;
+                    }
+
+                    strncpy(str, p, n + 1);
+                    free(p);
+
+                    if (fseek(fp, -1L, SEEK_CUR) < 0)
+                        merror("ossec: ERROR: at GetAlertData(): fseek(): %s", strerror(errno));
                 }
 
                 os_realloc(log, (log_size + 2)*sizeof(char *), log);
