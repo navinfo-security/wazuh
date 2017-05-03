@@ -14,6 +14,8 @@
 #include "decoder.h"
 #include "config.h"
 
+int n_decoder_xml = 0;
+clock_t clocks_decoder_xml = 0;
 
 /* Use the osdecoders to decode the received event */
 void DecodeEvent(Eventinfo *lf)
@@ -144,6 +146,8 @@ void DecodeEvent(Eventinfo *lf)
             return;
         }
 
+        clock_t clock_s = clock();
+
         /* Get the regex */
         while (child_node) {
             if (nnode->regex) {
@@ -217,6 +221,8 @@ void DecodeEvent(Eventinfo *lf)
         }
 
         /* ok to return  */
+        clocks_decoder_xml += clock() - clock_s;
+        n_decoder_xml++;
         return;
     } while ((node = node->next) != NULL);
 

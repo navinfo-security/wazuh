@@ -28,6 +28,9 @@
 #include "fts.h"
 #include "cleanevent.h"
 
+clock_t clocks_rules = 0;
+int n_rules = 0;
+
 /** Internal Functions **/
 void OS_ReadMSG(char *ut_str);
 
@@ -493,9 +496,15 @@ void OS_ReadMSG(char *ut_str)
                 }
 
                 /* Check each rule */
-                else if ((currently_rule = OS_CheckIfRuleMatch(lf, rulenode_pt))
-                         == NULL) {
-                    continue;
+                else {
+                    clock_t clock_s = clock();
+
+                    if ((currently_rule = OS_CheckIfRuleMatch(lf, rulenode_pt)) == NULL) {
+                        continue;
+                    } else {
+                        clocks_rules += clock() - clock_s;
+                        n_rules++;
+                    }
                 }
 
                 /* Pointer to the rule that generated it */
@@ -638,6 +647,17 @@ void onexit() {
     char testdir[PATH_MAX + 1];
     snprintf(testdir, PATH_MAX + 1, "%s/%s", DIFF_DIR, DIFF_TEST_HOST);
     rmdir_ex(testdir);
+
+    double t;
+
+    t = ((double)clocks_predecoder * 1000 / CLOCKS_PER_SEC);
+    printf("\nPre decoder\n  Time: %.3f ms\n  Exec: %d\n  Mean: %.3f ms\n", t, n_predecoder, t / (n_predecoder ? n_predecoder : 1));
+    t = ((double)clocks_decoder_xml * 1000 / CLOCKS_PER_SEC);
+    printf("\nXML decoder\n  Time: %.3f ms\n  Exec: %d\n  Mean: %.3f ms\n", t, n_decoder_xml, t / (n_decoder_xml ? n_decoder_xml : 1));
+    t = ((double)clocks_decoder_json * 1000 / CLOCKS_PER_SEC);
+    printf("\nJSON decoder\n  Time: %.3f ms\n  Exec: %d\n  Mean: %.3f ms\n", t, n_decoder_json, t / (n_decoder_json ? n_decoder_json : 1));
+    t = ((double)clocks_rules * 1000 / CLOCKS_PER_SEC);
+    printf("\nRule matcher\n  Time: %.3f ms\n  Exec: %d\n  Mean: %.3f ms\n", t, n_rules, t / (n_rules ? n_rules : 0));
 }
 
 // Signal handler

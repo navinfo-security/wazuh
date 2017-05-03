@@ -33,4 +33,15 @@ extern OSDecoderInfo *NULL_Decoder;
 #define OSSEC_SERVER    "ossec-server"
 #define MAX_DECODER_ORDER_SIZE  64
 
+extern clock_t clocks_predecoder;
+extern clock_t clocks_decoder_xml;
+extern clock_t clocks_decoder_json;
+extern clock_t clocks_rules;
+
+extern int n_predecoder;
+extern int n_decoder_xml;
+extern int n_decoder_json;
+extern int n_rules;
+
+
 #endif /* _LOGAUDIT__H */

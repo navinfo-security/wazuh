@@ -15,6 +15,9 @@
 #include "fts.h"
 #include "config.h"
 
+clock_t clocks_predecoder = 0;
+int n_predecoder = 0;
+
 /* To translate between month (int) to month (char) */
 static const char *(month[]) = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
@@ -27,6 +30,7 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
     size_t loglen;
     char *pieces;
     struct tm *p;
+    clock_t clock_s = clock();
 
     /* The message is formated in the following way:
      * id:location:message.
@@ -533,6 +537,9 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
     /* Set the global hour/weekday */
     __crt_hour = p->tm_hour;
     __crt_wday = p->tm_wday;
+
+    clocks_predecoder += clock() - clock_s;
+    n_predecoder++;
 
 #ifdef TESTRULE
     if (!alert_only) {

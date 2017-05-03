@@ -15,6 +15,9 @@
 #include "../../config.h"
 #include "../../external/cJSON/cJSON.h"
 
+clock_t clocks_decoder_json = 0;
+int n_decoder_json = 0;
+
 static void fillData(Eventinfo *lf, const char *key, const char *value)
 {
 
@@ -336,6 +339,7 @@ void *JSON_Decoder_Init()
 
 void *JSON_Decoder_Exec(Eventinfo *lf)
 {
+    clock_t clock_s = clock();
     cJSON *logJSON;
     logJSON = cJSON_Parse(lf->log);
     if (!logJSON)
@@ -345,5 +349,8 @@ void *JSON_Decoder_Exec(Eventinfo *lf)
         readJSON (logJSON, NULL, lf);
         cJSON_Delete (logJSON);
     }
+
+    clocks_decoder_json += clock() - clock_s;
+    n_decoder_json++;
     return (NULL);
 }
