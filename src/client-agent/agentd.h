@@ -36,7 +36,7 @@ void *receiver_thread(void *none);
 int intcheck_file(const char *file_name, const char *dir);
 
 /* Send message to server */
-int send_msg(int agentid, const char *msg, ssize_t msg_length);
+int send_msg(const char *msg, ssize_t msg_length);
 
 /* Extract the shared files */
 char *getsharedfiles(void);
@@ -55,6 +55,15 @@ int format_labels(char *str, size_t size);
 
 // Thread to rotate internal log
 void * w_rotate_log_thread(void * arg);
+
+// Initialize request module
+void req_init();
+
+// Push a request message into dispathing queue. Return 0 on success or -1 on error.
+int req_push(char * buffer, size_t length);
+
+// Request receiver thread start
+void * req_receiver(void * arg);
 
 /*** Global variables ***/
 

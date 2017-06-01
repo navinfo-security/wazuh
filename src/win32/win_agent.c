@@ -260,6 +260,16 @@ int local_start()
         merror(THREAD_ERROR);
     }
 
+    /* Start request receiver thread */
+    if (CreateThread(NULL,
+                     0,
+                     (LPTHREAD_START_ROUTINE)req_receiver,
+                     NULL,
+                     0,
+                     (LPDWORD)&threadID2) == NULL) {
+        merror(THREAD_ERROR, ARGV0);
+    }
+
     /* Send agent information message */
     send_win32_info(time(0));
 
