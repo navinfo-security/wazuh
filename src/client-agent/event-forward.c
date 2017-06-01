@@ -26,11 +26,10 @@ void *EventForward()
     while ((recv_b = recv(agt->m_queue, msg, OS_MAXSTR, MSG_DONTWAIT)) > 0) {
         msg[recv_b] = '\0';
 
-        if (send_msg(0, msg) < 0) {
+        if (send_msg(0, msg, -1) < 0) {
             break;
         }
     }
 
     return (NULL);
 }
-
