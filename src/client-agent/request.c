@@ -14,6 +14,10 @@
 #include <request_op.h>
 #include <os_net/os_net.h>
 
+#ifdef WIN32
+#include "../os_execd/execd.h"
+#endif
+
 #define full(i, j) ((i + 1) % request_pool == j)
 #define empty(i, j) (i == j)
 #define forward(x) x = (x + 1) % request_pool
@@ -190,7 +194,7 @@ void * req_receiver(__attribute__((unused)) void * arg) {
 
 #ifdef WIN32
         // In Windows, execute directly
-        // length = wcom_dispatch(node->buffer, node->length, buffer);
+        length = wcom_dispatch(node->buffer, node->length, buffer);
 #else
         // In Unix, forward request to target socket
 
