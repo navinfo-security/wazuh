@@ -34,6 +34,7 @@ void HandleSecure()
     ssize_t recv_b;
     uint32_t length;
     struct sockaddr_in peer_info;
+    double rprof_recv0;
 
 #if defined(__MACH__) || defined(__FreeBSD__) || defined(__OpenBSD__)
     const struct timespec TS_ZERO = { 0, 0 };
@@ -59,6 +60,12 @@ void HandleSecure()
 
     // Create Request listener thread
     w_create_thread(req_main, NULL);
+
+    // Create profile thread
+
+    if (rprof_get_interval()) {
+        w_create_thread(rprof_main, NULL);
+    }
 
     /* Create wait_for_msgs threads */
 
@@ -174,6 +181,7 @@ void HandleSecure()
 #endif /* __MACH__ || __FreeBSD__ || __OpenBSD__ */
                 } else {
                     sock_client = fd;
+                    rprof_recv0 = w_gettimed();
                     recv_b = recv(sock_client, (char*)&length, sizeof(length), MSG_WAITALL);
                     length = wnet_order(length);
 
@@ -225,6 +233,7 @@ void HandleSecure()
                     }
 
                     recv_b = recv(sock_client, buffer, length, MSG_WAITALL);
+                    rprof_recv(w_gettimed() - rprof_recv0);
 
                     if (recv_b != (ssize_t)length) {
                         merror("Incorrect message size from %s: expecting %u, got %zd", inet_ntoa(peer_info.sin_addr), length, recv_b);
@@ -238,16 +247,20 @@ void HandleSecure()
                     } else {
                         HandleSecureMessage(buffer, recv_b, &peer_info, sock_client);
                     }
+
+                    rprof_loop(w_gettimed() - rprof_recv0);
                 }
             }
         } else {
+            rprof_recv0 = w_gettimed();
             recv_b = recvfrom(logr.sock, buffer, OS_MAXSTR, 0, (struct sockaddr *)&peer_info, &logr.peer_size);
-
+            rprof_recv(w_gettimed() - rprof_recv0);
             /* Nothing received */
             if (recv_b <= 0) {
                 continue;
             } else {
                 HandleSecureMessage(buffer, recv_b, &peer_info, -1);
+                rprof_loop(w_gettimed() - rprof_recv0);
             }
         }
     }
@@ -262,6 +275,10 @@ static void HandleSecureMessage(char *buffer, int recv_b, struct sockaddr_in *pe
     char agname[KEYSIZE + 1];
     char *tmp_msg;
     size_t msg_length;
+    double rprof_send0;
+    double rprof_read0;
+    double rprof_save0;
+    double rprof_handle0 = w_gettimed();
 
     /* Set the source IP */
     strncpy(srcip, inet_ntoa(peer_info->sin_addr), IPSIZE);
@@ -333,7 +350,9 @@ static void HandleSecureMessage(char *buffer, int recv_b, struct sockaddr_in *pe
     }
 
     /* Decrypt the message */
+    rprof_read0 = w_gettimed();
     tmp_msg = ReadSecMSG(&keys, tmp_msg, cleartext_msg, agentid, recv_b - 1, &msg_length, srcip);
+    rprof_read_sec_msg(w_gettimed() - rprof_read0);
 
     if (tmp_msg == NULL) {
 
@@ -360,7 +379,9 @@ static void HandleSecureMessage(char *buffer, int recv_b, struct sockaddr_in *pe
         }
 
         keys.keyentries[agentid]->rcvd = time(0);
+        rprof_save0 = w_gettimed();
         save_controlmsg((unsigned)agentid, tmp_msg, msg_length - 3);
+        rprof_save_control_msg(w_gettimed() - rprof_save0);
 
         return;
     }
@@ -372,6 +393,8 @@ static void HandleSecureMessage(char *buffer, int recv_b, struct sockaddr_in *pe
     /* If we can't send the message, try to connect to the
      * socket again. If it not exit.
      */
+
+    rprof_send0 = w_gettimed();
     if (SendMSG(logr.m_queue, tmp_msg, srcmsg,
                 SECURE_MQ) < 0) {
         merror(QUEUE_ERROR, DEFAULTQUEUE, strerror(errno));
@@ -379,7 +402,11 @@ static void HandleSecureMessage(char *buffer, int recv_b, struct sockaddr_in *pe
         if ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
             merror_exit(QUEUE_FATAL, DEFAULTQUEUE);
         }
+    } else {
+        rprof_send(w_gettimed() - rprof_send0);
     }
+
+    rprof_handle_secure(w_gettimed() - rprof_handle0);
 }
 
 // Close and remove socket from keystore

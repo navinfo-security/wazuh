@@ -48,6 +48,8 @@ void mferror(const char *msg, ... ) __attribute__((format(printf, 1, 2))) __attr
 void mtferror(const char *tag, const char *msg, ...) __attribute__((format(printf, 2, 3))) __attribute__((nonnull));
 void merror_exit(const char *msg, ...) __attribute__((format(printf, 1, 2))) __attribute__((nonnull)) __attribute__ ((noreturn));
 void mterror_exit(const char *tag, const char *msg, ...) __attribute__((format(printf, 2, 3))) __attribute__((nonnull)) __attribute__ ((noreturn));
+void mprofile(const char *msg, ...) __attribute__((format(printf, 1, 2))) __attribute__((nonnull));
+void mtprofile(const char *tag, const char *msg, ...) __attribute__((format(printf, 2, 3))) __attribute__((nonnull));
 
 /* Function to read the logging format configuration */
 void os_logging_config(void);
@@ -57,6 +59,9 @@ void os_logging_config(void);
  */
 void nowDebug(void);
 int isDebug(void);
+
+void nowProfile();
+int isProfile();
 
 void nowChroot(void);
 void nowDaemon(void);

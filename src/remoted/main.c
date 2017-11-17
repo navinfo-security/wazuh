@@ -33,6 +33,7 @@ static void help_remoted()
     print_out("    -c <config> Configuration file to use (default: %s)", DEFAULTCPATH);
     print_out("    -D <dir>    Directory to chroot into (default: %s)", DEFAULTDIR);
     print_out("    -m          Avoid creating shared merged file (read only)");
+    print_out("    -p <sec>    Enable profiling mode and set interval (seconds)");
     print_out(" ");
     exit(1);
 }
@@ -42,6 +43,7 @@ int main(int argc, char **argv)
     int i = 0, c = 0;
     uid_t uid;
     gid_t gid;
+    int rp_interval;
     int debug_level = 0;
     int test_config = 0, run_foreground = 0;
     int nocmerged = 0;
@@ -54,7 +56,7 @@ int main(int argc, char **argv)
     /* Set the name */
     OS_SetName(ARGV0);
 
-    while ((c = getopt(argc, argv, "Vdthfu:g:c:D:m")) != -1) {
+    while ((c = getopt(argc, argv, "Vdthfu:g:c:D:mp:")) != -1) {
         switch (c) {
             case 'V':
                 print_version();
@@ -99,6 +101,11 @@ int main(int argc, char **argv)
             case 'm':
                 nocmerged = 1;
                 break;
+            case 'p':
+                if (rp_interval = optarg ? atoi(optarg) : 60, rp_interval < 1) {
+                    merror_exit("Option %c needs a positive argument.", c);
+                }
+                break;
             default:
                 help_remoted();
                 break;
@@ -115,6 +122,11 @@ int main(int argc, char **argv)
             nowDebug();
             debug_level--;
         }
+    }
+
+    if (rp_interval) {
+        nowProfile();
+        rprof_set_interval(rp_interval);
     }
 
     mdebug1(STARTED_MSG);

@@ -65,6 +65,7 @@ void save_controlmsg(unsigned int agentid, char *r_msg, size_t msg_length)
     FILE * fp;
     mode_t oldmask;
     int is_startup = 0;
+    double rprof_time0;
 
     if (strncmp(r_msg, HC_REQUEST, strlen(HC_REQUEST)) == 0) {
         char * counter = r_msg + strlen(HC_REQUEST);
@@ -140,15 +141,19 @@ void save_controlmsg(unsigned int agentid, char *r_msg, size_t msg_length)
         if (is_startup) {
             w_mutex_unlock(&lastmsg_mutex);
             oldmask = umask(0006);
+            rprof_time0 = w_gettimed();
 
             if (fp = fopen(data->keep_alive, "a"), fp) {
                 fclose(fp);
+                rprof_write_file(w_gettimed() - rprof_time0);
             } else {
                 merror(FOPEN_ERROR, data->keep_alive, errno, strerror(errno));
             }
 
             umask(oldmask);
         } else {
+            rprof_time0 = w_gettimed();
+
             /* Update message */
             mdebug2("save_controlmsg(): inserting '%s'", uname);
             free(data->message);
@@ -170,12 +175,15 @@ void save_controlmsg(unsigned int agentid, char *r_msg, size_t msg_length)
                 }
             }
 
+            rprof_msg_enqueue(w_gettimed() - rprof_time0);
+
             /* Unlock mutex */
             w_mutex_unlock(&lastmsg_mutex);
 
             /* Write uname to the file */
 
             oldmask = umask(0006);
+            rprof_time0 = w_gettimed();
             fp = fopen(data->keep_alive, "w");
             umask(oldmask);
 
@@ -194,6 +202,7 @@ void save_controlmsg(unsigned int agentid, char *r_msg, size_t msg_length)
                 }
 
                 fclose(fp);
+                rprof_write_file(w_gettimed() - rprof_time0);
             } else {
                 merror(FOPEN_ERROR, data->keep_alive, errno, strerror(errno));
             }

@@ -82,6 +82,19 @@ void key_lock_write(void);
 
 void key_unlock(void);
 
+void * rprof_main(void * args);
+
+void rprof_set_interval(int interval);
+int rprof_get_interval();
+void rprof_loop(double t);
+void rprof_recv(double t);
+void rprof_handle_secure(double t);
+void rprof_reload_keys(double t);
+void rprof_read_sec_msg(double t);
+void rprof_save_control_msg(double t);
+void rprof_write_file(double t);
+void rprof_msg_enqueue(double t);
+void rprof_send(double t);
 /** Global variables **/
 
 extern keystore keys;

@@ -17,6 +17,7 @@
 static int dbg_flag = 0;
 static int chroot_flag = 0;
 static int daemon_flag = 0;
+static int profile_flag;
 
 struct{
   unsigned int log_plain:1;
@@ -42,19 +43,21 @@ static void _log(int level, const char *tag, const char *msg, va_list args)
     char *output;
     char logfile[PATH_MAX + 1];
 
-    const char *strlevel[5]={
+    const char *strlevel[]={
       "DEBUG",
       "INFO",
       "WARNING",
       "ERROR",
       "CRITICAL",
+      "PROFILE"
     };
-    const char *strleveljson[5]={
+    const char *strleveljson[]={
       "debug",
       "info",
       "warning",
       "error",
-      "critical"
+      "critical",
+      "profile"
     };
 
     now = time(NULL);
@@ -436,6 +439,29 @@ void mterror_exit(const char *tag, const char *msg, ...)
     exit(1);
 }
 
+void mprofile(const char *msg, ...)
+{
+    if (profile_flag) {
+        va_list args;
+        int level = LOGLEVEL_PROFILE;
+        const char *tag = __local_name;
+        va_start(args, msg);
+        _log(level, tag, msg, args);
+        va_end(args);
+    }
+}
+
+void mtprofile(const char *tag, const char *msg, ...)
+{
+    if (profile_flag) {
+        va_list args;
+        int level = LOGLEVEL_PROFILE;
+        va_start(args, msg);
+        _log(level, tag, msg, args);
+        va_end(args);
+    }
+}
+
 void nowChroot()
 {
     chroot_flag = 1;
@@ -476,4 +502,12 @@ int isDebug(void)
 int isChroot()
 {
     return (chroot_flag);
+}
+
+void nowProfile() {
+    profile_flag = 1;
+}
+
+int isProfile() {
+    return profile_flag;
 }

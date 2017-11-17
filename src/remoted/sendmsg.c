@@ -35,6 +35,7 @@ void key_unlock()
 int check_keyupdate()
 {
     int retval = 0;
+    double rp_time0;
 
     /* Check key for updates */
     if (!OS_CheckUpdateKeys(&keys)) {
@@ -43,9 +44,11 @@ int check_keyupdate()
 
     key_lock_write();
 
+    rp_time0 = w_gettimed();
     if (OS_UpdateKeys(&keys)) {
         retval = 1;
     }
+    rprof_reload_keys(w_gettimed() - rp_time0);
 
     key_unlock();
     return retval;
