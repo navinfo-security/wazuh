@@ -16,10 +16,9 @@
 
 #include <time.h>
 
-void gettime(struct timespec *ts);
+void w_gettime(struct timespec *ts);
 
-// Computes a -= b
-void time_sub(struct timespec * a, const struct timespec * b);
+double w_gettimed();
 
 #endif // WIN32
 #endif // TIME_OP_H

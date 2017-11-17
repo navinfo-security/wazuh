@@ -237,7 +237,7 @@ int wm_exec(char *command, char **output, int *exitcode, int secs)
             return -1;
         }
 
-        gettime(&timeout);
+        w_gettime(&timeout);
         timeout.tv_sec += secs;
 
         // Wait for reading termination

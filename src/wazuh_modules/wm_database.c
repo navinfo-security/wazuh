@@ -143,13 +143,13 @@ void* wm_database_main(wm_database *data) {
         time_t tsleep;
         time_t tstart;
         clock_t cstart;
-        struct timespec spec0;
-        struct timespec spec1;
+        double time0;
+        double time1;
 
         while (1) {
             tstart = time(NULL);
             cstart = clock();
-            gettime(&spec0);
+            time0 = w_gettimed();
 
 #ifndef LOCAL
             if (data->sync_agents) {
@@ -166,9 +166,8 @@ void* wm_database_main(wm_database *data) {
                 wm_scan_directory(DEFAULTDIR ROOTCHECK_DIR);
             }
 
-            gettime(&spec1);
-            time_sub(&spec1, &spec0);
-            mtdebug1(WM_DATABASE_LOGTAG, "Cycle completed: %.3lf ms (%.3f clock ms).", spec1.tv_sec * 1000 + spec1.tv_nsec / 1000000.0, (double)(clock() - cstart) / CLOCKS_PER_SEC * 1000);
+            time1 = w_gettimed();
+            mtdebug1(WM_DATABASE_LOGTAG, "Cycle completed: %.3lf ms (%.3f clock ms).", (time1 - time0) * 1000, (double)(clock() - cstart) / CLOCKS_PER_SEC * 1000);
 
             if (tsleep = tstart + data->interval - time(NULL), tsleep >= 0) {
                 sleep(tsleep);
@@ -308,11 +307,11 @@ void wm_sync_agents() {
     keyentry *entry;
     int *agents;
     clock_t clock0 = clock();
-    struct timespec spec0;
-    struct timespec spec1;
+    double time0;
+    double time1;
     struct stat buffer;
 
-    gettime(&spec0);
+    time0 = w_gettimed();
 
     mtdebug1(WM_DATABASE_LOGTAG, "Synchronizing agents.");
     OS_PassEmptyKeyfile();
@@ -376,9 +375,8 @@ void wm_sync_agents() {
 
     OS_FreeKeys(&keys);
     mtdebug1(WM_DATABASE_LOGTAG, "Agent sync completed.");
-    gettime(&spec1);
-    time_sub(&spec1, &spec0);
-    mtdebug1(WM_DATABASE_LOGTAG, "wm_sync_agents(): %.3f ms (%.3f clock ms).", spec1.tv_sec * 1000 + spec1.tv_nsec / 1000000.0, (double)(clock() - clock0) / CLOCKS_PER_SEC * 1000);
+    time1 = w_gettimed();
+    mtdebug1(WM_DATABASE_LOGTAG, "wm_sync_agents(): %.3f ms (%.3f clock ms).", (time1 - time0) * 1000, (double)(clock() - clock0) / CLOCKS_PER_SEC * 1000);
 }
 
 #endif // LOCAL

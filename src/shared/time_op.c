@@ -17,7 +17,7 @@
 #include <mach/mach.h>
 #endif
 
-void gettime(struct timespec *ts) {
+void w_gettime(struct timespec *ts) {
 #ifdef __MACH__
     clock_serv_t cclock;
     mach_timespec_t mts;
@@ -31,15 +31,10 @@ void gettime(struct timespec *ts) {
 #endif
 }
 
-// Computes a -= b
-void time_sub(struct timespec * a, const struct timespec * b) {
-    a->tv_sec -= b->tv_sec;
-    a->tv_nsec -= b->tv_nsec;
-
-    if (a->tv_nsec < 0) {
-        a->tv_nsec += 1000000000;
-        a->tv_sec--;
-    }
+double w_gettimed() {
+    struct timespec ts;
+    w_gettime(&ts);
+    return ts.tv_sec + ts.tv_nsec / 1000000000.0;
 }
 
 #endif // WIN32
