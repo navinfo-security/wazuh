@@ -34,7 +34,7 @@ void HandleSecure()
     ssize_t recv_b;
     uint32_t length;
     struct sockaddr_in peer_info;
-    double rprof_recv0;
+    double rprof_recv0 = 0;
 
 #if defined(__MACH__) || defined(__FreeBSD__) || defined(__OpenBSD__)
     const struct timespec TS_ZERO = { 0, 0 };
@@ -236,7 +236,7 @@ void HandleSecure()
                     rprof_recv(w_gettimed() - rprof_recv0);
 
                     if (recv_b != (ssize_t)length) {
-                        merror("Incorrect message size from %s: expecting %u, got %zd", inet_ntoa(peer_info.sin_addr), length, recv_b);
+                        mdebug1("Incorrect message size from %s: expecting %u, got %zd. Maybe agent disconnected?", inet_ntoa(peer_info.sin_addr), length, recv_b);
 #ifdef __linux__
                         request.data.fd = sock_client;
                         if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, sock_client, &request) < 0) {
@@ -252,7 +252,25 @@ void HandleSecure()
                 }
             }
         } else {
-            rprof_recv0 = w_gettimed();
+            if (isProfile()) {
+                // Wait for available event before calling recvfrom()
+
+                fd_set fdset;
+
+                FD_ZERO(&fdset);
+                FD_SET(logr.sock, &fdset);
+
+                switch (select(logr.sock + 1, &fdset, NULL, NULL, NULL)) {
+                case -1:
+                    merror_exit(SELECT_ERROR, errno, strerror(errno));
+                    break;
+                case 0:
+                    continue;
+                default:
+                    rprof_recv0 = w_gettimed();
+                }
+            }
+
             recv_b = recvfrom(logr.sock, buffer, OS_MAXSTR, 0, (struct sockaddr *)&peer_info, &logr.peer_size);
             rprof_recv(w_gettimed() - rprof_recv0);
             /* Nothing received */
