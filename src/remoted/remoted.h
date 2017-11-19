@@ -88,6 +88,8 @@ void rprof_set_interval(int interval);
 int rprof_get_interval();
 void rprof_loop(double t);
 void rprof_recv(double t);
+void rprof_recv_tcp1(double t);
+void rprof_recv_tcp2(double t);
 void rprof_handle_secure(double t);
 void rprof_reload_keys(double t);
 void rprof_read_sec_msg(double t);

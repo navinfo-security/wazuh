@@ -16,6 +16,8 @@ static int rp_interval;
 
 static double rp_loop_tm;
 static double rp_recv_tm;
+static double rp_recv_tcp1_tm;
+static double rp_recv_tcp2_tm;
 static double rp_handle_secure_tm;
 static double rp_reload_keys_tm;
 static double rp_read_sec_msg_tm;
@@ -26,6 +28,8 @@ static double rp_send_tm;
 
 static int rp_loop_c;
 static int rp_recv_c;
+static int rp_recv_tcp1_c;
+static int rp_recv_tcp2_c;
 static int rp_handle_secure_c;
 static int rp_reload_keys_c;
 static int rp_read_sec_msg_c;
@@ -38,6 +42,8 @@ static const char * REPORT_STR = "Last %d seconds:\n\
                                  accum   count         average\n\
     loop:              %12.3f ms%8d%12.3f ms/\n\
     recv():            %12.3f ms%8d%12.3f ms/\n\
+    recv_tcp1():       %12.3f ms%8d%12.3f ms/\n\
+    recv_tcp2():       %12.3f ms%8d%12.3f ms/\n\
     handle_secure():   %12.3f ms%8d%12.3f ms/\n\
     reload_keys():     %12.3f ms%8d%12.3f ms/\n\
     read_sec_msg():    %12.3f ms%8d%12.3f ms/\n\
@@ -49,6 +55,8 @@ static const char * REPORT_STR = "Last %d seconds:\n\
 void * rprof_main(__attribute__((unused)) void * args) {
     double _rp_loop_tm;
     double _rp_recv_tm;
+    double _rp_recv_tcp1_tm;
+    double _rp_recv_tcp2_tm;
     double _rp_handle_secure_tm;
     double _rp_reload_keys_tm;
     double _rp_read_sec_msg_tm;
@@ -59,6 +67,8 @@ void * rprof_main(__attribute__((unused)) void * args) {
 
     int _rp_loop_c;
     int _rp_recv_c;
+    int _rp_recv_tcp1_c;
+    int _rp_recv_tcp2_c;
     int _rp_handle_secure_c;
     int _rp_reload_keys_c;
     int _rp_read_sec_msg_c;
@@ -74,6 +84,10 @@ void * rprof_main(__attribute__((unused)) void * args) {
         rp_loop_tm = 0;
         _rp_recv_tm = rp_recv_tm * 1000;
         rp_recv_tm = 0;
+        _rp_recv_tcp1_tm = rp_recv_tcp1_tm * 1000;
+        rp_recv_tcp1_tm = 0;
+        _rp_recv_tcp2_tm = rp_recv_tcp2_tm * 1000;
+        rp_recv_tcp2_tm = 0;
         _rp_handle_secure_tm = rp_handle_secure_tm * 1000;
         rp_handle_secure_tm = 0;
         _rp_reload_keys_tm = rp_reload_keys_tm * 1000;
@@ -93,6 +107,10 @@ void * rprof_main(__attribute__((unused)) void * args) {
         rp_loop_c = 0;
         _rp_recv_c = rp_recv_c;
         rp_recv_c = 0;
+        _rp_recv_tcp1_c = rp_recv_tcp1_c;
+        rp_recv_tcp1_c = 0;
+        _rp_recv_tcp2_c = rp_recv_tcp2_c;
+        rp_recv_tcp2_c = 0;
         _rp_handle_secure_c = rp_handle_secure_c;
         rp_handle_secure_c = 0;
         _rp_reload_keys_c = rp_reload_keys_c;
@@ -111,6 +129,8 @@ void * rprof_main(__attribute__((unused)) void * args) {
         mprofile(REPORT_STR, rp_interval,
             RP_VAL(_rp_loop_tm, _rp_loop_c),
             RP_VAL(_rp_recv_tm, _rp_recv_c),
+            RP_VAL(_rp_recv_tcp1_tm, _rp_recv_tcp1_c),
+            RP_VAL(_rp_recv_tcp2_tm, _rp_recv_tcp2_c),
             RP_VAL(_rp_handle_secure_tm, _rp_handle_secure_c),
             RP_VAL(_rp_reload_keys_tm, _rp_reload_keys_c),
             RP_VAL(_rp_read_sec_msg_tm, _rp_read_sec_msg_c),
@@ -139,6 +159,16 @@ void rprof_loop(double t) {
 void rprof_recv(double t) {
     rp_recv_tm += t;
     rp_recv_c++;
+}
+
+void rprof_recv_tcp1(double t) {
+    rp_recv_tcp1_tm += t;
+    rp_recv_tcp1_c++;
+}
+
+void rprof_recv_tcp2(double t) {
+    rp_recv_tcp2_tm += t;
+    rp_recv_tcp2_c++;
 }
 
 void rprof_handle_secure(double t) {

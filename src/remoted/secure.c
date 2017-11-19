@@ -183,6 +183,7 @@ void HandleSecure()
                     sock_client = fd;
                     rprof_recv0 = w_gettimed();
                     recv_b = recv(sock_client, (char*)&length, sizeof(length), MSG_WAITALL);
+                    rprof_recv_tcp1(w_gettimed() - rprof_recv0);
                     length = wnet_order(length);
 
                     if (getpeername(sock_client, (struct sockaddr *)&peer_info, &logr.peer_size) < 0) {
@@ -232,8 +233,11 @@ void HandleSecure()
                         continue;
                     }
 
+                    double rprof_tcp2 = w_gettimed();
                     recv_b = recv(sock_client, buffer, length, MSG_WAITALL);
-                    rprof_recv(w_gettimed() - rprof_recv0);
+                    double rprof_recv1 = w_gettimed();
+                    rprof_recv_tcp2(rprof_recv1 - rprof_tcp2);
+                    rprof_recv(rprof_recv1 - rprof_recv0);
 
                     if (recv_b != (ssize_t)length) {
                         mdebug1("Incorrect message size from %s: expecting %u, got %zd. Maybe agent disconnected?", inet_ntoa(peer_info.sin_addr), length, recv_b);
