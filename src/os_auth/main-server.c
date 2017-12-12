@@ -627,7 +627,7 @@ void* run_dispatcher(__attribute__((unused)) void *arg) {
     memset(srcip, '\0', IPSIZE + 1);
 
     OS_PassEmptyKeyfile();
-    OS_ReadKeys(&keys, 0, !config.flags.clear_removed, 1);
+    OS_ReadKeys(&keys, 0, !config.flags.clear_removed);
     mdebug1("Dispatch thread ready");
 
     while (running) {

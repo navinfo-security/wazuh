@@ -71,7 +71,7 @@ char *chomp(char *str)
     return (str);
 }
 
-int add_agent(int json_output, int no_limit)
+int add_agent(int json_output)
 {
     int i = 1;
     FILE *fp;
@@ -307,9 +307,8 @@ int add_agent(int json_output, int no_limit)
         /* If user accepts to add */
         if (user_input[0] == 'y' || user_input[0] == 'Y') {
             if (sock < 0) {
-                if ( !no_limit && limitReached() ) {
-                    merror(AG_MAX_ERROR, MAX_AGENTS - 2);
-                    merror_exit(CONFIG_ERROR, KEYS_FILE);
+                if (limitReached() ) {
+                    mwarn(AG_MAX_ERROR, MAX_AGENTS);
                 }
 
                 time3 = time(0);
@@ -616,8 +615,5 @@ int limitReached() {
     fclose(fp);
 
     /* Check for maximum agent size */
-    if ( counter >= (MAX_AGENTS - 2) )
-        return 1;
-    return 0;
-
+    return counter >= MAX_AGENTS;
 }

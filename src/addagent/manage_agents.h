@@ -21,7 +21,7 @@ char *encode_base64(int size, char *src);
 char *read_from_user(void);
 
 /* Add or remove an agent */
-int add_agent(int json_output, int no_limit);
+int add_agent(int json_output);
 int remove_agent(int json_output);
 
 /* Extract or import a key */

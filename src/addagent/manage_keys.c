@@ -399,14 +399,14 @@ int k_bulkload(const char *cmdbulk)
 
         if (sock < 0) {
             /* Default ID */
-            i = MAX_AGENTS + 32512;
+            i = 1;
             snprintf(id, 8, "%03d", i);
-            while (sock < 0 && !IDExist(id, 0)) {
-                i--;
+            while (IDExist(id, 0)) {
+                i++;
                 snprintf(id, 8, "%03d", i);
 
-                /* No key present, use id 0 */
-                if (i <= 0) {
+                /* Exceed from 99.999.999 (8-digit numbers) */
+                if (i >= 100000000) {
                     i = 0;
                     break;
                 }
