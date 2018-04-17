@@ -658,11 +658,13 @@ InstallCommon(){
 
     if [ ${NUNAME} = 'Darwin' ]
     then
+        ${INSTALL} -m 0750 -o root -g 0 libwazuh.dylib ${PREFIX}/lib
         ${INSTALL} -m 0750 -o root -g 0 ${EXTERNAL_JSON}libcjson.dylib ${PREFIX}/lib
         ${INSTALL} -m 0750 -o root -g 0 ${EXTERNAL_SSL}libssl.1.1.dylib ${PREFIX}/lib
         ${INSTALL} -m 0750 -o root -g 0 ${EXTERNAL_SSL}libcrypto.1.1.dylib ${PREFIX}/lib
         ${INSTALL} -m 0750 -o root -g 0 ${EXTERNAL_ZLIB}libz.1.dylib ${PREFIX}/lib
     else
+        ${INSTALL} -m 0750 -o root -g 0 libwazuh.so ${PREFIX}/lib
         ${INSTALL} -m 0750 -o root -g 0 ${EXTERNAL_JSON}libcjson.so ${PREFIX}/lib
         ${INSTALL} -m 0750 -o root -g 0 ${EXTERNAL_SSL}libssl.so.1.1 ${PREFIX}/lib
         ${INSTALL} -m 0750 -o root -g 0 ${EXTERNAL_SSL}libcrypto.so.1.1 ${PREFIX}/lib

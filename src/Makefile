@@ -612,7 +612,7 @@ sqlite_c = ${EXTERNAL_SQLITE}sqlite3.c
 sqlite_o = ${EXTERNAL_SQLITE}sqlite3.o
 
 $(SQLITE_LIB): $(sqlite_o)
-	${OSSEC_SHARED} ${OSSEC_CFLAGS} $(SQLITE_SHFLAGS) -o $@ $^
+	${OSSEC_SHARED} $(SQLITE_SHFLAGS) -o $@ $^
 
 $(sqlite_o): $(sqlite_c)
 	${OSSEC_CC} ${OSSEC_CFLAGS} -w -fPIC -c $^ -o $@ -fPIC
@@ -627,7 +627,7 @@ cjson_c := ${EXTERNAL_JSON}cJSON.c
 cjson_o := $(cjson_c:.c=.o)
 
 $(JSON_LIB): ${cjson_o}
-	${OSSEC_SHARED} ${OSSEC_CFLAGS} $(JSON_SHFLAGS) -o $@ $^
+	${OSSEC_SHARED} $(JSON_SHFLAGS) -o $@ $^
 
 ${EXTERNAL_JSON}%.o: ${EXTERNAL_JSON}%.c
 	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $^ -o $@
@@ -671,7 +671,7 @@ ${EXTERNAL_PROCPS}%.o: ${EXTERNAL_PROCPS}%.c
 	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $^ -o $@
 
 $(PROCPS_LIB): ${procps_o}
-	${OSSEC_SHARED} ${OSSEC_CFLAGS} -o $@ $^
+	${OSSEC_SHARED} -o $@ $^
 
 #### Berkeley DB ######
 
@@ -709,7 +709,7 @@ external/%.tar.gz:
 #### OSSEC Libs ####
 ####################
 
-BUILD_LIBS = libwazuh.a
+BUILD_LIBS = libwazuh.$(SHARED)
 
 $(BUILD_SERVER) $(BUILD_AGENT) $(WINDOWS_BINS): $(BUILD_LIBS)
 
@@ -719,7 +719,7 @@ os_xml_c := $(wildcard os_xml/*.c)
 os_xml_o := $(os_xml_c:.c=.o)
 
 os_xml/%.o: os_xml/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -c $^ -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $^ -o $@
 
 #### os_regex ######
 
@@ -727,7 +727,7 @@ os_regex_c := $(wildcard os_regex/*.c)
 os_regex_o := $(os_regex_c:.c=.o)
 
 os_regex/%.o: os_regex/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -c $^ -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $^ -o $@
 
 #### os_net ##########
 
@@ -735,7 +735,7 @@ os_net_c := $(wildcard os_net/*.c)
 os_net_o := $(os_net_c:.c=.o)
 
 os_net/%.o: os_net/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -c $^ -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $^ -o $@
 
 #### Shared ##########
 
@@ -743,7 +743,7 @@ shared_c := $(wildcard shared/*.c)
 shared_o := $(shared_c:.c=.o)
 
 shared/%.o: shared/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -DARGV0=\"ossec-remoted\" -c $^ -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -DARGV0=\"ossec-remoted\" -c $^ -o $@
 
 #### Wazuh DB ####
 
@@ -756,7 +756,7 @@ wazuh_db/schema_%.o: wazuh_db/schema_%.sql
 	${QUIET_CC}echo 'const char *'$(word 2, $(subst /, ,$(subst .,_,$<))) '= "'"`cat $< | tr -d \"\n\"`"'";' | ${MING_BASE}${CC} ${OSSEC_CFLAGS} -xc -c -o $@ -
 
 wazuh_db/%.o: wazuh_db/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -DARGV0=\"wazuh-db\" -c $^ -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -DARGV0=\"wazuh-db\" -c $^ -o $@
 
 wazuh-db: ${wdb_o}
 	${OSSEC_CCBIN} ${OSSEC_LDFLAGS} $^ ${OSSEC_LIBS} -o $@
@@ -767,7 +767,7 @@ config_c := $(wildcard config/*.c)
 config_o := $(config_c:.c=.o)
 
 config/%.o: config/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -c $^ -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $^ -o $@
 
 #### Wazuh modules ##
 
@@ -784,7 +784,7 @@ endif
 wmodules_o := $(wmodules_c:.c=.o)
 
 wazuh_modules/%.o: wazuh_modules/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -c $^ -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $^ -o $@
 
 ifeq (${TARGET},winagent)
 wazuh_modules/syscollector/syscollector_win_ext.dll: wazuh_modules/syscollector/syscollector_win_ext.o
@@ -793,7 +793,7 @@ endif # DLL for Windows
 
 ifndef DISABLE_SYSC
 wazuh_modules/syscollector/%.o: wazuh_modules/syscollector/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -c $^ -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $^ -o $@
 endif
 
 wmodules_dep := ${wmodules_o} ${wdblib_o}
@@ -808,61 +808,61 @@ crypto_blowfish_c := os_crypto/blowfish/bf_op.c
 crypto_blowfish_o := $(crypto_blowfish_c:.c=.o)
 
 os_crypto/blowfish/%.o: os_crypto/blowfish/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -c $^ -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $^ -o $@
 
 crypto_md5_c := os_crypto/md5/md5_op.c
 crypto_md5_o := $(crypto_md5_c:.c=.o)
 
 os_crypto/md5/%.o: os_crypto/md5/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -c $^ -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $^ -o $@
 
 crypto_sha1_c := os_crypto/sha1/sha1_op.c
 crypto_sha1_o := $(crypto_sha1_c:.c=.o)
 
 os_crypto/sha1/%.o: os_crypto/sha1/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -c $^ -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $^ -o $@
 
 crypto_sha256_c := os_crypto/sha256/sha256_op.c
 crypto_sha256_o := $(crypto_sha256_c:.c=.o)
 
 os_crypto/sha256/%.o: os_crypto/sha256/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -c $^ -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $^ -o $@
 
 crypto_aes_c := os_crypto/aes/aes_op.c
 crypto_aes_o := $(crypto_aes_c:.c=.o)
 
 os_crypto/aes/%.o: os_crypto/aes/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -c $^ -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $^ -o $@
 
 crypto_md5_sha1_c := os_crypto/md5_sha1/md5_sha1_op.c
 crypto_md5_sha1_o := $(crypto_md5_sha1_c:.c=.o)
 
 os_crypto/md5_sha1/%.o: os_crypto/md5_sha1/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -c $^ -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $^ -o $@
 
 crypto_md5_sha1_sha256_c := os_crypto/md5_sha1_sha256/md5_sha1_sha256_op.c
 crypto_md5_sha1_sha256_o := $(crypto_md5_sha1_sha256_c:.c=.o)
 
 os_crypto/md5_sha1_sha256/%.o: os_crypto/md5_sha1_sha256/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -c $^ -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $^ -o $@
 
 crypto_hmac_c := os_crypto/hmac/hmac.c
 crypto_hmac_o := $(crypto_hmac_c:.c=.o)
 
 os_crypto/hmac/%.o: os_crypto/hmac/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -c $^ -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $^ -o $@
 
 crypto_shared_c := $(wildcard os_crypto/shared/*.c)
 crypto_shared_o := $(crypto_shared_c:.c=.o)
 
 os_crypto/shared/%.o: os_crypto/shared/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -c $< -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $< -o $@
 
 crypto_signature_c := $(wildcard os_crypto/signature/*.c)
 crypto_signature_o := $(crypto_signature_c:.c=.o)
 
 os_crypto/signature/%.o: os_crypto/signature/%.c
-	${OSSEC_CC} ${OSSEC_CFLAGS} -c $< -o $@
+	${OSSEC_CC} ${OSSEC_CFLAGS} -fPIC -c $< -o $@
 
 
 crypto_o := ${crypto_blowfish_o} \
@@ -878,9 +878,8 @@ crypto_o := ${crypto_blowfish_o} \
 
 #### libwazuh #########
 
-libwazuh.a: ${config_o} ${wmodules_dep} ${crypto_o} ${shared_o} ${os_net_o} ${os_regex_o} ${os_xml_o} ${os_zlib_o}
-	${OSSEC_LINK} $@ $^
-	${OSSEC_RANLIB} $@
+$(BUILD_LIBS): ${config_o} ${wmodules_dep} ${crypto_o} ${shared_o} ${os_net_o} ${os_regex_o} ${os_xml_o} ${os_zlib_o}
+	${OSSEC_SHARED} -o $@ $^ -lcrypto
 
 #### os_mail #########
 
