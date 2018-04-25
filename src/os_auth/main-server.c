@@ -995,6 +995,14 @@ void* run_writer(__attribute__((unused)) void *arg) {
             if(cur->group){
                 if(set_agent_group(cur->id,cur->group) == -1){
                     merror("Unable to set agent centralized group: %s (internal error)", cur->group);
+                } else {
+                    mdebug1("Agent '%s' assigned to group '%s'", cur->id, cur->group);
+                }
+            } else {
+                if (set_agent_group(cur->id, DEFAULT_CENTRALIZED_GROUP) == -1) {
+                    merror("Unable to set agent centralized group: %s (internal error)", DEFAULT_CENTRALIZED_GROUP);
+                } else {
+                    mdebug1("Agent '%s' assigned to group '%s'", cur->id, DEFAULT_CENTRALIZED_GROUP);
                 }
             }
 
