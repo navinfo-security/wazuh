@@ -10,6 +10,8 @@ import time
 import os
 import shutil
 import ast
+from operator import itemgetter
+import errno
 
 from wazuh.cluster.cluster import get_cluster_items, _update_file, get_files_status, compress_files, decompress_files, get_files_status, get_cluster_items_client_intervals, unmerge_agent_info
 from wazuh.exception import WazuhException
@@ -141,8 +143,23 @@ class ClientManagerHandler(ClientHandler):
             for file_to_remove in wrong_files['extra']:
                 logger.debug2("{0}: Remove file: '{1}'".format(tag, file_to_remove))
                 file_path = common.ossec_path + file_to_remove
-                os.remove(file_path)
+                try:
+                    os.remove(file_path)
+                except OSError as e:
+                    if e.errno == errno.ENOENT and '/queue/agent-groups/' in file_path:
+                        logger.debug2("File {} doesn't exists.".format(file_to_remove))
+                        continue
+                    else:
+                        raise e
 
+            directories_to_check = {os.path.dirname(f): cluster_items[data\
+                                    ['cluster_item_key']]['remove_subdirs_if_empty']
+                                    for f, data in wrong_files['extra'].items()}
+            for directory in map(itemgetter(0), filter(lambda x: x[1], directories_to_check.items())):
+                full_path = common.ossec_path + directory
+                dir_files = set(os.listdir(full_path))
+                if not dir_files or dir_files.issubset(set(cluster_items['excluded_files'])):
+                    shutil.rmtree(full_path)
 
         return True
 
@@ -260,7 +277,6 @@ class ClientProcessMasterFiles(ProcessFiles):
     def __init__(self, manager_handler, filename, stopper):
         ProcessFiles.__init__(self, manager_handler, filename, manager_handler.name, stopper)
         self.thread_tag = "[Client] [Integrity-R]"
-        self.status_type = "sync_agent"
 
 
     def check_connection(self):
@@ -285,6 +301,12 @@ class ClientProcessMasterFiles(ProcessFiles):
 
     def process_file(self):
         return self.manager_handler.process_files_from_master(self.filename, self.thread_tag)
+
+
+    def unlock_and_stop(self, reason, send_err_request=None):
+        logger.info("{0}: Unlocking due to {1}.".format(self.thread_tag, reason))
+        ProcessFiles.unlock_and_stop(self, reason, send_err_request)
+
 
 #
 # Client
