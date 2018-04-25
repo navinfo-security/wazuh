@@ -497,6 +497,9 @@ static void read_controlmsg(const char *agent_id, char *msg)
 
     mdebug2("read_controlmsg(): reading '%s'", msg);
 
+    // Assign agent to the default group if it is not assigned
+    const int assign = getDefine_Int("remoted", "assign_groups", 0, 1);
+
     // Skip agent-info and label data
 
     if (msg = strchr(msg, '\n'), !msg) {
@@ -575,7 +578,14 @@ static void read_controlmsg(const char *agent_id, char *msg)
                 }
             }
 
-            set_agent_group(agent_id, group);
+            if (assign) {
+                set_agent_group(agent_id, group);
+            } else {
+                /* Unlock mutex */
+                w_mutex_unlock(&files_mutex);
+                mwarn("Waiting for shared files to known which group belongs agent '%s'", agent_id);
+                return;
+            }
         }
 
         /* New agents only have merged.mg */
