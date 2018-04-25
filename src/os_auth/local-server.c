@@ -308,6 +308,13 @@ cJSON* local_add(const char *id, const char *name, const char *ip, const char *k
         goto fail;
     }
 
+    // Set agent to group 'default'
+    if(set_agent_group(id, DEFAULT_CENTRALIZED_GROUP) == -1){
+        merror("Unable to set agent centralized group: %s (internal error)", DEFAULT_CENTRALIZED_GROUP);
+    } else {
+        mdebug1("Agent '%s' assigned to group '%s'", id, DEFAULT_CENTRALIZED_GROUP);
+    }
+
     /* Add pending key to write */
     add_insert(keys.keyentries[index],NULL);
     write_pending = 1;
