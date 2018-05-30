@@ -64,6 +64,7 @@ typedef struct __sdb {
 
 /* File sum structure */
 typedef struct sk_sum_t {
+    long changes;
     char *size;
     int perm;
     char *uid;
