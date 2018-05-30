@@ -25,10 +25,10 @@ static const char *SQL_BEGIN = "BEGIN;";
 static const char *SQL_COMMIT = "COMMIT;";
 static const char *SQL_INSERT_METADATA = "INSERT INTO metadata (key, value) VALUES ('version_major', ?), ('version_minor', ?);";
 static const char * SQL_STMT[] = {
-    "SELECT changes, size, perm, uid, gid, md5, sha1, uname, gname, mtime, inode FROM fim_entry WHERE file = ?;",
+    "SELECT changes, size, perm, uid, gid, md5, sha1, sha256, uname, gname, mtime, inode FROM fim_entry WHERE file = ?;",
     "SELECT 1 FROM fim_entry WHERE file = ?",
-    "INSERT INTO fim_entry (file, type, size, perm, uid, gid, md5, sha1, uname, gname, mtime, inode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
-    "UPDATE fim_entry SET date = strftime('%s', 'now'), changes = changes + 1, size = ?, perm = ?, uid = ?, gid = ?, md5 = ?, sha1 = ?, uname = ?, gname = ?, mtime = ?, inode = ? WHERE file = ?;",
+    "INSERT INTO fim_entry (file, type, date, changes, size, perm, uid, gid, md5, sha1, sha256, uname, gname, mtime, inode) VALUES (?, ?, strftime('%s', 'now'), 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+    "UPDATE fim_entry SET date = strftime('%s', 'now'), changes = ?, size = ?, perm = ?,uid = ?, gid = ?, md5 = ?, sha1 = ?, sha256 = ?, uname = ?, gname = ?, mtime = ?, inode = ? WHERE file = ?;",
     "INSERT INTO sys_osinfo (scan_id, scan_time, hostname, architecture, os_name, os_version, os_codename, os_major, os_minor, os_build, os_platform, sysname, release, version) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
     "DELETE FROM sys_osinfo;",
     "INSERT INTO sys_programs (scan_id, scan_time, format, name, priority, section, size, vendor, install_time, version, architecture, multiarch, source, description, location, triaged) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
@@ -45,7 +45,8 @@ static const char * SQL_STMT[] = {
     "INSERT INTO sys_netaddr (id, scan_id, proto, address, netmask, broadcast) VALUES (?, ?, ?, ?, ?, ?);",
     "DELETE FROM sys_netiface WHERE scan_id != ?;",
     "DELETE FROM sys_netproto WHERE scan_id != ?;",
-    "DELETE FROM sys_netaddr WHERE scan_id != ?;"
+    "DELETE FROM sys_netaddr WHERE scan_id != ?;",
+    "UPDATE fim_entry set date = strftime('%s', 'now'), changes = -1 WHERE file = ?"
 };
 
 sqlite3 *wdb_global = NULL;
@@ -196,7 +197,7 @@ int wdb_create_agent_db2(const char * agent_id) {
     snprintf(path, OS_FLSIZE, "%s/%s", WDB2_DIR, WDB_PROF_NAME);
 
     if (!(source = fopen(path, "r"))) {
-        mdebug1("Profile database not found, creating.");
+        mdebug1("Profile database not found, creating:'%s'.", path);
 
         if (wdb_create_profile(path) < 0)
             return -1;

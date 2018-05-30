@@ -277,7 +277,7 @@ int wdb_parse_syscheck(wdb_t * wdb, char * input, char * output) {
     *next++ = '\0';
 
     if (strcmp(curr, "load") == 0) {
-        if (result = wdb_syscheck_load(wdb, next, buffer, sizeof(buffer)), result < 0) {
+        if (result = wdb_fim_load(wdb, next, buffer, sizeof(buffer)), result < 0) {
             mdebug1("Cannot load Syscheck.");
             snprintf(output, OS_MAXSTR + 1, "err Cannot load Syscheck");
         } else {
@@ -285,6 +285,27 @@ int wdb_parse_syscheck(wdb_t * wdb, char * input, char * output) {
         }
 
         return result;
+    } else if (strcmp(curr, "delete") == 0) {
+        curr = next;
+
+        if (next = strchr(curr, ' '), !next) {
+            mdebug1("Invalid Syscheck query syntax.");
+            mdebug2("Syscheck query: %s", curr);
+            snprintf(output, OS_MAXSTR + 1, "err Invalid Syscheck query syntax, near '%.32s'", curr);
+            return -1;
+        }
+
+        *next++ = '\0';
+
+        if (result = wdb_fim_delete_entry(wdb, next), result < 0) {
+            mdebug1("Cannot save Syscheck.");
+            snprintf(output, OS_MAXSTR + 1, "err Cannot save Syscheck");
+        } else {
+            snprintf(output, OS_MAXSTR + 1, "ok");
+        }
+
+        return result;
+
     } else if (strcmp(curr, "save") == 0) {
         curr = next;
 
@@ -319,7 +340,7 @@ int wdb_parse_syscheck(wdb_t * wdb, char * input, char * output) {
 
         *next++ = '\0';
 
-        if (result = wdb_syscheck_save(wdb, ftype, checksum, next), result < 0) {
+        if (result = wdb_fim_save(wdb, ftype, checksum, next), result < 0) {
             mdebug1("Cannot save Syscheck.");
             snprintf(output, OS_MAXSTR + 1, "err Cannot save Syscheck");
         } else {

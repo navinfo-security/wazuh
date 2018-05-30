@@ -48,11 +48,15 @@ CREATE TABLE IF NOT EXISTS fim_entry (
     gid TEXT,
     md5 TEXT,
     sha1 TEXT,
+    sha256 TEXT,
     uname TEXT,
     gname TEXT,
     mtime INTEGER,
-    inode TEXT
+    inode INTEGER
 );
+
+CREATE INDEX IF NOT EXISTS fim_entry_file ON fim_entry (file);
+CREATE INDEX IF NOT EXISTS fim_event_type ON fim_entry (type);
 
 CREATE TABLE IF NOT EXISTS pm_event (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

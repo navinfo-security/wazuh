@@ -61,7 +61,8 @@ typedef enum wdb_stmt {
     WDB_STMT_NETINFO_DEL,
     WDB_STMT_PROTO_DEL,
     WDB_STMT_ADDR_DEL,
-    WDB_STMT_SIZE
+    WDB_STMT_SIZE,
+    WDB_STMT_FIM_DELETE_ENTRY
 } wdb_stmt;
 
 typedef struct wdb_t {
@@ -133,9 +134,11 @@ int wdb_get_last_fim(sqlite3 *db, const char *path, int type);
 /* Insert FIM entry. Returns ID, or -1 on error. */
 int wdb_insert_fim(sqlite3 *db, int type, long timestamp, const char *f_name, const char *event, const sk_sum_t *sum);
 
-int wdb_syscheck_load(wdb_t * wdb, const char * file, char * output, size_t size);
+int wdb_fim_load(wdb_t * wdb, const char * file, char * output, size_t size);
 
-int wdb_syscheck_save(wdb_t * wdb, int ftype, char * checksum, const char * file);
+int wdb_fim_save(wdb_t * wdb, int ftype, char * checksum, const char * file);
+
+int wdb_fim_delete_entry(wdb_t * wdb, const char * file);
 
 // Find file entry: returns 1 if found, 0 if not, or -1 on error.
 int wdb_fim_find_entry(wdb_t * wdb, const char * path);
