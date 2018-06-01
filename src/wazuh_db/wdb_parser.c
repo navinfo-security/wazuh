@@ -298,8 +298,8 @@ int wdb_parse_syscheck(wdb_t * wdb, char * input, char * output) {
         *next++ = '\0';
 
         if (result = wdb_fim_delete_entry(wdb, next), result < 0) {
-            mdebug1("Cannot save Syscheck.");
-            snprintf(output, OS_MAXSTR + 1, "err Cannot save Syscheck");
+            mdebug1("Cannot delete Syscheck.");
+            snprintf(output, OS_MAXSTR + 1, "err Cannot delete Syscheck");
         } else {
             snprintf(output, OS_MAXSTR + 1, "ok");
         }

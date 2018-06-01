@@ -27,7 +27,7 @@ static const char *SQL_INSERT_METADATA = "INSERT INTO metadata (key, value) VALU
 static const char * SQL_STMT[] = {
     "SELECT changes, size, perm, uid, gid, md5, sha1, sha256, uname, gname, mtime, inode FROM fim_entry WHERE file = ?;",
     "SELECT 1 FROM fim_entry WHERE file = ?",
-    "INSERT INTO fim_entry (file, type, date, changes, size, perm, uid, gid, md5, sha1, sha256, uname, gname, mtime, inode) VALUES (?, ?, strftime('%s', 'now'), 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+    "INSERT INTO fim_entry (file, type, date, changes, size, perm, uid, gid, md5, sha1, sha256, uname, gname, mtime, inode) VALUES (?, ?, strftime('%s', 'now'), 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
     "UPDATE fim_entry SET date = strftime('%s', 'now'), changes = ?, size = ?, perm = ?,uid = ?, gid = ?, md5 = ?, sha1 = ?, sha256 = ?, uname = ?, gname = ?, mtime = ?, inode = ? WHERE file = ?;",
     "INSERT INTO sys_osinfo (scan_id, scan_time, hostname, architecture, os_name, os_version, os_codename, os_major, os_minor, os_build, os_platform, sysname, release, version) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
     "DELETE FROM sys_osinfo;",
@@ -46,7 +46,7 @@ static const char * SQL_STMT[] = {
     "DELETE FROM sys_netiface WHERE scan_id != ?;",
     "DELETE FROM sys_netproto WHERE scan_id != ?;",
     "DELETE FROM sys_netaddr WHERE scan_id != ?;",
-    "UPDATE fim_entry set date = strftime('%s', 'now'), changes = -1 WHERE file = ?"
+    "UPDATE fim_entry set date = strftime('%s', 'now'), changes = 0 WHERE file = ?;"
 };
 
 sqlite3 *wdb_global = NULL;
