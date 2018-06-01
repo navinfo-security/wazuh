@@ -69,7 +69,10 @@ static const char *SQL_STMT[] = {
     "SELECT end_scan FROM scan_info WHERE module = ?;",
     "SELECT fim_first_check FROM scan_info WHERE module = ?;",
     "SELECT fim_second_check FROM scan_info WHERE module = ?;",
-    "SELECT fim_third_check FROM scan_info WHERE module = ?;"
+    "SELECT fim_third_check FROM scan_info WHERE module = ?;",
+    "SELECT 1 FROM pm_event WHERE log = ?;",
+    "UPDATE pm_event SET date_last = datetime(?, 'unixepoch', 'localtime') WHERE log = ?;",
+    "INSERT INTO pm_event (date_first, date_last, log, pci_dss, cis) VALUES (datetime(?, 'unixepoch', 'localtime'), datetime(?, 'unixepoch', 'localtime'), ?, ?, ?);"
 };
 
 sqlite3 *wdb_global = NULL;

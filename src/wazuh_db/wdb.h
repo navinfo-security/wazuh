@@ -90,6 +90,9 @@ typedef enum wdb_stmt {
     WDB_STMT_SCAN_INFO_GET1C,
     WDB_STMT_SCAN_INFO_GET2C,
     WDB_STMT_SCAN_INFO_GET3C,
+    WDB_STMT_PM_FIND,
+    WDB_STMT_PM_UPDATE,
+    WDB_STMT_PM_INSERT,
     WDB_STMT_SIZE
 } wdb_stmt;
 
@@ -180,6 +183,15 @@ int wdb_insert_pm(sqlite3 *db, const rk_event_t *event);
 
 /* Update policy monitoring last date. Returns number of affected rows on success or -1 on error. */
 int wdb_update_pm(sqlite3 *db, const rk_event_t *event);
+
+/* Look for a policy monitoring entry in Wazuh DB. Returns 1 if found, 0 if not, or -1 on error. (new) */
+int wdb_rootcheck_find(wdb_t * wdb, char * log);
+
+/* Update a policy monitoring entry. Returns ID on success or -1 on error (new) */
+int wdb_rootcheck_update(wdb_t * wdb, long int date_last, char * log);
+
+/* Insert policy monitoring entry. Returns ID on success or -1 on error (new) */
+int wdb_rootcheck_save(wdb_t * wdb, long int date_last, char * log);
 
 /* Insert agent. It opens and closes the DB. Returns 0 on success or -1 on error. */
 int wdb_insert_agent(int id, const char *name, const char *ip, const char *key, const char *group);
@@ -410,6 +422,8 @@ int wdb_stmt_cache(wdb_t * wdb, int index);
 int wdb_parse(char * input, char * output);
 
 int wdb_parse_syscheck(wdb_t * wdb, char * input, char * output);
+
+int wdb_parse_rootcheck(wdb_t * wdb, char * input, char * output);
 
 int wdb_parse_netinfo(wdb_t * wdb, char * input, char * output);
 

@@ -559,6 +559,7 @@ void Zero_Eventinfo(Eventinfo *lf)
     lf->time.tv_sec = 0;
     lf->time.tv_nsec = 0;
     lf->matched = 0;
+    lf->alert = 1;
 
     lf->year = 0;
     lf->mon[3] = '\0';

@@ -2246,7 +2246,7 @@ void * w_process_event_thread(__attribute__((unused)) void * id){
             OS_AddEvent(lf, last_events_list);
             break;
 
-        } while ((rulenode_pt = rulenode_pt->next) != NULL);
+        } while (((rulenode_pt = rulenode_pt->next) != NULL) && lf->alert);
 
         w_inc_processed_events();
 

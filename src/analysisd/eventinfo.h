@@ -73,6 +73,7 @@ typedef struct _Eventinfo {
 
     /* Other internal variables */
     int matched;
+    int alert;
 
     time_t generate_time;
     struct timespec time;

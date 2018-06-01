@@ -16,6 +16,7 @@
 #include "decoder.h"
 #include "rootcheck_op.h"
 #include <pthread.h>
+#include "os_net/os_net.h"
 
 #define ROOTCHECK_DIR    "/queue/rootcheck"
 
@@ -30,6 +31,11 @@ static OSDecoderInfo *rootcheck_dec = NULL;
 
 /* Rootcheck mutex */
 static pthread_mutex_t rootcheck_mutex[MAX_AGENTS];
+
+/* Rootcheck Wazuh DB functions */
+static int QueryRootcheck(Eventinfo *lf);
+static int SaveRootcheck(Eventinfo *lf, int exists);
+static int rk_send_db(char * msg, char * response);
 
 /* Initialize the necessary information to process the rootcheck information */
 void RootcheckInit()
@@ -145,6 +151,8 @@ static FILE *RK_File(const char *agent, int *agent_id)
 int DecodeRootcheck(Eventinfo *lf)
 {
     int agent_id = 0;
+    // long int scan_date;
+    int result;
 
     char *tmpstr;
     char rk_buf[OS_SIZE_2048 + 1];
@@ -173,6 +181,33 @@ int DecodeRootcheck(Eventinfo *lf)
         return (0);
     }
 
+    /* Support to Wazuh DB */
+    // if (!strcmp(lf->log, "Starting rootcheck scan."))
+    //     scan_date = (long int)lf->time.tv_sec;
+
+    result = QueryRootcheck(lf);
+    switch (result) {
+        case -1:
+            merror("Error querying rootcheck database for agent %s", lf->agent_id);
+            return 0;
+        case 0:     // It exits
+            result = SaveRootcheck(lf, 1);
+            if (result < 0) {
+                merror("Error updating rootcheck database for agent %s", lf->agent_id);
+                return 0;
+            }
+            lf->alert = 0;  // No alert for existing entries
+            break;
+        case 1:     // It not exists
+            result = SaveRootcheck(lf, 0);
+            if (result < 0) {
+                merror("Error storing rootcheck information for agent %s", lf->agent_id);
+                return 0;
+            }
+            break;
+        default:
+            return 0;
+    }
 
     /* Reads the file and search for a possible entry */
     while (fgets(rk_buf, OS_SIZE_2048 - 1, fp) != NULL) {
@@ -257,4 +292,139 @@ int DecodeRootcheck(Eventinfo *lf)
 
     w_mutex_unlock(&rootcheck_mutex[agent_id]);
     return (1);
+}
+
+int QueryRootcheck(Eventinfo *lf) {
+
+    char * msg = NULL;
+    char * response = NULL;
+    int retval = -1;
+
+    os_calloc(OS_MAXSTR, sizeof(char), msg);
+    os_calloc(OS_MAXSTR, sizeof(char), response);
+
+    snprintf(msg, OS_MAXSTR - 1, "agent %s rootcheck query %s", lf->agent_id, lf->log);
+
+    if (rk_send_db(msg, response) == 0) {
+        if (!strcmp(response, "ok update")) {
+            retval = 0;
+        } else if (!strcmp(response, "ok insert")) {
+            retval = 1;
+        }
+    }
+
+    free(response);
+    return retval;
+}
+
+int SaveRootcheck(Eventinfo *lf, int exists) {
+
+    char * msg = NULL;
+    char * response = NULL;
+
+    os_calloc(OS_MAXSTR, sizeof(char), msg);
+    os_calloc(OS_MAXSTR, sizeof(char), response);
+
+    if (exists)
+        snprintf(msg, OS_MAXSTR - 1, "agent %s rootcheck update %ld|%s", lf->agent_id, (long int)lf->time.tv_sec, lf->log);
+    else
+        snprintf(msg, OS_MAXSTR - 1, "agent %s rootcheck insert %ld|%s", lf->agent_id, (long int)lf->time.tv_sec, lf->log);
+
+    if (rk_send_db(msg, response) == 0) {
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
+int rk_send_db(char * msg, char * response) {
+    static int sock = -1;
+    ssize_t length;
+    fd_set fdset;
+    struct timeval timeout = {0, 1000};
+    int size = strlen(msg);
+    int retval = -1;
+    static time_t last_attempt = 0;
+    time_t mtime;
+
+    // Connect to socket if disconnected
+
+    if (sock < 0) {
+        if (mtime = time(NULL), mtime > last_attempt + 10) {
+            if (sock = OS_ConnectUnixDomain(WDB_LOCAL_SOCK, SOCK_STREAM, OS_MAXSTR), sock < 0) {
+                last_attempt = mtime;
+                merror("Unable to connect to socket '%s': %s (%d)", WDB_LOCAL_SOCK, strerror(errno), errno);
+                goto end;
+            }
+        } else {
+            // Return silently
+            goto end;
+        }
+    }
+
+    // Send msg to Wazuh DB
+
+    if (send(sock, msg, size + 1, MSG_DONTWAIT) < size) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            merror("Rootcheck decoder: database socket is full");
+        } else if (errno == EPIPE) {
+            if (mtime = time(NULL), mtime > last_attempt + 10) {
+                // Retry to connect
+                mwarn("Connection with wazuh-db lost. Reconnecting.");
+                close(sock);
+
+                if (sock = OS_ConnectUnixDomain(WDB_LOCAL_SOCK, SOCK_STREAM, OS_MAXSTR), sock < 0) {
+                    last_attempt = mtime;
+                    merror("Unable to connect to socket '%s': %s (%d)", WDB_LOCAL_SOCK, strerror(errno), errno);
+                    goto end;
+                }
+
+                if (send(sock, msg, size + 1, MSG_DONTWAIT) < size) {
+                    last_attempt = mtime;
+                    merror("at rk_send_db(): at send() (retry): %s (%d)", strerror(errno), errno);
+                    goto end;
+                }
+            } else {
+                // Return silently
+                goto end;
+            }
+
+        } else {
+            merror("at rk_send_db(): at send(): %s (%d)", strerror(errno), errno);
+            goto end;
+        }
+    }
+
+    // Wait for socket
+
+    FD_ZERO(&fdset);
+    FD_SET(sock, &fdset);
+
+    if (select(sock + 1, &fdset, NULL, NULL, &timeout) < 0) {
+        merror("at rk_send_db(): at select(): %s (%d)", strerror(errno), errno);
+        goto end;
+    }
+
+    // Receive response from socket
+
+    length = recv(sock, response, OS_MAXSTR, 0);
+
+    switch (length) {
+        case -1:
+            merror("at rk_send_db(): at recv(): %s (%d)", strerror(errno), errno);
+            goto end;
+
+        default:
+
+            if (strncmp(response, "ok", 2)) {
+                merror("at rk_send_db(): received: '%s'", response);
+                goto end;
+            }
+    }
+
+    retval = 0;
+
+end:
+    free(msg);
+    return retval;
 }
