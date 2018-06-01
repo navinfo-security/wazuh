@@ -435,29 +435,31 @@ int c_read_file(const char *file_name, const char *oldsum, char *newsum)
             }
         }
     }
-    snprintf(newsum, 511, "%ld:%d:%d:%d:%s:%s:%s:%s:%s:%ld:%ld",
-        size == 0 ? 0 : (long)statbuf.st_size,
-        perm == 0 ? 0 : (int)statbuf.st_mode,
-        owner == 0 ? 0 : (int)statbuf.st_uid,
-        group == 0 ? 0 : (int)statbuf.st_gid,
-        md5sum   == 0 ? "xxx" : mf_sum,
-        sha1sum  == 0 ? "xxx" : sf_sum,
-        sha256sum  == 0 ? "xxx" : sf256_sum,
-        owner == 0 ? "" : get_user(file_name, statbuf.st_uid),
-        group == 0 ? "" : get_group(statbuf.st_gid),
-        mtime ? (long)statbuf.st_mtime : 0,
-        inode ? (long)statbuf.st_ino : 0);
+    snprintf(newsum, 511, "%ld:%d:%d:%d:%s:%s:%s:%s:%ld:%ld:%s",
+            size == 0 ? 0 : (long)statbuf.st_size,
+            perm == 0 ? 0 : (int)statbuf.st_mode,
+            owner == 0 ? 0 : (int)statbuf.st_uid,
+            group == 0 ? 0 : (int)statbuf.st_gid,
+            md5sum == 0 ? "xxx" : mf_sum,
+            sha1sum == 0 ? "xxx" : sf_sum,
+            owner == 0 ? "" : get_user(file_name, statbuf.st_uid),
+            group == 0 ? "" : get_group(statbuf.st_gid),
+            mtime ? (long)statbuf.st_mtime : 0,
+            inode ? (long)statbuf.st_ino : 0,
+            sha256sum == 0 ? "xxx" : sf256_sum
+    );
 #else
-    snprintf(newsum, 511, "%ld:%d:::%s:%s:%s:%s:%s:%ld:%ld",
-        size == 0 ? 0 : (long)statbuf.st_size,
-        perm == 0 ? 0 : (int)statbuf.st_mode,
-        md5sum   == 0 ? "xxx" : mf_sum,
-        sha1sum  == 0 ? "xxx" : sf_sum,
-        sha256sum  == 0 ? "xxx" : sf256_sum,
-        owner == 0 ? "" : get_user(file_name, statbuf.st_uid),
-        group == 0 ? "" : get_group(statbuf.st_gid),
-        mtime ? (long)statbuf.st_mtime : 0,
-        inode ? (long)statbuf.st_ino : 0);
+    snprintf(newsum, 511, "%ld:%d:::%s:%s:%s:%s:%ld:%ld:%s",
+            size == 0 ? 0 : (long)statbuf.st_size,
+            perm == 0 ? 0 : (int)statbuf.st_mode,
+            md5sum == 0 ? "xxx" : mf_sum,
+            sha1sum == 0 ? "xxx" : sf_sum,
+            owner == 0 ? "" : get_user(file_name, statbuf.st_uid),
+            group == 0 ? "" : get_group(statbuf.st_gid),
+            mtime ? (long)statbuf.st_mtime : 0,
+            inode ? (long)statbuf.st_ino : 0,
+            sha256sum == 0 ? "xxx" : sf256_sum
+    );
 #endif
 
     return (0);

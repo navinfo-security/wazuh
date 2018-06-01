@@ -52,15 +52,10 @@ int sk_decode_sum(sk_sum_t *sum, char *c_sum) {
         return -1;
 
     *(sum->sha1++) = '\0';
-    
-    if (!(sum->sha256 = strchr(sum->sha1, ':')))
-        return -1;
-
-    *(sum->sha256++) = '\0';
 
     // New fields: user name, group name, modification time and inode
 
-    if (!(sum->uname = strchr(sum->sha256, ':')))
+    if (!(sum->uname = strchr(sum->sha1, ':')))
         return 0;
 
     *(sum->uname++) = '\0';
@@ -79,6 +74,13 @@ int sk_decode_sum(sk_sum_t *sum, char *c_sum) {
         return -1;
 
     *(c_inode++) = '\0';
+
+    sum->sha256 = NULL;
+
+    if (!(sum->sha256 = strchr(c_inode, ':')))
+        return 0;
+
+    *(sum->sha256++) = '\0';
 
     sum->mtime = atol(c_mtime);
     sum->inode = atol(c_inode);
@@ -143,30 +145,43 @@ int sk_build_sum(const sk_sum_t * sum, char * output, size_t size) {
     int r;
 
     if (sum->uname || sum->gname || sum->mtime || sum->inode) {
-        r = snprintf(output, size, "%ld:%s:%d:%s:%s:%s:%s:%s:%s:%s:%ld:%ld",
-            sum->changes,
-            sum->size,
-            sum->perm,
-            sum->uid,
-            sum->gid,
-            sum->md5,
-            sum->sha1,
-            sum->sha256,
-            sum->uname,
-            sum->gname,
-            sum->mtime,
-            sum->inode
-        );
+        if(sum->sha256) {
+            r = snprintf(output, size, "%s:%d:%s:%s:%s:%s:%s:%s:%ld:%ld:%s",
+                    sum->size,
+                    sum->perm,
+                    sum->uid,
+                    sum->gid,
+                    sum->md5,
+                    sum->sha1,
+                    sum->uname,
+                    sum->gname,
+                    sum->mtime,
+                    sum->inode,
+                    sum->sha256
+            );
+        }
+        else {
+            r = snprintf(output, size, "%s:%d:%s:%s:%s:%s:%s:%s:%ld:%ld",
+                    sum->size,
+                    sum->perm,
+                    sum->uid,
+                    sum->gid,
+                    sum->md5,
+                    sum->sha1,
+                    sum->uname,
+                    sum->gname,
+                    sum->mtime,
+                    sum->inode
+            );
+        }
     } else {
-        r = snprintf(output, size, "%ld:%s:%d:%s:%s:%s:%s:%s",
-            sum->changes,
-            sum->size,
-            sum->perm,
-            sum->uid,
-            sum->gid,
-            sum->md5,
-            sum->sha1,
-            sum->sha256
+        r = snprintf(output, size, "%s:%d:%s:%s:%s:%s",
+                sum->size,
+                sum->perm,
+                sum->uid,
+                sum->gid,
+                sum->md5,
+                sum->sha1
         );
     }
 

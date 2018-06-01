@@ -119,7 +119,7 @@ static int DB_Search(const char *f_name, char *c_sum, Eventinfo *lf)
 
     if (strcmp(response, "ok") == 0) {
         if(saved_sum = strchr(saved_sum, ':'), saved_sum) {
-            minfo("~~~~ --modified, readded-- c_sum:'%s' saved_sum:'%s' changes:'%d'", c_sum, saved_sum, changes);
+            minfo("~~~~ MODIFIED READDED DELETED c_sum:'%s' saved_sum:'%s' changes:'%d'", c_sum, saved_sum, changes);
             //modified or readded
             changes = atoi(saved_sum);
             saved_sum = strchr(saved_sum, ':');
@@ -180,11 +180,9 @@ static int DB_Search(const char *f_name, char *c_sum, Eventinfo *lf)
                         break;
 
                     case 1: //if deleted
-                        sk_fill_event(lf, f_name, &newsum);
                         *msg = '\0';
                         *response = '\0';
                         snprintf(msg, OS_MAXSTR - 1, "agent %s syscheck delete", lf->agent_id);
-                        wm_strcat(&msg, "file", ' ');
                         wm_strcat(&msg, f_name, ' ');
 
                         if (fim_send_db(msg, response) < 0) {
@@ -525,18 +523,36 @@ static void check_diff (sk_sum_t oldsum, sk_sum_t newsum, Eventinfo *lf, const c
     }
 
     /* Provide information about the file */
-    snprintf(sdb.comment, OS_MAXSTR, "Integrity checksum changed for: "
-            "'%.756s'\n%s%s%s%s%s%s%s%s",
-            f_name,
-            sdb.size,
-            sdb.perm,
-            sdb.owner,
-            sdb.gowner,
-            sdb.md5,
-            sdb.sha1,
-            lf->data ? "What changed:\n" : "",
-            lf->data ? lf->data : ""
-    );
+    if (lf->event_type == FIM_READDED) {
+        snprintf(sdb.comment, OS_MAXSTR, "File readded: "
+                "'%.756s'\n%s%s%s%s%s%s%s%s%s",
+                f_name,
+                sdb.size ? sdb.size : "",
+                sdb.perm ? sdb.perm : "",
+                sdb.owner ? sdb.owner : "",
+                sdb.gowner ? sdb.gowner : "",
+                sdb.md5 ? sdb.md5 : "",
+                sdb.sha1 ? sdb.sha1 : "",
+                sdb.sha256 ? sdb.sha256 : "",
+                lf->data ? "What changed:\n" : "",
+                lf->data ? lf->data : ""
+        );
+    }
+    else {
+        snprintf(sdb.comment, OS_MAXSTR, "Integrity checksum changed for: "
+                "'%.756s'\n%s%s%s%s%s%s%s%s%s",
+                f_name,
+                sdb.size ? sdb.size : "",
+                sdb.perm ? sdb.perm : "",
+                sdb.owner ? sdb.owner : "",
+                sdb.gowner ? sdb.gowner : "",
+                sdb.md5 ? sdb.md5 : "",
+                sdb.sha1 ? sdb.sha1 : "",
+                sdb.sha256 ? sdb.sha256 : "",
+                lf->data ? "What changed:\n" : "",
+                lf->data ? lf->data : ""
+        );
+    }
 
     if (lf->data) {
         os_strdup(lf->data, lf->diff);
