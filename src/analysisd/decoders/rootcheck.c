@@ -188,20 +188,19 @@ int DecodeRootcheck(Eventinfo *lf)
     result = QueryRootcheck(lf);
     switch (result) {
         case -1:
-            merror("Error querying rootcheck database for agent %s", lf->agent_id);
+            merror("Querying rootcheck database for agent %s", lf->agent_id);
             return 0;
         case 0:     // It exits
             result = SaveRootcheck(lf, 1);
             if (result < 0) {
-                merror("Error updating rootcheck database for agent %s", lf->agent_id);
+                merror("Updating rootcheck database for agent %s", lf->agent_id);
                 return 0;
             }
-            lf->alert = 0;  // No alert for existing entries
             break;
         case 1:     // It not exists
             result = SaveRootcheck(lf, 0);
             if (result < 0) {
-                merror("Error storing rootcheck information for agent %s", lf->agent_id);
+                merror("Storing rootcheck information for agent %s", lf->agent_id);
                 return 0;
             }
             break;
@@ -306,7 +305,10 @@ int QueryRootcheck(Eventinfo *lf) {
     snprintf(msg, OS_MAXSTR - 1, "agent %s rootcheck query %s", lf->agent_id, lf->log);
 
     if (rk_send_db(msg, response) == 0) {
-        if (!strcmp(response, "ok update")) {
+        if (!strcmp(response, "ok update 0")) {
+            lf->alert = 0;  // No alert when is not a change in the DB
+            retval = 0;
+        } else if (!strcmp(response, "ok update 1")) {
             retval = 0;
         } else if (!strcmp(response, "ok insert")) {
             retval = 1;

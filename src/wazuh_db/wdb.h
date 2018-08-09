@@ -185,7 +185,7 @@ int wdb_insert_pm(sqlite3 *db, const rk_event_t *event);
 int wdb_update_pm(sqlite3 *db, const rk_event_t *event);
 
 /* Look for a policy monitoring entry in Wazuh DB. Returns 1 if found, 0 if not, or -1 on error. (new) */
-int wdb_rootcheck_find(wdb_t * wdb, char * log);
+int wdb_rootcheck_find(wdb_t * wdb, char * log, int *outdated);
 
 /* Update a policy monitoring entry. Returns ID on success or -1 on error (new) */
 int wdb_rootcheck_update(wdb_t * wdb, long int date_last, char * log);

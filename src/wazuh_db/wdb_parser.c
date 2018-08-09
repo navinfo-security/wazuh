@@ -433,6 +433,7 @@ int wdb_parse_rootcheck(wdb_t * wdb, char * input, char * output) {
     char * log;
     long int date_last;
     int result;
+    int outdated = 0;
 
     if (next = strchr(input, ' '), !next) {
         mdebug1("Invalid Rootcheck query syntax.");
@@ -447,14 +448,18 @@ int wdb_parse_rootcheck(wdb_t * wdb, char * input, char * output) {
     if (strcmp(curr, "query") == 0) {
 
         log = next;
-        result = wdb_rootcheck_find(wdb, log);
+        result = wdb_rootcheck_find(wdb, log, &outdated);
 
         switch (result) {
             case 0:
                 snprintf(output, OS_MAXSTR + 1, "ok insert");
                 break;
             case 1:
-                snprintf(output, OS_MAXSTR + 1, "ok update");
+                if (!outdated)
+                    snprintf(output, OS_MAXSTR + 1, "ok update 0");
+                else
+                    snprintf(output, OS_MAXSTR + 1, "ok update 1");
+
                 break;
             default:
                 mdebug1("at wdb_parse_rootcheck(): Cannot query Rootcheck.");

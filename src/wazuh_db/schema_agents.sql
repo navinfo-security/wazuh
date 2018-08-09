@@ -30,7 +30,8 @@ CREATE TABLE IF NOT EXISTS pm_event (
     date_last TEXT,
     log TEXT,
     pci_dss TEXT,
-    cis TEXT
+    cis TEXT,
+    outdated INTEGER(1)
 );
 
 CREATE INDEX IF NOT EXISTS pm_event_log ON pm_event (log);

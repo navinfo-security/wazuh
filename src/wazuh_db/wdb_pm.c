@@ -112,7 +112,9 @@ void wdb_delete_pm_all() {
 }
 
 /* Look for a policy monitoring entry in Wazuh DB. Returns 1 if found, 0 if not, or -1 on error. (new) */
-int wdb_rootcheck_find(wdb_t * wdb, char * log) {
+int wdb_rootcheck_find(wdb_t * wdb, char * log, int *outdated) {
+
+    int result = 0;
 
     if (!wdb->transaction && wdb_begin2(wdb) < 0){
         mdebug1("at wdb_rootcheck_find(): cannot begin transaction");
@@ -132,15 +134,18 @@ int wdb_rootcheck_find(wdb_t * wdb, char * log) {
 
     switch (sqlite3_step(stmt)) {
         case SQLITE_ROW:
-            return 1;
+            result = 1;
+            *outdated = sqlite3_column_int(stmt,1);
             break;
         case SQLITE_DONE:
-            return 0;
+            result = 0;
             break;
         default:
             merror("at wdb_rootcheck_find(): at sqlite3_step(): %s", sqlite3_errmsg(wdb->db));
-            return -1;
+            result = -1;
     }
+
+    return result;
 }
 
 /* Insert policy monitoring entry. Returns 0 on success or -1 on error (new) */
