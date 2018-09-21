@@ -161,6 +161,18 @@ def get_netiface_agent(agent_id, offset=0, limit=common.database_limit, select={
                          search=search, sort=sort, filters=filters, allowed_sort_fields=valid_select_fields,
                          valid_select_fields=valid_select_fields, table='sys_netiface', array=True, nested=nested)
 
+def get_network_agent(agent_id, offset=0, limit=common.database_limit, select={}, search={}, sort={}, filters={}, nested=True):
+    """
+    Get info about all agent's network interface
+    """
+    valid_select_fields = {'id', 'scan_id', 'proto', 'address', 'netmask', 'broadcast', 'iface', 'type', 'gateway',
+                           'dhcp', 'scan_time', 'name', 'adapter', 'state', 'mtu', 'mac', 'tx_packets', 'rx_packets',
+                           'tx_bytes', 'rx_bytes', 'tx_errors', 'rx_errors', 'tx_dropped', 'rx_dropped'}
+
+    return get_item_agent(agent_id=agent_id, offset=offset, limit=limit, select=select,
+                         search=search, sort=sort, filters=filters, allowed_sort_fields=valid_select_fields,
+                         valid_select_fields=valid_select_fields, table='sys_netiface', array=True, nested=nested)
+
 
 def _get_agent_items(func, offset, limit, select, filters, search, sort, array=False):
     agents, result = Agent.get_agents_overview(select={'fields': ['id']})['items'], []
@@ -226,4 +238,8 @@ def get_netproto(offset=0, limit=common.database_limit, select=None, sort=None, 
 
 def get_netiface(offset=0, limit=common.database_limit, select=None, sort=None, filters={}, search={}):
     return _get_agent_items(func=get_netiface_agent, offset=offset, limit=limit, select=select,
+                            filters=filters, search=search, sort=sort, array=True)
+
+def get_network(offset=0, limit=common.database_limit, select=None, sort=None, filters={}, search={}):
+    return _get_agent_items(func=get_network_agent, offset=offset, limit=limit, select=select,
                             filters=filters, search=search, sort=sort, array=True)
