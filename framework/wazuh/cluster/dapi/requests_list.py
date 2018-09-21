@@ -420,6 +420,10 @@ functions = {
         'function': syscollector.get_netiface,
         'type': 'distributed_master'
     },
+    '/experimental/syscollector/network': {
+        'function': syscollector.get_network,
+        'type': 'distributed_master'
+    },
     '/experimental/ciscat/results': {
         'function': ciscat.get_ciscat_results,
         'type': 'distributed_master'
