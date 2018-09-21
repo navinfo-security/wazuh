@@ -370,6 +370,10 @@ functions = {
         'function': syscollector.get_netiface_agent,
         'type': 'distributed_master'
     },
+    '/syscollector/:agent_id/network': {
+        'function': syscollector.get_network_agent,
+        'type': 'distributed_master'
+    },
 
     # CIS-CAT
     '/ciscat/:agent_id/results': {
