@@ -8,6 +8,7 @@ from wazuh.exception import WazuhException
 from wazuh.agent import Agent
 from wazuh.utils import plain_dict_to_nested_dict, get_fields_to_nest
 from operator import itemgetter
+import functools
 
 
 def get_item_agent(agent_id, offset, limit, select, search, sort, filters, valid_select_fields, allowed_sort_fields, table, nested=True, array=False):
@@ -181,17 +182,27 @@ def get_netiface_agent(agent_id, offset=0, limit=common.database_limit, select={
                          search=search, sort=sort, filters=filters, allowed_sort_fields=valid_select_fields,
                          valid_select_fields=valid_select_fields, table='sys_netiface', array=True, nested=nested)
 
+
 def get_network_agent(agent_id, offset=0, limit=common.database_limit, select={}, search={}, sort={}, filters={}, nested=True):
     """
     Get info about all agent's network interface
     """
-    valid_select_fields = {'id', 'scan_id', 'proto', 'address', 'netmask', 'broadcast', 'iface', 'type', 'gateway',
-                           'dhcp', 'scan_time', 'name', 'adapter', 'state', 'mtu', 'mac', 'tx_packets', 'rx_packets',
-                           'tx_bytes', 'rx_bytes', 'tx_errors', 'rx_errors', 'tx_dropped', 'rx_dropped'}
+    valid_select_fields = [{key: '{}.{}'.format(table_name, value) for key, value in fields.items()} for table_name, fields in
+                            zip(['sys_netiface', 'sys_netproto', 'sys_netaddr'], [__get_netiface_fields({'name'}),
+                                                                                  __get_netproto_fields({'type', 'scan_id', 'scan_time'}),
+                                                                                  __get_netaddr_fields({'scan_id','scan_time'})])]
+    valid_select_fields = functools.reduce(lambda d, src: d.update(src) or d, valid_select_fields, {})
+
+    if filters:
+        pass
+    else:
+        filters = {'sys_netiface.name': 'sys_netproto.iface', 'sys_netiface.scan_id': 'sys_netproto.scan_id',
+                   'sys_netproto.type': 'sys_netaddr.proto', 'sys_netaddr.scan_id': 'sys_netproto.scan_id'}
 
     return get_item_agent(agent_id=agent_id, offset=offset, limit=limit, select=select,
-                         search=search, sort=sort, filters=filters, allowed_sort_fields=valid_select_fields,
-                         valid_select_fields=valid_select_fields, table='sys_netiface', array=True, nested=nested)
+                          search=search, sort=sort, filters=filters, allowed_sort_fields=valid_select_fields,
+                          valid_select_fields=valid_select_fields, table='sys_netiface, sys_netproto, sys_netaddr',
+                          array=True, nested=nested)
 
 
 def _get_agent_items(func, offset, limit, select, filters, search, sort, array=False):
