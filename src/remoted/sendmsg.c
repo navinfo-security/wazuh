@@ -73,7 +73,7 @@ int send_msg(const char *agent_id, const char *msg, ssize_t msg_length)
     /* If we don't have the agent id, ignore it */
     if (key->rcvd < (time(0) - DISCON_TIME)) {
 
-        merror(SEND_DISCON, key->id);
+        mwarn(SEND_DISCON, key->id);
         return (-1);
     }
 
