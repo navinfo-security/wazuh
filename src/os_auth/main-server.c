@@ -699,14 +699,15 @@ void* run_dispatcher(__attribute__((unused)) void *arg) {
 
         buf[0] = '\0';
         ret = SSL_read(ssl, buf, sizeof(buf));
+        if (ret <= 0) {
+            switch (ssl_error(ssl, ret)) {
+            case 0:
+                minfo("Client timeout from %s", srcip);
+                break;
+            default:
+                merror("SSL Error (%d)", ret);
+            }
 
-        if (ssl_error(ssl, ret)) {
-            merror("SSL Error (%d)", ret);
-            SSL_free(ssl);
-            close(client.socket);
-            continue;
-        } else if (ret <= 0) {
-            minfo("Client was disconnected, or network timeout.");
             SSL_free(ssl);
             close(client.socket);
             continue;
