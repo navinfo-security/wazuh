@@ -396,7 +396,7 @@ static void HandleSecureMessage(char *buffer, int recv_b, struct sockaddr_in *pe
 int _close_sock(keystore * keys, int sock) {
     int retval;
 
-    key_lock_read();
+    key_lock_write();
     retval = OS_DeleteSocket(keys, sock);
     key_unlock();
     close(sock);
