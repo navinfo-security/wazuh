@@ -868,7 +868,16 @@ main()
     fi
 
     # Initial message
-    echo " $NAME $VERSION (Rev. $REVISION) ${installscript} - http://www.wazuh.com"
+
+    case "$TERM" in
+    xterm-color|*-256color)
+        echo "\e[94m"
+        cat contrib/wazuh-logo.txt
+        echo "\e[00m\n"
+        ;;
+    esac
+
+    echo " $NAME $VERSION (Rev. $REVISION) ${installscript} - https://www.wazuh.com"
     catMsg "0x101-initial"
     echo ""
     echo "  - $system: $UNAME (${DIST_NAME} ${DIST_VER}.${DIST_SUBVER})"
