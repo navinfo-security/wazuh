@@ -155,7 +155,7 @@ int DecodeRootcheck(Eventinfo *lf)
     int result;
 
     char *tmpstr;
-    char rk_buf[OS_SIZE_2048 + 1];
+    char rk_buf[OS_SIZE_6144 + 1];
 
     FILE *fp;
 
@@ -163,7 +163,7 @@ int DecodeRootcheck(Eventinfo *lf)
 
     /* Zero rk_buf */
     rk_buf[0] = '\0';
-    rk_buf[OS_SIZE_2048] = '\0';
+    rk_buf[OS_SIZE_6144] = '\0';
 
     fp = RK_File(lf->location, &agent_id);
 
@@ -209,7 +209,7 @@ int DecodeRootcheck(Eventinfo *lf)
     }
 
     /* Reads the file and search for a possible entry */
-    while (fgets(rk_buf, OS_SIZE_2048 - 1, fp) != NULL) {
+    while (fgets(rk_buf, OS_SIZE_6144 - 1, fp) != NULL) {
         /* Ignore blank lines and lines with a comment */
         if (rk_buf[0] == '\n' || rk_buf[0] == '#') {
             if (fgetpos(fp, &fp_pos) == -1) {
@@ -299,10 +299,10 @@ int QueryRootcheck(Eventinfo *lf) {
     char * response = NULL;
     int retval = -1;
 
-    os_calloc(OS_MAXSTR, sizeof(char), msg);
-    os_calloc(OS_MAXSTR, sizeof(char), response);
+    os_calloc(OS_SIZE_6144, sizeof(char), msg);
+    os_calloc(OS_SIZE_6144, sizeof(char), response);
 
-    snprintf(msg, OS_MAXSTR - 1, "agent %s rootcheck query %s", lf->agent_id, lf->log);
+    snprintf(msg, OS_SIZE_6144 - 1, "agent %s rootcheck query %s", lf->agent_id, lf->log);
 
     if (rk_send_db(msg, response) == 0) {
         if (!strcmp(response, "ok update 0")) {
@@ -324,13 +324,13 @@ int SaveRootcheck(Eventinfo *lf, int exists) {
     char * msg = NULL;
     char * response = NULL;
 
-    os_calloc(OS_MAXSTR, sizeof(char), msg);
-    os_calloc(OS_MAXSTR, sizeof(char), response);
+    os_calloc(OS_SIZE_6144, sizeof(char), msg);
+    os_calloc(OS_SIZE_128, sizeof(char), response);
 
     if (exists)
-        snprintf(msg, OS_MAXSTR - 1, "agent %s rootcheck update %ld|%s", lf->agent_id, (long int)lf->time.tv_sec, lf->log);
+        snprintf(msg, OS_SIZE_6144 - 1, "agent %s rootcheck update %ld|%s", lf->agent_id, (long int)lf->time.tv_sec, lf->log);
     else
-        snprintf(msg, OS_MAXSTR - 1, "agent %s rootcheck insert %ld|%s", lf->agent_id, (long int)lf->time.tv_sec, lf->log);
+        snprintf(msg, OS_SIZE_6144 - 1, "agent %s rootcheck insert %ld|%s", lf->agent_id, (long int)lf->time.tv_sec, lf->log);
 
     if (rk_send_db(msg, response) == 0) {
         return 0;
@@ -346,53 +346,57 @@ int rk_send_db(char * msg, char * response) {
     struct timeval timeout = {0, 1000};
     int size = strlen(msg);
     int retval = -1;
-    static time_t last_attempt = 0;
-    time_t mtime;
+    int attempts;
 
     // Connect to socket if disconnected
 
     if (sock < 0) {
-        if (mtime = time(NULL), mtime > last_attempt + 10) {
-            if (sock = OS_ConnectUnixDomain(WDB_LOCAL_SOCK, SOCK_STREAM, OS_MAXSTR), sock < 0) {
-                last_attempt = mtime;
-                merror("Unable to connect to socket '%s': %s (%d)", WDB_LOCAL_SOCK, strerror(errno), errno);
-                goto end;
+        for (attempts = 1; attempts <= MAX_WAZUH_DB_ATTEMPS && (sock = OS_ConnectUnixDomain(WDB_LOCAL_SOCK, SOCK_STREAM, OS_SIZE_6144)) < 0; attempts++) {
+            switch (errno) {
+            case ENOENT:
+                minfo("at rk_send_db(): Cannot find '%s'. Waiting %d seconds to reconnect.", WDB_LOCAL_SOCK, attempts);
+                break;
+            default:
+                minfo("at rk_send_db(): Cannot connect to '%s': %s (%d). Waiting %d seconds to reconnect.", WDB_LOCAL_SOCK, strerror(errno), errno, attempts);
             }
-        } else {
-            // Return silently
+            sleep(attempts);
+        }
+
+        if (sock < 0) {
+            merror("at rk_send_db(): Unable to connect to socket '%s'.", WDB_LOCAL_SOCK);
             goto end;
         }
     }
 
     // Send msg to Wazuh DB
 
-    if (send(sock, msg, size + 1, MSG_DONTWAIT) < size) {
+    if (OS_SendSecureTCP(sock, size + 1, msg) != 0) {
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
-            merror("Rootcheck decoder: database socket is full");
+            merror("at rk_send_db: database socket is full");
         } else if (errno == EPIPE) {
-            if (mtime = time(NULL), mtime > last_attempt + 10) {
-                // Retry to connect
-                mwarn("Connection with wazuh-db lost. Reconnecting.");
-                close(sock);
 
-                if (sock = OS_ConnectUnixDomain(WDB_LOCAL_SOCK, SOCK_STREAM, OS_MAXSTR), sock < 0) {
-                    last_attempt = mtime;
-                    merror("Unable to connect to socket '%s': %s (%d)", WDB_LOCAL_SOCK, strerror(errno), errno);
-                    goto end;
-                }
+            // Retry to connect
+            mwarn("Connection with wazuh-db lost. Reconnecting.");
+            close(sock);
 
-                if (send(sock, msg, size + 1, MSG_DONTWAIT) < size) {
-                    last_attempt = mtime;
-                    merror("at rk_send_db(): at send() (retry): %s (%d)", strerror(errno), errno);
-                    goto end;
+            if (sock = OS_ConnectUnixDomain(WDB_LOCAL_SOCK, SOCK_STREAM, OS_SIZE_6144), sock < 0) {
+                switch (errno) {
+                case ENOENT:
+                    merror("at rk_send_db(): Cannot find '%s'.", WDB_LOCAL_SOCK);
+                    break;
+                default:
+                    merror("at rk_send_db(): Cannot connect to '%s': %s (%d).", WDB_LOCAL_SOCK, strerror(errno), errno);
                 }
-            } else {
-                // Return silently
+                goto end;
+            }
+
+            if (OS_SendSecureTCP(sock, size + 1, msg) != 0) {
+                merror("at rk_send_db(): at OS_SendSecureTCP() (retry): %s (%d)", strerror(errno), errno);
                 goto end;
             }
 
         } else {
-            merror("at rk_send_db(): at send(): %s (%d)", strerror(errno), errno);
+            merror("at rk_send_db(): at OS_SendSecureTCP(): %s (%d)", strerror(errno), errno);
             goto end;
         }
     }
@@ -409,11 +413,11 @@ int rk_send_db(char * msg, char * response) {
 
     // Receive response from socket
 
-    length = recv(sock, response, OS_MAXSTR, 0);
+    length = OS_RecvSecureTCP(sock, response, OS_SIZE_128);
 
     switch (length) {
         case -1:
-            merror("at rk_send_db(): at recv(): %s (%d)", strerror(errno), errno);
+            merror("at rk_send_db(): at OS_RecvSecureTCP(): %s (%d)", strerror(errno), errno);
             goto end;
 
         default:

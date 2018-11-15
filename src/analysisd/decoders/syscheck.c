@@ -415,7 +415,7 @@ int send_query_wazuhdb(char *wazuhdb_query, char **output, _sdb *sdb) {
 
     // Connect to socket if disconnected
     if (sdb->socket < 0) {
-        for (attempts = 1; attempts <= FIM_MAX_WAZUH_DB_ATTEMPS && (sdb->socket = OS_ConnectUnixDomain(WDB_LOCAL_SOCK, SOCK_STREAM, OS_SIZE_6144)) < 0; attempts++) {
+        for (attempts = 1; attempts <= MAX_WAZUH_DB_ATTEMPS && (sdb->socket = OS_ConnectUnixDomain(WDB_LOCAL_SOCK, SOCK_STREAM, OS_SIZE_6144)) < 0; attempts++) {
             switch (errno) {
             case ENOENT:
                 mtinfo(ARGV0, "FIM decoder: Cannot find '%s'. Waiting %d seconds to reconnect.", WDB_LOCAL_SOCK, attempts);

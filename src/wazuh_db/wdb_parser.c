@@ -94,7 +94,6 @@ int wdb_parse(char * input, char * output) {
                 snprintf(output, OS_MAXSTR + 1, "err Invalid DB query syntax, near '%.32s'", query);
                 result = -1;
             } else {
-                result = wdb_parse_rootcheck(wdb, next, output);
                 if (wdb_parse_rootcheck(wdb, next, output) < 0){
                     merror("Unable to update 'pm_event' table for agent '%s'", sagent_id);
                 } else {

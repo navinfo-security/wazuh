@@ -1351,7 +1351,7 @@ int sc_send_db(char *msg, int *sock) {
 
     // Connect to socket if disconnected
     if (*sock < 0) {
-        for (attempts = 1; attempts <= SYS_MAX_WAZUH_DB_ATTEMPS && (*sock = OS_ConnectUnixDomain(WDB_LOCAL_SOCK, SOCK_STREAM, OS_SIZE_128)) < 0; attempts++) {
+        for (attempts = 1; attempts <= MAX_WAZUH_DB_ATTEMPS && (*sock = OS_ConnectUnixDomain(WDB_LOCAL_SOCK, SOCK_STREAM, OS_SIZE_128)) < 0; attempts++) {
             switch (errno) {
             case ENOENT:
                 mtinfo(ARGV0, "at sc_send_db(): Cannot find '%s'. Waiting %d seconds to reconnect.", WDB_LOCAL_SOCK, attempts);
