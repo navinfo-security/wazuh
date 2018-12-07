@@ -79,7 +79,6 @@ void free_whodata_event(whodata_evt *w_evt);
 int c_read_file(const char *file_name, const char *oldsum, char *newsum, whodata_evt * evt) __attribute__((nonnull(1,2,3)));
 
 int send_syscheck_msg(const char *msg) __attribute__((nonnull));
-int send_rootcheck_msg(const char *msg) __attribute__((nonnull));
 
 
 int realtime_checksumfile(const char *file_name, whodata_evt *evt) __attribute__((nonnull(1)));

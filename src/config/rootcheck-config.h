@@ -29,7 +29,6 @@ typedef struct _rkconfig {
 
     FILE *fp;
     int daemon;
-    int notify; /* QUEUE or SYSLOG */
     int scanall;
     int readall;
     int disabled;

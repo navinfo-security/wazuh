@@ -125,10 +125,13 @@ int Read_Rootcheck(XML_NODE node, void *configp, __attribute__((unused)) void *m
         } else if (strcmp(node[i]->element, xml_winaudit) == 0) {
 #ifdef WIN32
             rootcheck->checks.rc_winaudit = 1;
-#endif
             os_strdup(node[i]->content, rootcheck->winaudit);
+#endif
         } else if (strcmp(node[i]->element, xml_unixaudit) == 0) {
+#ifndef WIN32
+            rootcheck->checks.rc_unixaudit = 1;
             unsigned int j = 0;
+
             while (rootcheck->unixaudit && rootcheck->unixaudit[j]) {
                 j++;
             }
@@ -137,11 +140,8 @@ int Read_Rootcheck(XML_NODE node, void *configp, __attribute__((unused)) void *m
                        rootcheck->unixaudit);
             rootcheck->unixaudit[j] = NULL;
             rootcheck->unixaudit[j + 1] = NULL;
-
-#ifndef WIN32
-            rootcheck->checks.rc_unixaudit = 1;
-#endif
             os_strdup(node[i]->content, rootcheck->unixaudit[j]);
+#endif
         } else if (strcmp(node[i]->element, xml_ignore) == 0) {
             unsigned int j = 0;
             while (rootcheck->ignore && rootcheck->ignore[j]) {
@@ -157,13 +157,13 @@ int Read_Rootcheck(XML_NODE node, void *configp, __attribute__((unused)) void *m
         } else if (strcmp(node[i]->element, xml_winmalware) == 0) {
 #ifdef WIN32
             rootcheck->checks.rc_winmalware = 1;
-#endif
             os_strdup(node[i]->content, rootcheck->winmalware);
+#endif
         } else if (strcmp(node[i]->element, xml_winapps) == 0) {
 #ifdef WIN32
             rootcheck->checks.rc_winapps = 1;
-#endif
             os_strdup(node[i]->content, rootcheck->winapps);
+#endif
         } else if (strcmp(node[i]->element, xml_base_dir) == 0) {
             os_strdup(node[i]->content, rootcheck->basedir);
         } else if (strcmp(node[i]->element, xml_check_dev) == 0) {

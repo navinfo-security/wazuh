@@ -7,12 +7,13 @@
  * Foundation
  */
 
+#ifndef WIN32
+
 #include "shared.h"
 #include "headers/debug_op.h"
 #include "headers/defs.h"
 #include "rootcheck.h"
 
-#ifndef OSSECHIDS
 
 /* Prototypes */
 static int  connect_to_port(int proto, int port);
@@ -96,11 +97,9 @@ static void try_to_access_ports()
     }
 
 }
-#endif
 
 void check_open_ports()
 {
-#ifndef OSSECHIDS
     memset(open_ports_str, '\0', OS_SIZE_1024 + 1);
     open_ports_size = OS_SIZE_1024 - 1;
     _ports_open = 0;
@@ -115,7 +114,7 @@ void check_open_ports()
 
     notify_rk(ALERT_OK, open_ports_str);
 
-#endif
     return;
 }
 
+#endif

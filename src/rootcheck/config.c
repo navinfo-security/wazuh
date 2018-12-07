@@ -7,7 +7,6 @@
  * Foundation
  */
 
-#ifdef OSSECHIDS
 #include "shared.h"
 #include "rootcheck.h"
 #include "config/config.h"
@@ -84,5 +83,3 @@ cJSON *getRootcheckConfig(void) {
 
     return root;
 }
-
-#endif /* OSSECHIDS */

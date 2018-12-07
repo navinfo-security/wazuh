@@ -27,40 +27,9 @@ char total_ports_tcp[65535 + 1];
 #define ARGV0 "rootcheck"
 #endif
 
-#ifndef OSSECHIDS
-
-
-/* Print help statement */
-void help_rootcheck()
-{
-    print_header();
-    print_out("  %s: -[Vhdtsr] [-c config] [-D dir]", ARGV0);
-    print_out("    -V          Version and license message");
-    print_out("    -h          Print this help message");
-    print_out("    -d          Execute in debug mode. This parameter");
-    print_out("                can be specified multiple times");
-    print_out("                to increase the debug level.");
-    print_out("    -t          Test configuration");
-    print_out("    -s          Scan the whole system");
-    print_out("    -r          Read all the files for kernel-based detection");
-    print_out("    -c <config> Configuration file to use");
-    print_out("    -D <dir>    Directory to chroot into (default: %s)", DEFAULTDIR);
-    print_out(" ");
-    exit(1);
-}
-
-int main(int argc, char **argv)
-{
-    int test_config = 0;
-    const char *cfg = "./rootcheck.conf";
-
-#else
-
 int rootcheck_init(int test_config)
 {
     const char *cfg = DEFAULTCPATH;
-
-#endif /* OSSECHIDS */
 
     int c;
 
@@ -75,7 +44,6 @@ int rootcheck_init(int test_config)
     rootcheck.winmalware = NULL;
     rootcheck.winapps = NULL;
     rootcheck.daemon = 1;
-    rootcheck.notify = QUEUE;
     rootcheck.scanall = 0;
     rootcheck.readall = 0;
     rootcheck.disabled = RK_CONF_UNPARSED;
@@ -106,46 +74,7 @@ int rootcheck_init(int test_config)
         c++;
     }
 
-#ifndef OSSECHIDS
-    rootcheck.notify = SYSLOG_RK;
-    rootcheck.daemon = 0;
-    while ((c = getopt(argc, argv, "VstrdhD:c:")) != -1) {
-        switch (c) {
-            case 'V':
-                print_version();
-                break;
-            case 'h':
-                help_rootcheck();
-                break;
-            case 'd':
-                nowDebug();
-                break;
-            case 'D':
-                if (!optarg) {
-                    mterror_exit(ARGV0, "-D needs an argument");
-                }
-                rootcheck.workdir = optarg;
-                break;
-            case 'c':
-                if (!optarg) {
-                    mterror_exit(ARGV0, "-c needs an argument");
-                }
-                cfg = optarg;
-                break;
-            case 's':
-                rootcheck.scanall = 1;
-                break;
-            case 't':
-                test_config = 1;
-                break;
-            case 'r':
-                rootcheck.readall = 1;
-                break;
-            default:
-                help_rootcheck();
-                break;
-        }
-    }
+
 #ifdef WIN32
     /* Start Winsock */
     {
@@ -155,8 +84,6 @@ int rootcheck_init(int test_config)
         }
     }
 #endif /* WIN32 */
-
-#endif /* OSSECHIDS */
 
     /* Check if the configuration is present */
     if (File_DateofChange(cfg) < 0) {
@@ -181,6 +108,7 @@ int rootcheck_init(int test_config)
         mtinfo(ARGV0, "Rootcheck disabled.");
         return (1);
     }
+
     mtdebug1(ARGV0, STARTED_MSG);
 
 #ifndef WIN32
@@ -195,13 +123,10 @@ int rootcheck_init(int test_config)
         rootcheck.workdir = DEFAULTDIR;
     }
 
-#ifdef OSSECHIDS
     /* Start up message */
 #ifdef WIN32
     mtinfo(ARGV0, STARTUP_MSG, getpid());
 #endif /* WIN32 */
-
-#endif /* OSSECHIDS */
 
     /* Initialize rk list */
     rk_sys_name = (char **) calloc(MAX_RK_SYS + 2, sizeof(char *));
@@ -212,30 +137,24 @@ int rootcheck_init(int test_config)
     rk_sys_name[0] = NULL;
     rk_sys_file[0] = NULL;
 
-#ifndef OSSECHIDS
 #ifndef WIN32
-    /* Start signal handling */
-    StartSIG(ARGV0);
     rootcheck_connect();
 #endif
     mtdebug1(ARGV0, "Running run_rk_check");
     run_rk_check();
 
     mtdebug1(ARGV0, "Leaving...");
-#endif /* OSSECHIDS */
     return (0);
 }
 
 void rootcheck_connect() {
 #ifndef WIN32
-    /* Connect to the queue if configured to do so */
-    if (rootcheck.notify == QUEUE) {
-        mtdebug1(ARGV0, "Starting queue ...");
+    /* Connect to the queue */
+    mtdebug1(ARGV0, "Starting queue ...");
 
-        /* Start the queue */
-        if ((rootcheck.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
-            mterror_exit(ARGV0, QUEUE_FATAL, DEFAULTQPATH);
-        }
+    /* Start the queue */
+    if ((rootcheck.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
+        mterror_exit(ARGV0, QUEUE_FATAL, DEFAULTQPATH);
     }
 #endif
 }

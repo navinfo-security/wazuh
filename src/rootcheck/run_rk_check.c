@@ -11,34 +11,16 @@
 #include "rootcheck.h"
 #include "config/syscheck-config.h"
 
-static void log_realtime_status_rk(int next);
-
 /* Report a problem */
 int notify_rk(int rk_type, const char *msg)
 {
-    /* Non-queue notification */
-    if (rootcheck.notify != QUEUE) {
-        if (rk_type == ALERT_OK) {
-            printf("[OK]: %s\n", msg);
-        } else if (rk_type == ALERT_SYSTEM_ERR) {
-            printf("[ERR]: %s\n", msg);
-        } else if (rk_type == ALERT_POLICY_VIOLATION) {
-            printf("[INFO]: %s\n", msg);
-        } else {
-            printf("[FAILED]: %s\n", msg);
-        }
-
-        printf("\n");
-        return (0);
-    }
 
     /* No need to alert on that to the server */
     if (rk_type <= ALERT_SYSTEM_ERR) {
         return (0);
     }
 
-#ifdef OSSECHIDS
-    /* When running in context of OSSEC-HIDS, send problem to the rootcheck queue */
+    /* Send event/check to the rootcheck queue */
     if (SendMSG(rootcheck.queue, msg, ROOTCHECK, ROOTCHECK_MQ) < 0) {
         mterror(ARGV0, QUEUE_SEND);
 
@@ -50,7 +32,6 @@ int notify_rk(int rk_type, const char *msg)
             mterror_exit(ARGV0, QUEUE_FATAL, DEFAULTQPATH);
         }
     }
-#endif
 
     return (0);
 }
@@ -78,16 +59,6 @@ void run_rk_check()
 
     time1 = time(0);
 
-    /* Initial message */
-    if (rootcheck.notify != QUEUE) {
-        printf("\n");
-        printf("** Starting Rootcheck v0.9 by Daniel B. Cid        **\n");
-        printf("** http://www.ossec.net/en/about.html#dev-team     **\n");
-        printf("** http://www.ossec.net/rootcheck/                 **\n\n");
-        printf("Be patient, it may take a few minutes to complete...\n");
-        printf("\n");
-    }
-
     /* Clean the global variables */
     rk_sys_count = 0;
     rk_sys_file[rk_sys_count] = NULL;
@@ -95,9 +66,7 @@ void run_rk_check()
 
     /* Send scan start message */
     notify_rk(ALERT_POLICY_VIOLATION, "Starting rootcheck scan.");
-    if (rootcheck.notify == QUEUE) {
-        mtinfo(ARGV0, "Starting rootcheck scan.");
-    }
+    mtinfo(ARGV0, "Starting rootcheck scan.");
 
     /* Check for Rootkits */
     /* Open rootkit_files and pass the pointer to check_rc_files */
@@ -195,7 +164,7 @@ void run_rk_check()
     size_t i;
     /* Checks for other non-Windows */
 
-    /* Unix audit check ***/
+    /* Unix audit check */
     if (rootcheck.checks.rc_unixaudit) {
         if (rootcheck.unixaudit) {
             /* Get process list */
@@ -242,12 +211,14 @@ void run_rk_check()
 
     /* Check all ports */
     if (rootcheck.checks.rc_ports) {
+#ifndef WIN32
         mtdebug1(ARGV0, "Going into check_rc_ports");
         check_rc_ports();
 
         /* Check open ports */
         mtdebug1(ARGV0, "Going into check_open_ports");
         check_open_ports();
+#endif
     }
 
     /* Check interfaces */
@@ -274,19 +245,11 @@ void run_rk_check()
 
     /* Final message */
     time2 = time(0);
-
-    if (rootcheck.notify != QUEUE) {
-        printf("\n");
-        printf("- Scan completed in %d seconds.\n\n", (int)(time2 - time1));
-    } else {
-        sleep(5);
-    }
+    sleep(5);
 
     /* Send scan ending message */
     notify_rk(ALERT_POLICY_VIOLATION, "Ending rootcheck scan.");
-    if (rootcheck.notify == QUEUE) {
-        mtinfo(ARGV0, "Ending rootcheck scan.");
-    }
+    mtinfo(ARGV0, "Ending rootcheck scan. Duration: %d", (int)(time2 - time1));
 
     mtdebug1(ARGV0, "Leaving run_rk_check");
     return;
@@ -310,7 +273,6 @@ void * w_rootcheck_thread(__attribute__((unused)) void * args) {
         /* If time elapsed is higher than the rootcheck_time, run it */
         if (syscheck->rootcheck) {
             if (((curr_time - prev_time_rk) > rootcheck.time) || run_now) {
-                log_realtime_status_rk(2);
                 run_rk_check();
                 prev_time_rk = time(0);
             }
@@ -320,34 +282,3 @@ void * w_rootcheck_thread(__attribute__((unused)) void * args) {
 
     return NULL;
 }
-
-void log_realtime_status_rk(int next) {
-    /*
-     * 0: stop (initial)
-     * 1: run
-     * 2: pause
-     */
-
-    static int status = 0;
-
-    switch (status) {
-    case 0:
-        if (next == 1) {
-            minfo("Starting rootcheck real-time monitoring.");
-            status = next;
-        }
-        break;
-    case 1:
-        if (next == 2) {
-            minfo("Pausing rootcheck real-time monitoring.");
-            status = next;
-        }
-        break;
-    case 2:
-        if (next == 1) {
-            minfo("Resuming rootcheck real-time monitoring.");
-            status = next;
-        }
-    }
-}
-

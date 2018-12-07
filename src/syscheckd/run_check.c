@@ -43,22 +43,6 @@ int send_syscheck_msg(const char *msg)
     return (0);
 }
 
-/* Send a message related to rootcheck change/addition */
-int send_rootcheck_msg(const char *msg)
-{
-    if (SendMSG(syscheck.queue, msg, ROOTCHECK, ROOTCHECK_MQ) < 0) {
-        merror(QUEUE_SEND);
-
-        if ((syscheck.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
-            merror_exit(QUEUE_FATAL, DEFAULTQPATH);
-        }
-
-        /* Try to send it again */
-        SendMSG(syscheck.queue, msg, ROOTCHECK, ROOTCHECK_MQ);
-    }
-    return (0);
-}
-
 /* Send syscheck db to the server */
 static void send_sk_db(int first_start)
 {
@@ -372,7 +356,7 @@ int c_read_file(const char *file_name, const char *oldsum, char *newsum, whodata
 
                 os_strdup(s_node->checksum, checksum_inode);
                 inode_str = get_attr_from_checksum(checksum_inode, SK_INODE);
-                
+
                 if (w_inode = OSHash_Delete_ex(syscheck.inode_hash, inode_str), w_inode) {
                     free(w_inode);
                 }

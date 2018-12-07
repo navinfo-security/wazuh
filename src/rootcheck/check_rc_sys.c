@@ -18,9 +18,6 @@ static int read_sys_dir(const char *dir_name, int do_read);
 static int   _sys_errors;
 static int   _sys_total;
 static dev_t did;
-static FILE *_wx;
-static FILE *_ww;
-static FILE *_suid;
 
 
 static int read_sys_file(const char *file_name, int do_read)
@@ -104,36 +101,18 @@ static int read_sys_file(const char *file_name, int do_read)
 #ifndef WIN32
     if ((statbuf.st_mode & S_IWOTH) == S_IWOTH && S_ISREG(statbuf.st_mode)) {
         if ((statbuf.st_mode & S_IXUSR) == S_IXUSR) {
-            if (_wx) {
-                fprintf(_wx, "%s\n", file_name);
-            }
-
             _sys_errors++;
-        } else {
-            if (_ww) {
-                fprintf(_ww, "%s\n", file_name);
-            }
         }
 
         if (statbuf.st_uid == 0) {
             char op_msg[OS_SIZE_1024 + 1];
-#ifdef OSSECHIDS
             snprintf(op_msg, OS_SIZE_1024, "File '%s' is owned by root "
                      "and has written permissions to anyone.", file_name);
-#else
-            snprintf(op_msg, OS_SIZE_1024, "File '%s' is: \n"
-                     "          - owned by root,\n"
-                     "          - has write permissions to anyone.",
-                     file_name);
-#endif
             notify_rk(ALERT_SYSTEM_CRIT, op_msg);
 
         }
         _sys_errors++;
-    } else if ((statbuf.st_mode & S_ISUID) == S_ISUID) {
-        if (_suid) {
-            fprintf(_suid, "%s\n", file_name);
-        }
+
     }
 #endif /* WIN32 */
     return (0);
@@ -356,17 +335,6 @@ void check_rc_sys(const char *basedir)
 
     snprintf(file_path, OS_SIZE_1024, "%s", basedir);
 
-    /* Open output files */
-    if (rootcheck.notify != QUEUE) {
-        _wx = fopen("rootcheck-rw-rw-rw-.txt", "w");
-        _ww = fopen("rootcheck-rwxrwxrwx.txt", "w");
-        _suid = fopen("rootcheck-suid-files.txt", "w");
-    } else {
-        _wx = NULL;
-        _ww = NULL;
-        _suid = NULL;
-    }
-
     if (rootcheck.scanall) {
         /* Scan the whole file system -- may be slow */
 #ifndef WIN32
@@ -411,41 +379,6 @@ void check_rc_sys(const char *basedir)
         snprintf(op_msg, OS_SIZE_1024, "No problem found on the system."
                  " Analyzed %d files.", _sys_total);
         notify_rk(ALERT_OK, op_msg);
-    }
-
-    else if (_wx && _ww && _suid) {
-        char op_msg[OS_SIZE_1024 + 1];
-        snprintf(op_msg, OS_SIZE_1024, "Check the following files for more "
-                 "information:\n%s%s%s",
-                 (ftell(_wx) == 0) ? "" :
-                 "       rootcheck-rw-rw-rw-.txt (list of world writable files)\n",
-                 (ftell(_ww) == 0) ? "" :
-                 "       rootcheck-rwxrwxrwx.txt (list of world writtable/executable files)\n",
-                 (ftell(_suid) == 0) ? "" :
-                 "       rootcheck-suid-files.txt (list of suid files)");
-
-        notify_rk(ALERT_SYSTEM_ERR, op_msg);
-    }
-
-    if (_wx) {
-        if (ftell(_wx) == 0) {
-            unlink("rootcheck-rw-rw-rw-.txt");
-        }
-        fclose(_wx);
-    }
-
-    if (_ww) {
-        if (ftell(_ww) == 0) {
-            unlink("rootcheck-rwxrwxrwx.txt");
-        }
-        fclose(_ww);
-    }
-
-    if (_suid) {
-        if (ftell(_suid) == 0) {
-            unlink("rootcheck-suid-files.txt");
-        }
-        fclose(_suid);
     }
 
     return;

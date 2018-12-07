@@ -104,15 +104,8 @@ static void test_ports(int proto, int *_errors, int *_total)
                 continue;
             }
 
-#ifdef OSSECHIDS
-            /* If we are in the context of OSSEC-HIDS, sleep here (no rush) */
-#ifdef WIN32
-        Sleep(rootcheck.tsleep);
-#else
         struct timeval timeout = {0, rootcheck.tsleep * 1000};
         select(0, NULL, NULL, NULL, &timeout);
-#endif
-#endif
 
             if (!run_netstat(proto, i) && conn_port(proto, i)) {
                 char op_msg[OS_SIZE_1024 + 1];
@@ -171,12 +164,4 @@ void check_rc_ports()
     return;
 }
 
-#else /* WIN32 */
-
-/* Not implemented on Windows */
-void check_rc_ports()
-{
-    return;
-}
-
-#endif /* WIN32 */
+#endif

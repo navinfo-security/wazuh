@@ -16,19 +16,15 @@
 
 extern rkconfig rootcheck;
 
-/* Output types */
-#define QUEUE       101
-#define SYSLOG_RK   102
-
 /* Maximum files to search on the whole system */
 #define MAX_RK_SYS      512
 
 /* rk_types */
-#define ALERT_OK                0
-#define ALERT_SYSTEM_ERR        1
-#define ALERT_SYSTEM_CRIT       2
-#define ALERT_ROOTKIT_FOUND     3
-#define ALERT_POLICY_VIOLATION  4
+#define ALERT_OK                0   // [OK]
+#define ALERT_SYSTEM_ERR        1   // [ERROR]
+#define ALERT_SYSTEM_CRIT       2   // [CRITICAL]
+#define ALERT_ROOTKIT_FOUND     3   // [RK]
+#define ALERT_POLICY_VIOLATION  4   // [INFO]
 
 #define ROOTCHECK           "rootcheck"
 
