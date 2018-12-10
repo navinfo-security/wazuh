@@ -355,7 +355,7 @@ void check_rc_sys(const char *basedir)
                                        };
 
 #else
-        const char *(dirs_to_scan[]) = {"C:\\WINDOWS", "C:\\Program Files", NULL};
+        const char *(dirs_to_scan[]) = {"C:\\WINDOWS", "C:\\Program Files", "C:\\Program Files (x86)", NULL};
 #endif
 
         _i = 0;
