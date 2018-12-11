@@ -614,11 +614,11 @@ void wm_kill_children() {
                         case -1:
                             switch (errno) {
                             case ESRCH:
-                                exit(EXIT_SUCCESS);
+                                _exit(EXIT_SUCCESS);
 
                             default:
                                 merror("wm_kill_children(): Couldn't wait PID %d: (%d) %s.", sid, errno, strerror(errno));
-                                exit(EXIT_FAILURE);
+                                _exit(EXIT_FAILURE);
                             }
 
                         default:
@@ -631,7 +631,7 @@ void wm_kill_children() {
                     mdebug1("Killing process group %d", sid);
 
                     kill(-sid, SIGKILL);
-                    exit(EXIT_SUCCESS);
+                    _exit(EXIT_SUCCESS);
 
                 default: // Parent
                     wm_children[i] = 0;
