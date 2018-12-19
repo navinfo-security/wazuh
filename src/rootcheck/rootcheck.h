@@ -31,6 +31,16 @@ extern rkconfig rootcheck;
 /* Default to 12 hours */
 #define ROOTCHECK_WAIT          43200
 
+/* PM stats struct */
+typedef struct pm_stats {
+    char *type;
+    char *profile;
+    int pass;
+    int fail;
+    int unknown;
+    int score;
+} pm_stats;
+
 /** Prototypes **/
 
 /* Check if file is present on dir */
@@ -55,8 +65,8 @@ int is_file(char *file_name);
 /* Check if an entry is in the registry */
 int is_registry(char *entry_name, char *reg_option, char *reg_value);
 
-/* Read cl configuration file */
-int rkcl_get_entry(FILE *fp, const char *msg, OSList *p_list);
+/* Scan PM file */
+int pm_get_entry(FILE *fp, pm_stats * pm_data, OSList *p_list);
 
 /* Normalize a string, removing white spaces and tabs
  * from the beginning and the end of it.
@@ -100,10 +110,10 @@ void * w_rootcheck_thread(__attribute__((unused)) void * args);
 /*** Plugins prototypes ***/
 void check_rc_files(const char *basedir, FILE *fp);
 void check_rc_trojans(const char *basedir, FILE *fp);
-void check_rc_unixaudit(FILE *fp, OSList *p_list);
-void check_rc_winaudit(FILE *fp, OSList *p_list);
-void check_rc_winmalware(FILE *fp, OSList *p_list);
-void check_rc_winapps(FILE *fp, OSList *p_list);
+int check_rc_unixaudit(FILE *fp, OSList *p_list);
+int check_rc_winaudit(FILE *fp, OSList *p_list);
+int check_rc_winmalware(FILE *fp, OSList *p_list);
+int check_rc_winapps(FILE *fp, OSList *p_list);
 void check_rc_dev(const char *basedir);
 void check_rc_sys(const char *basedir);
 void check_rc_pids(void);

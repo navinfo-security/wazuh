@@ -121,7 +121,9 @@ void run_rk_check()
             if (!fp) {
                 mterror(ARGV0, "No winaudit file: '%s'", rootcheck.winaudit);
             } else {
-                check_rc_winaudit(fp, plist);
+                if (check_rc_winaudit(fp, plist) < 0) {
+                    mterror(ARGV0, "Failed Windows audit for file '%s'", rootcheck.winaudit);
+                }
                 fclose(fp);
             }
         }
@@ -136,7 +138,9 @@ void run_rk_check()
             if (!fp) {
                 mterror(ARGV0, "No winmalware file: '%s'", rootcheck.winmalware);
             } else {
-                check_rc_winmalware(fp, plist);
+                if (check_rc_winmalware(fp, plist) < 0) {
+                    mterror(ARGV0, "Failed Windows malware scan for file '%s", rootcheck.winmalware);
+                }
                 fclose(fp);
             }
         }
@@ -151,7 +155,9 @@ void run_rk_check()
             if (!fp) {
                 mterror(ARGV0, "No winapps file: '%s'", rootcheck.winapps);
             } else {
-                check_rc_winapps(fp, plist);
+                if (check_rc_winapps(fp, plist) < 0) {
+                    mterror(ARGV0, "Failed Windows applications scan for file '%s", rootcheck.winapps);
+                }
                 fclose(fp);
             }
         }
@@ -177,7 +183,9 @@ void run_rk_check()
                     mterror(ARGV0, "No unixaudit file: '%s'", rootcheck.unixaudit[i]);
                 } else {
                     /* Run unix audit */
-                    check_rc_unixaudit(fp, plist);
+                    if (check_rc_unixaudit(fp, plist) < 0) {
+                        mterror(ARGV0, "Failed system audit for file '%s'", rootcheck.unixaudit[i]);
+                    }
                     fclose(fp);
                 }
 

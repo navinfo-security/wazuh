@@ -10,39 +10,75 @@
 #include "shared.h"
 #include "rootcheck.h"
 
+static void free_pm(pm_stats * pm_data);
+
 
 /* Read the file pointer specified
  * and check if the configured file is there
  */
-void check_rc_unixaudit(FILE *fp, OSList *p_list)
+int check_rc_unixaudit(FILE *fp, OSList *p_list)
 {
     mtdebug1(ARGV0, "Starting on check_rc_unixaudit");
-    rkcl_get_entry(fp, "System Audit:", p_list);
+    pm_stats * pm_data = NULL;
+    os_strdup("system audit", pm_data->type);
+    if (pm_get_entry(fp, pm_data, p_list) < 0) {
+        free_pm(pm_data);
+        return -1;
+    }
+    return 0;
 }
 
 /* Read the file pointer specified
  * and check if the configured file is there
  */
-void check_rc_winaudit(FILE *fp, OSList *p_list)
+int check_rc_winaudit(FILE *fp, OSList *p_list)
 {
     mtdebug1(ARGV0, "Starting on check_rc_winaudit");
-    rkcl_get_entry(fp, "Windows Audit:", p_list);
+    pm_stats * pm_data = NULL;
+    os_strdup("Windows audit", pm_data->type);
+    if (pm_get_entry(fp, pm_data, p_list) < 0) {
+        free_pm(pm_data);
+        return -1;
+    }
+    return 0;
 }
 
 /* Read the file pointer specified
  * and check if the configured file is there
  */
-void check_rc_winmalware(FILE *fp, OSList *p_list)
+int check_rc_winmalware(FILE *fp, OSList *p_list)
 {
     mtdebug1(ARGV0, "Starting on check_rc_winmalware");
-    rkcl_get_entry(fp, "Windows Malware:", p_list);
+    pm_stats * pm_data = NULL;
+    os_strdup("Windows malware", pm_data->type);
+    if (pm_get_entry(fp, pm_data, p_list) < 0) {
+        free_pm(pm_data);
+        return -1;
+    }
+    return 0;
 }
 
 /* Read the file pointer specified
  * and check if the configured file is there
  */
-void check_rc_winapps(FILE *fp, OSList *p_list)
+int check_rc_winapps(FILE *fp, OSList *p_list)
 {
     mtdebug1(ARGV0, "Starting on check_rc_winapps");
-    rkcl_get_entry(fp, "Application Found:", p_list);
+    pm_stats * pm_data = NULL;
+    os_strdup("Windows application", pm_data->type);
+    if (pm_get_entry(fp, pm_data, p_list) < 0) {
+        free_pm(pm_data);
+        return -1;
+    }
+    return 0;
+}
+
+static void free_pm(pm_stats * pm_data) {
+    if (pm_data->type)
+        free(pm_data->type);
+
+    if (pm_data->profile)
+        free(pm_data->profile);
+
+    free(pm_data);
 }

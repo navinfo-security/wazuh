@@ -12,9 +12,9 @@
 
 /* Prototypes */
 static char *_rkcl_getfp(FILE *fp, char *buf);
-static int   _rkcl_is_name(const char *buf);
-static int   _rkcl_get_vars(OSStore *vars, char *nbuf);
-static char *_rkcl_get_name(char *buf, char *ref, int *condition);
+static int _rkcl_is_header(const char *buf);
+static int _rkcl_get_vars(OSStore *vars, char *nbuf);
+static cJSON * read_check_metadata(char * buf, int * condition);
 static char *_rkcl_get_pattern(char *value);
 static char *_rkcl_get_value(char *buf, int *type);
 
@@ -29,6 +29,7 @@ static char *_rkcl_get_value(char *buf, int *type);
 #define RKCL_COND_REQ       0x004
 #define RKCL_COND_NON       0x008
 #define RKCL_COND_INV       0x016
+
 #ifdef WIN32
 char *_rkcl_getrootdir(char *root_dir, int dir_size)
 {
@@ -54,7 +55,7 @@ char *_rkcl_getrootdir(char *root_dir, int dir_size)
 /* Get next available buffer in file */
 static char *_rkcl_getfp(FILE *fp, char *buf)
 {
-    while (fgets(buf, OS_SIZE_1024, fp) != NULL) {
+    while (fgets(buf, OS_SIZE_2048, fp) != NULL) {
         char *nbuf;
 
         /* Remove end of line */
@@ -90,9 +91,9 @@ static char *_rkcl_getfp(FILE *fp, char *buf)
     return (NULL);
 }
 
-static int _rkcl_is_name(const char *buf)
+static int _rkcl_is_header(const char *buf)
 {
-    if (*buf == '[' && buf[strlen(buf) - 1] == ']') {
+    if (*buf == '{' && buf[strlen(buf) - 1] == '}') {
         return (1);
     }
     return (0);
@@ -133,73 +134,37 @@ static int _rkcl_get_vars(OSStore *vars, char *nbuf)
     return (1);
 }
 
-static char *_rkcl_get_name(char *buf, char *ref, int *condition)
-{
-    char *tmp_location;
-    char *tmp_location2;
-    *condition = 0;
+/* Read the JSON header of every check */
+static cJSON * read_check_metadata(char * buf, int * condition) {
 
-    /* Check if name is valid */
-    if (!_rkcl_is_name(buf)) {
-        return (NULL);
+    cJSON * header = NULL;
+    char tmp_cond[OS_SIZE_128];
+
+    header = cJSON_Parse(buf);
+    if (!header) {
+        return NULL;
     }
 
-    /* Set name */
-    buf++;
-    tmp_location = strchr(buf, ']');
-    if (!tmp_location) {
-        return (NULL);
-    }
-    *tmp_location = '\0';
-
+    snprintf(tmp_cond, OS_SIZE_128 - 1, "%s", cJSON_GetObjectItem(header, "condition")->valuestring);
     /* Get condition */
-    tmp_location++;
-    if (*tmp_location != ' ' && tmp_location[1] != '[') {
-        return (NULL);
-    }
-    tmp_location += 2;
-
-    tmp_location2 = strchr(tmp_location, ']');
-    if (!tmp_location2) {
-        return (NULL);
-    }
-    *tmp_location2 = '\0';
-    tmp_location2++;
-
-    /* Get condition */
-    if (strcmp(tmp_location, "all") == 0) {
+    if (strcmp(tmp_cond, "all") == 0) {
         *condition |= RKCL_COND_ALL;
-    } else if (strcmp(tmp_location, "any") == 0) {
+    } else if (strcmp(tmp_cond, "any") == 0) {
         *condition |= RKCL_COND_ANY;
-    } else if (strcmp(tmp_location, "none") == 0) {
+    } else if (strcmp(tmp_cond, "none") == 0) {
         *condition |= RKCL_COND_NON;
-    } else if (strcmp(tmp_location, "any required") == 0) {
+    } else if (strcmp(tmp_cond, "any required") == 0) {
         *condition |= RKCL_COND_ANY;
         *condition |= RKCL_COND_REQ;
-    } else if (strcmp(tmp_location, "all required") == 0) {
+    } else if (strcmp(tmp_cond, "all required") == 0) {
         *condition |= RKCL_COND_ALL;
         *condition |= RKCL_COND_REQ;
     } else {
         *condition = RKCL_COND_INV;
-        return (NULL);
     }
 
-    /* Get reference */
-    if (*tmp_location2 != ' ' && tmp_location2[1] != '[') {
-        return (NULL);
-    }
-
-    tmp_location2 += 2;
-    tmp_location = strchr(tmp_location2, ']');
-    if (!tmp_location) {
-        return (NULL);
-    }
-    *tmp_location = '\0';
-
-    /* Copy reference */
-    strncpy(ref, tmp_location2, 255);
-
-    return (strdup(buf));
+    cJSON_DeleteItemFromObject(header, "condition");
+    return header;
 }
 
 static char *_rkcl_get_pattern(char *value)
@@ -262,31 +227,36 @@ static char *_rkcl_get_value(char *buf, int *type)
     return (value);
 }
 
-int rkcl_get_entry(FILE *fp, const char *msg, OSList *p_list)
-{
+int pm_get_entry(FILE *fp, pm_stats * pm_data, OSList *p_list) {
+
     int type = 0, condition = 0;
-    char *nbuf;
-    char buf[OS_SIZE_1024 + 2];
+    char * nbuf;
+    char buf[OS_SIZE_2048 + 2];
     char root_dir[OS_SIZE_1024 + 2];
-    char final_file[2048 + 1];
-    char ref[255 + 1];
+    char final_file[OS_SIZE_2048 + 1];
     char *value;
-    char *name = NULL;
     OSStore *vars;
+
+    cJSON * json_header = NULL;
+    cJSON * files = NULL;
+    cJSON * directories = NULL;
+    cJSON * processes = NULL;
+#ifdef WIN32
+    cJSON * registries = NULL;
+#endif
 
     /* Initialize variables */
     memset(buf, '\0', sizeof(buf));
     memset(root_dir, '\0', sizeof(root_dir));
-    memset(final_file, '\0', sizeof(final_file));
-    memset(ref, '\0', sizeof(ref));
 
-#ifdef WIN32
-    /* Get Windows rootdir */
-    _rkcl_getrootdir(root_dir, sizeof(root_dir) - 1);
-    if (root_dir[0] == '\0') {
-        mterror(ARGV0, INVALID_ROOTDIR);
-    }
-#endif
+    #ifdef WIN32
+        /* Get Windows rootdir */
+        _rkcl_getrootdir(root_dir, sizeof(root_dir) - 1);
+        if (root_dir[0] == '\0') {
+            mterror(ARGV0, INVALID_ROOTDIR);
+        }
+    #endif
+
     /* Get variables */
     vars = OSStore_Create();
 
@@ -295,7 +265,7 @@ int rkcl_get_entry(FILE *fp, const char *msg, OSList *p_list)
         int rc_code = 0;
         nbuf = _rkcl_getfp(fp, buf);
         if (nbuf == NULL) {
-            goto clean_return;
+            goto clean_error;
         }
 
         rc_code = _rkcl_get_vars(vars, nbuf);
@@ -303,25 +273,55 @@ int rkcl_get_entry(FILE *fp, const char *msg, OSList *p_list)
             break;
         } else if (rc_code == -1) {
             mterror(ARGV0, INVALID_RKCL_VAR, nbuf);
-            goto clean_return;
+            goto clean_error;
         }
     }
 
-    /* Get first name */
-    name = _rkcl_get_name(nbuf, ref, &condition);
-    if (name == NULL || condition == RKCL_COND_INV) {
-        mterror(ARGV0, INVALID_RKCL_NAME, nbuf);
-        goto clean_return;
+    /* Get the profile of the file */
+    nbuf = _rkcl_getfp(fp, buf);
+    if (nbuf == NULL) {
+        goto clean_error;
+    } else if (!strncmp(nbuf, "Profile", 7)) {
+        if (nbuf = strchr(nbuf, ':'), nbuf) {
+            nbuf = w_strtrim(nbuf);
+            os_strdup(nbuf, pm_data->profile);
+        } else {
+            os_strdup("unknown", pm_data->profile);
+        }
+    } else {
+        mterror(ARGV0, INVALID_RKCL_PROF, nbuf);
+        goto clean_error;
     }
 
-    /* Get the real entries */
-    do {
+    /* Read first metadata line */
+
+    nbuf = _rkcl_getfp(fp, buf);
+    if (nbuf == NULL) {
+        goto clean_error;
+    }
+
+    while (nbuf != NULL) {
+
+        json_header = read_check_metadata(nbuf, &condition);
+        if (!json_header || condition == RKCL_COND_INV) {
+            mterror(ARGV0, INVALID_RKCL_NAME, nbuf);
+            goto clean_error;
+        }
+
+        mtdebug2(ARGV0, "Checking Policy Monitoring ID: %d", cJSON_GetObjectItem(json_header, "pm_id")->valueint);
+
         int g_found = 0;
         int not_found = 0;
 
-        mtdebug2(ARGV0, "Checking entry: '%s'.", name);
+        /* Inicialize arrays for monitored resources */
+        files = cJSON_CreateArray();
+        directories = cJSON_CreateArray();
+        processes = cJSON_CreateArray();
+#ifdef WIN32
+        registries = cJSON_CreateArray();
+#endif
 
-        /* Get each value */
+        /* Get values from each entry */
         do {
             int negate = 0;
             int found = 0;
@@ -332,19 +332,16 @@ int rkcl_get_entry(FILE *fp, const char *msg, OSList *p_list)
                 break;
             }
 
-            /* First try to get the name, looking for new entries */
-            if (_rkcl_is_name(nbuf)) {
+            if (_rkcl_is_header(nbuf)) {
                 break;
             }
 
-            /* Get value to look for */
             value = _rkcl_get_value(nbuf, &type);
             if (value == NULL) {
                 mterror(ARGV0, INVALID_RKCL_VALUE, nbuf);
-                goto clean_return;
+                goto clean_error;
             }
 
-            /* Get negate value */
             if (*value == '!') {
                 negate = 1;
                 value++;
@@ -390,6 +387,7 @@ int rkcl_get_entry(FILE *fp, const char *msg, OSList *p_list)
                     mtdebug2(ARGV0, "Found file.");
                     found = 1;
                 }
+                cJSON_AddItemToArray(files, cJSON_CreateString(f_value));
             }
 
 #ifdef WIN32
@@ -411,9 +409,10 @@ int rkcl_get_entry(FILE *fp, const char *msg, OSList *p_list)
                     mtdebug2(ARGV0, "Found registry.");
                     found = 1;
                 }
-
+                cJSON_AddItemToArray(registries, cJSON_CreateString(value));
             }
 #endif
+
             /* Check for a directory */
             else if (type == RKCL_TYPE_DIR) {
                 char *file = NULL;
@@ -462,6 +461,7 @@ int rkcl_get_entry(FILE *fp, const char *msg, OSList *p_list)
                             mtdebug2(ARGV0, "Found dir.");
                             found = 1;
                         }
+                        cJSON_AddItemToArray(directories, cJSON_CreateString(dir));
                     }
 
                     if (f_value) {
@@ -482,11 +482,11 @@ int rkcl_get_entry(FILE *fp, const char *msg, OSList *p_list)
 
             /* Check for a process */
             else if (type == RKCL_TYPE_PROCESS) {
-                mtdebug2(ARGV0, "Checking process: '%s'.", value);
                 if (is_process(value, p_list)) {
-                    mtdebug2(ARGV0, "Found process.");
+                    mtdebug2(ARGV0, "Found process: '%s", value);
                     found = 1;
                 }
+                cJSON_AddItemToArray(processes, cJSON_CreateString(value));
             }
 
             /* Switch the values if ! is present */
@@ -527,79 +527,72 @@ int rkcl_get_entry(FILE *fp, const char *msg, OSList *p_list)
            if (not_found == -1){ g_found = 0;} else {g_found = 1;}
         }
 
-        /* Alert if necessary */
         if (g_found == 1) {
-            int j = 0;
-            char op_msg[OS_SIZE_1024 + 1];
-            char **p_alert_msg = rootcheck.alert_msg;
-
-            while (1) {
-                if (ref[0] != '\0') {
-                    snprintf(op_msg, OS_SIZE_1024, "%s %s.%s"
-                             " Reference: %s .", msg, name,
-                             p_alert_msg[j] ? p_alert_msg[j] : "\0",
-                             ref);
-                } else {
-                    snprintf(op_msg, OS_SIZE_1024, "%s %s.%s", msg,
-                             name, p_alert_msg[j] ? p_alert_msg[j] : "\0");
-                }
-
-                if ((type == RKCL_TYPE_DIR) || (j == 0)) {
-                    notify_rk(ALERT_POLICY_VIOLATION, op_msg);
-                }
-
-                if (p_alert_msg[j]) {
-                    free(p_alert_msg[j]);
-                    p_alert_msg[j] = NULL;
-                    j++;
-
-                    if (!p_alert_msg[j]) {
-                        break;
-                    }
-                } else {
-                    break;
-                }
-            }
+            cJSON_AddStringToObject(json_header, "result", "fail");
         } else {
-            int j = 0;
-            while (rootcheck.alert_msg[j]) {
-                free(rootcheck.alert_msg[j]);
-                rootcheck.alert_msg[j] = NULL;
-                j++;
-            }
-
-            /* Check if this entry is required for the rest of the file */
             if (condition & RKCL_COND_REQ) {
-                goto clean_return;
+                goto clean_error;
             }
+            cJSON_AddStringToObject(json_header, "result", "pass");
         }
 
-        /* End if we don't have anything else */
-        if (!nbuf) {
-            goto clean_return;
+        /* Include involved sources */
+        if (cJSON_GetArraySize(files) > 0) {
+            cJSON_AddItemToObject(json_header, "files", files);
+        } else {
+            cJSON_Delete(files);
         }
+        if (cJSON_GetArraySize(directories) > 0) {
+            cJSON_AddItemToObject(json_header, "directories", directories);
+        } else {
+            cJSON_Delete(directories);
+        }
+        if (cJSON_GetArraySize(processes) > 0) {
+            cJSON_AddItemToObject(json_header, "processes", processes);
+        } else {
+            cJSON_Delete(processes);
+        }
+#ifdef WIN32
+        if (cJSON_GetArraySize(registries) > 0) {
+            cJSON_AddItemToObject(json_header, "registries", registries);
+        } else {
+            cJSON_Delete(registries);
+        }
+#endif
 
-        /* Clean up name */
-        if (name) {
-            free(name);
-            name = NULL;
-        }
+        /* Send check result to the queue */
+        char * msg;
+        msg = cJSON_PrintUnformatted(json_header);
+        notify_rk(ALERT_POLICY_VIOLATION, msg);
+        cJSON_Delete(json_header);
+        free(msg);
 
-        /* Get name already read */
-        name = _rkcl_get_name(nbuf, ref, &condition);
-        if (!name) {
-            mterror(ARGV0, INVALID_RKCL_NAME, nbuf);
-            goto clean_return;
-        }
-    } while (nbuf != NULL);
+    }
+
+    OSStore_Free(vars);
+    return 0;
 
     /* Clean up memory */
-clean_return:
-    if (name) {
-        free(name);
-        name = NULL;
+clean_error:
+
+    if (files) {
+        cJSON_Delete(files);
+    }
+    if (directories) {
+        cJSON_Delete(directories);
+    }
+    if (processes) {
+        cJSON_Delete(processes);
+    }
+#ifdef WIN32
+    if (registries) {
+        cJSON_Delete(registries);
+    }
+#endif
+    if (json_header) {
+        cJSON_Delete(json_header);
     }
     OSStore_Free(vars);
 
-    return (1);
+    return (-1);
 }

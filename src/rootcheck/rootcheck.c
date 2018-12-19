@@ -27,9 +27,20 @@ char total_ports_tcp[65535 + 1];
 #define ARGV0 "rootcheck"
 #endif
 
+#ifndef OSSECHIDS
+
+int main(int argc, char **argv)
+{
+    int test_config = 0;
+    const char *cfg = "./rootcheck.conf";
+	
+#else
+
 int rootcheck_init(int test_config)
 {
     const char *cfg = DEFAULTCPATH;
+
+#endif
 
     int c;
 
