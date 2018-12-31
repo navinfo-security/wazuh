@@ -58,6 +58,7 @@ int rootcheck_init(int test_config)
     rootcheck.disabled = RK_CONF_UNPARSED;
     rootcheck.skip_nfs = 0;
     rootcheck.time = ROOTCHECK_WAIT;
+    rootcheck.max_files = MAX_RK_SYS;
 
     rootcheck.checks.rc_dev = 1;
     rootcheck.checks.rc_files = 0;
@@ -96,6 +97,7 @@ int rootcheck_init(int test_config)
     }
 
     rootcheck.tsleep = getDefine_Int("rootcheck", "sleep", 0, 1000);
+    rootcheck.max_files = getDefine_Int("rootcheck", "max_files", 128, 4096);
 
     /* If testing config, exit here */
     if (test_config) {

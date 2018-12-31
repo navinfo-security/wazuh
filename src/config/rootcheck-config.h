@@ -33,6 +33,7 @@ typedef struct _rkconfig {
     int disabled;
     short skip_nfs;
     int tsleep;
+    int max_files;
 
     int time;
     int queue;
