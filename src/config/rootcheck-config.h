@@ -25,7 +25,6 @@ typedef struct _rkconfig {
     char *winaudit;
     char *winmalware;
     char *winapps;
-    char **alert_msg;
 
     FILE *fp;
     int daemon;

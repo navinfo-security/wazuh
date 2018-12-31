@@ -289,12 +289,6 @@ void Free_Rootcheck(rkconfig * config){
         free(config->winaudit);
         free(config->winmalware);
         free(config->winapps);
-        if (config->alert_msg) {
-            for (i=0; config->alert_msg[i] != NULL; i++) {
-                free(config->alert_msg[i]);
-            }
-            free(config->alert_msg);
-        }
         if (config->fp) {
             fclose(config->fp);
         }

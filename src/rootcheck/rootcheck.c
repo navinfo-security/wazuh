@@ -42,8 +42,6 @@ int rootcheck_init(int test_config)
 
 #endif
 
-    int c;
-
     /* Zero the structure, initialize default values */
     rootcheck.workdir = NULL;
     rootcheck.basedir = NULL;
@@ -59,7 +57,6 @@ int rootcheck_init(int test_config)
     rootcheck.readall = 0;
     rootcheck.disabled = RK_CONF_UNPARSED;
     rootcheck.skip_nfs = 0;
-    rootcheck.alert_msg = NULL;
     rootcheck.time = ROOTCHECK_WAIT;
 
     rootcheck.checks.rc_dev = 1;
@@ -76,15 +73,6 @@ int rootcheck_init(int test_config)
 #else
     rootcheck.checks.rc_unixaudit = 0;
 #endif
-
-    /* We store up to 255 alerts in there */
-    os_calloc(256, sizeof(char *), rootcheck.alert_msg);
-    c = 0;
-    while (c <= 255) {
-        rootcheck.alert_msg[c] = NULL;
-        c++;
-    }
-
 
 #ifdef WIN32
     /* Start Winsock */

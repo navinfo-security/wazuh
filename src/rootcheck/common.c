@@ -107,26 +107,6 @@ int rk_check_file(char *file, char *pattern)
         /* If we don't have a pattern, just check if the file/dir is there */
         if (pattern == NULL) {
             if (is_file(file)) {
-                int i = 0;
-                char _b_msg[OS_SIZE_1024 + 1];
-
-                _b_msg[OS_SIZE_1024] = '\0';
-                snprintf(_b_msg, OS_SIZE_1024, " File: %s.",
-                         file);
-
-                /* Already present */
-                if (_is_str_in_array(rootcheck.alert_msg, _b_msg)) {
-                    return (1);
-                }
-
-                while (rootcheck.alert_msg[i] && (i < 255)) {
-                    i++;
-                }
-
-                if (!rootcheck.alert_msg[i]) {
-                    os_strdup(_b_msg, rootcheck.alert_msg[i]);
-                }
-
                 return (1);
             }
         } else {
@@ -160,31 +140,11 @@ int rk_check_file(char *file, char *pattern)
                     mtdebug2(ARGV0, "pt_result == %d and full_negate == %d", pt_result, full_negate);
                     if ((pt_result == 1 && full_negate == 0) ) {
                         mtdebug1(ARGV0, "Alerting file %s on line %s", file, buf);
-                        int i = 0;
-                        char _b_msg[OS_SIZE_1024 + 1];
 
                         /* Close the file before dealing with the alert */
                         fclose(fp);
-
-                        /* Generate the alert itself */
-                        _b_msg[OS_SIZE_1024] = '\0';
-                        snprintf(_b_msg, OS_SIZE_1024, " File: %s.",
-                                 file);
-
-                        /* Already present */
-                        if (_is_str_in_array(rootcheck.alert_msg, _b_msg)) {
-                            return (1);
-                        }
-
-                        while (rootcheck.alert_msg[i] && (i < 255)) {
-                            i++;
-                        }
-
-                        if (!rootcheck.alert_msg[i]) {
-                            os_strdup(_b_msg, rootcheck.alert_msg[i]);
-                        }
-
                         return (1);
+
                     } else if ((pt_result == 0 && full_negate == 1) ) {
                         /* Found a full+negate match so no longer need to search
                          * break out of loop and make sure the full negate does
@@ -200,27 +160,6 @@ int rk_check_file(char *file, char *pattern)
 
                 if (full_negate == 1) {
                     mtdebug2(ARGV0, "Full_negate alerting - file %s", file);
-                    int i = 0;
-                    char _b_msg[OS_SIZE_1024 + 1];
-
-                    /* Generate the alert itself */
-                    _b_msg[OS_SIZE_1024] = '\0';
-                    snprintf(_b_msg, OS_SIZE_1024, " File: %s.",
-                             file);
-
-                    /* Already present */
-                    if (_is_str_in_array(rootcheck.alert_msg, _b_msg)) {
-                        return (1);
-                    }
-
-                    while (rootcheck.alert_msg[i] && (i < 255)) {
-                        i++;
-                    }
-
-                    if (!rootcheck.alert_msg[i]) {
-                        os_strdup(_b_msg, rootcheck.alert_msg[i]);
-                    }
-
                     return (1);
                 }
             }
@@ -607,27 +546,6 @@ int is_process(char *value, OSList *p_list)
 
         /* Check if value matches */
         if (pt_matches(pinfo->p_path, value)) {
-            int i = 0;
-            char _b_msg[OS_SIZE_1024 + 1];
-
-            _b_msg[OS_SIZE_1024] = '\0';
-
-            snprintf(_b_msg, OS_SIZE_1024, " Process: %s.",
-                     pinfo->p_path);
-
-            /* Already present */
-            if (_is_str_in_array(rootcheck.alert_msg, _b_msg)) {
-                return (1);
-            }
-
-            while (rootcheck.alert_msg[i] && (i < 255)) {
-                i++;
-            }
-
-            if (!rootcheck.alert_msg[i]) {
-                os_strdup(_b_msg, rootcheck.alert_msg[i]);
-            }
-
             return (1);
         }
 

@@ -229,11 +229,10 @@ static char *_rkcl_get_value(char *buf, int *type)
 
 int pm_get_entry(FILE *fp, pm_stats * pm_data, OSList *p_list) {
 
-    int type = 0, condition = 0;
+    int type = 0, condition = 0, exists = 0, i = 0;
     char * nbuf;
     char buf[OS_SIZE_2048 + 2];
     char root_dir[OS_SIZE_1024 + 2];
-    char final_file[OS_SIZE_2048 + 1];
     char *value;
     OSStore *vars;
 
@@ -242,6 +241,7 @@ int pm_get_entry(FILE *fp, pm_stats * pm_data, OSList *p_list) {
     cJSON * directories = NULL;
     cJSON * processes = NULL;
 #ifdef WIN32
+    char final_file[OS_SIZE_2048 + 1];
     cJSON * registries = NULL;
 #endif
 
@@ -387,7 +387,15 @@ int pm_get_entry(FILE *fp, pm_stats * pm_data, OSList *p_list) {
                     mtdebug2(ARGV0, "Found file.");
                     found = 1;
                 }
-                cJSON_AddItemToArray(files, cJSON_CreateString(f_value));
+                exists = 0;
+                for (i = 0; i < cJSON_GetArraySize(files); i++) {
+                    if (!strcmp(f_value, cJSON_GetArrayItem(files, i)->valuestring)) {
+                        exists = 1;
+                    }
+                }
+                if (!exists) {
+                    cJSON_AddItemToArray(files, cJSON_CreateString(f_value));
+                }
             }
 
 #ifdef WIN32
@@ -409,7 +417,15 @@ int pm_get_entry(FILE *fp, pm_stats * pm_data, OSList *p_list) {
                     mtdebug2(ARGV0, "Found registry.");
                     found = 1;
                 }
-                cJSON_AddItemToArray(registries, cJSON_CreateString(value));
+                exists = 0;
+                for (i = 0; i < cJSON_GetArraySize(registries); i++) {
+                    if (!strcmp(value, cJSON_GetArrayItem(registries, i)->valuestring)) {
+                        exists = 1;
+                    }
+                }
+                if (!exists) {
+                    cJSON_AddItemToArray(registries, cJSON_CreateString(value));
+                }
             }
 #endif
 
@@ -461,7 +477,15 @@ int pm_get_entry(FILE *fp, pm_stats * pm_data, OSList *p_list) {
                             mtdebug2(ARGV0, "Found dir.");
                             found = 1;
                         }
-                        cJSON_AddItemToArray(directories, cJSON_CreateString(dir));
+                        exists = 0;
+                        for (i = 0; i < cJSON_GetArraySize(directories); i++) {
+                            if (!strcmp(dir, cJSON_GetArrayItem(directories, i)->valuestring)) {
+                                exists = 1;
+                            }
+                        }
+                        if (!exists) {
+                            cJSON_AddItemToArray(directories, cJSON_CreateString(dir));
+                        }
                     }
 
                     if (f_value) {
@@ -486,7 +510,15 @@ int pm_get_entry(FILE *fp, pm_stats * pm_data, OSList *p_list) {
                     mtdebug2(ARGV0, "Found process: '%s", value);
                     found = 1;
                 }
-                cJSON_AddItemToArray(processes, cJSON_CreateString(value));
+                exists = 0;
+                for (i = 0; i < cJSON_GetArraySize(processes); i++) {
+                    if (!strcmp(value, cJSON_GetArrayItem(processes, i)->valuestring)) {
+                        exists = 1;
+                    }
+                }
+                if (!exists) {
+                    cJSON_AddItemToArray(processes, cJSON_CreateString(value));
+                }
             }
 
             /* Switch the values if ! is present */
