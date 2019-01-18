@@ -383,6 +383,10 @@ def md5(fname):
     return hash_md5.hexdigest()
 
 
+def md5_str(my_string):
+    return hashlib.md5(my_string.encode()).hexdigest()
+
+
 def get_hash(filename, hash_algorithm='md5'):
     # check hash algorithm
     try:

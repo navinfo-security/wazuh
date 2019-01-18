@@ -3,8 +3,8 @@
 # Copyright (C) 2015-2019, Wazuh Inc.
 # Created by Wazuh, Inc. <info@wazuh.com>.
 # This program is a free software; you can redistribute it and/or modify it under the terms of GPLv2
-
-from wazuh.utils import md5, mkdir_with_mode
+import operator
+from wazuh.utils import md5, mkdir_with_mode, md5_str
 from wazuh.exception import WazuhException
 from wazuh.agent import Agent
 from wazuh.manager import status
@@ -192,6 +192,17 @@ def get_status_json():
 #
 # Files
 #
+def get_md5_client_keys():
+    """
+    Computes md5 of client keys file. Before calculating md5, sort by agent id.
+    :return: a string
+    """
+    with open('{}/etc/client.keys'.format(common.ossec_path)) as f:
+        client_keys_lines = map(lambda x: x.split(' '), f.read().split('\n')[:-1])
+
+    sorted_client_keys = '\n'.join(map(lambda x: ' '.join(x), sorted(client_keys_lines, key=operator.itemgetter(0))))
+    return md5_str(sorted_client_keys)
+
 
 def walk_dir(dirname, recursive, files, excluded_files, excluded_extensions, get_cluster_item_key, get_md5=True, whoami='master'):
     walk_files = {}
@@ -224,7 +235,7 @@ def walk_dir(dirname, recursive, files, excluded_files, excluded_extensions, get
                     walk_files[new_key]['merged'] = False
 
                 if get_md5:
-                    walk_files[new_key]['md5'] = md5(full_path)
+                    walk_files[new_key]['md5'] = md5(full_path) if entry != 'client.keys' else get_md5_client_keys()
 
         if recursive and path.isdir(full_path):
             walk_files.update(walk_dir(full_path, recursive, files, excluded_files, excluded_extensions, get_cluster_item_key, get_md5, whoami))
@@ -312,6 +323,7 @@ def _update_file(file_path, new_content, umask_int=None, mtime=None, w_mode=None
     if path.basename(dst_path) == 'client.keys':
         if whoami =='worker':
             _check_removed_agents(new_content.split('\n')[:-1])
+            return
         else:
             logger.warning("[Cluster] Client.keys file received in a master node.")
             raise WazuhException(3007)
