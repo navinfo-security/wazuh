@@ -311,7 +311,7 @@ def _update_file(file_path, new_content, umask_int=None, mtime=None, w_mode=None
     dst_path = common.ossec_path + file_path
     if path.basename(dst_path) == 'client.keys':
         if whoami =='worker':
-            _check_removed_agents(new_content.split('\n'))
+            _check_removed_agents(new_content.split('\n')[:-1])
         else:
             logger.warning("[Cluster] Client.keys file received in a master node.")
             raise WazuhException(3007)
@@ -494,23 +494,41 @@ def _check_removed_agents(new_client_keys):
     If a line starting with - matches the regex structure of a client.keys line
     that agent is deleted.
     """
+    def parse_client_keys(client_keys_contents):
+        """
+        Parses client.keys file into a dictionary
+        :param client_keys_contents: \n splitted contents of client.keys file
+        :return: generator of dictionaries.
+        """
+        client_keys_dict = {a_id: {'name': a_name, 'ip': a_ip, 'key': a_key} for a_id, a_name, a_ip, a_key in
+                            map(lambda x: x.split(' '), client_keys_contents) if not a_name.startswith('!')}
+        return client_keys_dict
+
     with open("{0}/etc/client.keys".format(common.ossec_path)) as ck:
         # can't use readlines function since it leaves a \n at the end of each item of the list
-        client_keys = ck.read().split('\n')
+        client_keys = ck.read().split('\n')[:-1]
 
-    regex = re.compile(r'^(\d+) (\S+) (\S+) (\S+)$')
-    for removed_line in filter(lambda x: x.startswith('-') or x.startswith('+'), unified_diff(client_keys, new_client_keys)):
-        removed_line_match = regex.match(removed_line[1:])
-        if removed_line_match is not None:
-            agent_id, agent_name, agent_ip, agent_key = removed_line_match.group(1, 2, 3, 4)
-            removed = removed_line.startswith('-')
+    new_client_keys_dict = parse_client_keys(new_client_keys)
+    client_keys_dict = parse_client_keys(client_keys)
 
-            try:
-                Agent(agent_id).remove() if removed else Agent.insert_agent(agent_name, agent_id, agent_key, agent_ip)
-                logger.info("[Cluster] Agent '{}' {} successfully.".format(agent_id, 'Deleted' if removed else 'Added'))
-            except WazuhException as e:
-                logger.error("[Cluster] Agent '{0}': Error - '{1}'.".format(agent_id, str(e)))
+    # get added agents: the ones present in the new client keys and missing in the old
+    new_ids = set(new_client_keys_dict.keys())
+    old_ids = set(client_keys_dict.keys())
 
+    for added in new_ids - old_ids:
+        try:
+            Agent.insert_agent(new_client_keys_dict[added]['name'], added, new_client_keys_dict[added]['key'],
+                               new_client_keys_dict[added]['ip'])
+            logger.info("[Cluster] Agent '{}' added successfully.".format(added))
+        except WazuhException as e:
+            logger.error("[Cluster] Agent '{0}': Error - '{1}'.".format(added, str(e)))
+
+    for removed in old_ids - new_ids:
+        try:
+            Agent(removed).remove()
+            logger.info("[Cluster] Agent '{}' removed successfully.".format(removed))
+        except WazuhException as e:
+            logger.error("[Cluster] Agent '{0}': Error - '{1}'.".format(removed, str(e)))
 
 #
 # Others
