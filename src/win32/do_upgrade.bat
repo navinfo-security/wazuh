@@ -44,7 +44,7 @@ IF "%ERRORLEVEL%"=="0" (
 :: Launch the installer
 
 IF EXIST upgrade\upgrade_result DEL /Q upgrade\upgrade_result
-ECHO %DATE%%TIME% INFO: Starting new version installer. >> upgrade\upgrade.log
+ECHO %DATE%%TIME% INFO: Starting new version installer. >> upgrade\upgrade.log REINSTALL=all REINSTALLMODE=dmus
 
 NET STOP wazuh
 FOR %%G IN (wazuh-agent*.msi) DO %%G /quiet /norestart /log installer.log
