@@ -2201,7 +2201,7 @@ class Agent:
         if WazuhVersion(self.version.split(' ')[1]) < WazuhVersion("3.0.0-alpha4"):
             raise WazuhException(1719, version)
 
-        if self.os['platform']=="windows" and int(self.os['major']) < 6:
+        if self.os['platform']=="windows" and int(self.os['major']) < 5:
             raise WazuhException(1721, self.os['name'])
 
         if wpk_repo == None:
