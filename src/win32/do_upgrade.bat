@@ -6,7 +6,7 @@
 :: Get current version
 
 SET /P curversion=<VERSION
-ECHO %DATE%%TIME% INFO: Wazuh remote upgrade started. Current version is %curversion% >> upgrade\upgrade.log
+ECHO %DATE%%TIME% INFO: Wazuh remote upgrade started. Current version is %curversion% > upgrade\upgrade.log
 
 :: Create backup
 
@@ -46,6 +46,7 @@ IF "%ERRORLEVEL%"=="0" (
 IF EXIST upgrade\upgrade_result DEL /Q upgrade\upgrade_result
 ECHO %DATE%%TIME% INFO: Starting new version installer. >> upgrade\upgrade.log
 
+NET STOP wazuh
 FOR %%G IN (wazuh-agent*.msi) DO %%G /quiet /norestart /log installer.log
 
 :: Wait for the installer to finish
@@ -63,6 +64,7 @@ IF "%curversion%"=="%newversion%" (
 )
 
 ECHO %DATE%%TIME% INFO: Installer finished. Checking connection status. >> upgrade\upgrade.log
+NET START wazuh
 
 :: Expect state to connected, or restore
 
@@ -79,7 +81,7 @@ IF "%ERRORLEVEL%"=="1" (
         NET STOP wazuh
         XCOPY /E /Y backup\* .
         NET START wazuh
-        ECHO %DATE%%TIME% ERROR: Upgrade failed: agent cannot connect. Rolling back to previous version. >> upgrade\upgrade.log
+        ECHO %DATE%%TIME% ERROR: Upgrade failed: agent cannot connect. Rolled back to previous version. >> upgrade\upgrade.log
         ECHO 2 > upgrade\upgrade_result
         EXIT
     )
