@@ -1516,7 +1516,7 @@ class Agent:
         except OSError as e:
             if errno != errno.EEXIST:
                 raise WazuhException(1005, str(e))
-                
+
         return msg
 
 
@@ -2001,7 +2001,7 @@ class Agent:
             print("Agent version: {0}".format(agent_ver.split(" ")[1]))
             print("Agent new version: {0}".format(agent_new_ver))
 
-        if WazuhVersion(manager_ver.split(" ")[1]) < WazuhVersion(agent_new_ver):
+        if WazuhVersion(manager_ver.split(" ")[1]) < WazuhVersion(agent_new_ver if '-' not in agent_new_ver else agent_new_ver.split('-')[0]):
             raise WazuhException(1717, "Manager: {0} / Agent: {1} -> {2}".format(manager_ver.split(" ")[1], agent_ver.split(" ")[1], agent_new_ver))
 
         if (WazuhVersion(agent_ver.split(" ")[1]) >= WazuhVersion(agent_new_ver) and not force):
