@@ -25,6 +25,19 @@ XCOPY /E %temp%\backup\* backup
 DEL /S /Q %temp%\backup
 RMDIR /S /Q %temp%\backup
 
+:: Create Registry backup
+
+ECHO Windows Registry Editor Version 5.00 > backup\backup.reg
+
+FOR /F %%I IN ('REG QUERY HKCR\Installer\Products ^| FIND "\Installer\Products\"') DO (
+    REG QUERY %%I /v ProductName | FIND "Wazuh Agent" && (
+        REG EXPORT %%I backup_key.reg
+        TYPE backup_key.reg | FIND /V "Windows Registry Editor Version 5.00" >> backup\backup.reg
+    )
+)
+
+IF EXIST backup_key.reg DEL /Q backup_key.reg
+
 :: Kill remaining installer process
 
 TASKLIST /FI "IMAGENAME eq msiexec.exe" 2>NUL | FIND /I /N "msiexec.exe" > NUL
@@ -80,12 +93,20 @@ IF "%ERRORLEVEL%"=="1" (
     ) ELSE (
         NET STOP wazuh
         XCOPY /E /Y backup\* .
+        FOR /F %%I IN ('REG QUERY HKCR\Installer\Products ^| FIND "\Installer\Products\"') DO (
+            REG QUERY %%I /v ProductName | FIND "Wazuh Agent" && (
+                REG DELETE %%I /f
+            )
+        )
+        REG IMPORT backup.reg
         NET START wazuh
         ECHO %DATE%%TIME% ERROR: Upgrade failed: agent cannot connect. Rolled back to previous version. >> upgrade\upgrade.log
         ECHO 2 > upgrade\upgrade_result
+        DEL /Q backup.reg
         EXIT
     )
 )
 
 ECHO %DATE%%TIME% INFO: Upgrade finished successfully. New version is %newversion%. >> upgrade\upgrade.log
 ECHO 0 > upgrade\upgrade_result
+EXIT
