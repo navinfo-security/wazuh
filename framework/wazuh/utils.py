@@ -365,13 +365,13 @@ def mkdir_with_mode(name, mode=0o770):
                 raise
         if tail == curdir:           # xxx/newdir/. exists if xxx/newdir exists
             return
-    try:         
+    try:
         mkdir(name, mode)
     except OSError as e:
         # be happy if someone already created the path
         if e.errno != errno.EEXIST:
             raise
-            
+
     chmod(name, mode)
 
 
@@ -526,8 +526,11 @@ class WazuhVersion:
 
     def __to_string(self):
         ver_string = "{0}.{1}.{2}".format(self.__mayor, self.__minor, self.__patch)
-        if self.__dev:
-            ver_string = "{0}-{1}{2}".format(ver_string, self.__dev, self.__dev_ver)
+        if self.__dev_ver:
+            if self.__dev:
+                ver_string = "{0}-{1}{2}".format(ver_string, self.__dev, self.__dev_ver)
+            else:
+                ver_string = "{0}-{1}".format(ver_string, self.__dev_ver)
         return ver_string
 
     def __str__(self):
@@ -556,6 +559,11 @@ class WazuhVersion:
                                 return False
                             elif ord(self.__dev[0]) == ord(new_version.__dev[0]) and self.__dev_ver < new_version.__dev_ver:
                                 return False
+                    elif not self.__dev and not new_version.__dev:
+                        if self.__dev_ver and new_version.__dev_ver:
+                            return self.__dev_ver >= new_version.__dev_ver
+                        elif not self.__dev_ver and new_version.__dev_ver:
+                            return False
 
         return True
 
