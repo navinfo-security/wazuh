@@ -5,7 +5,7 @@
 
 :: Get current version
 
-SET /P curversion=<VERSION
+FOR /F %%i IN (VERSION) DO SET curversion=%%i
 ECHO %DATE% %TIME% INFO: Wazuh remote upgrade started. Current version is %curversion% > upgrade\upgrade.log
 
 :: Create backup
@@ -69,7 +69,7 @@ FOR %%G IN (wazuh-agent*.msi) DO %%G /quiet /norestart /log installer.log
 SET counter=5
 
 :L1
-SET /P newversion=<VERSION
+FOR /F %%i IN (VERSION) DO SET newversion=%%i
 IF "%curversion%"=="%newversion%" (
     IF %counter% NEQ 0 (
         SLEEP 2 2> NUL || ping -n 2 127.0.0.1 > NUL
