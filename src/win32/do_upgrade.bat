@@ -86,7 +86,7 @@ NET START wazuh
 SET counter=5
 
 :L2
-FIND "status='connected'" ossec-agent.state
+TYPE ossec-agent.state | FIND "status='connected'"
 IF "%ERRORLEVEL%"=="1" (
     IF %counter% NEQ 0 (
         SLEEP 2 2> NUL || ping -n 2 127.0.0.1 > NUL
