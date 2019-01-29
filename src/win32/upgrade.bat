@@ -15,7 +15,7 @@ SLEEP 5 2> NUL || ping -n 5 127.0.0.1 > NUL
 FOR %%x IN (powershell.exe) DO IF NOT [%%~$PATH:x]==[] (
     powershell -ExecutionPolicy ByPass -File do_upgrade.ps1
 ) else (
-    do_upgrade.bat
+    CMD /C do_upgrade.bat
 )
 
 DEL do_upgrade.bat
