@@ -6,11 +6,11 @@
 :: Get current version
 
 FOR /F %%i IN (VERSION) DO SET curversion=%%i
-ECHO %DATE% %TIME% INFO: Wazuh remote upgrade started. Current version is %curversion% > upgrade\upgrade.log
+ECHO %DATE% %TIME% INFO: Wazuh remote upgrade started. Current version is %curversion%> upgrade\upgrade.log
 
 :: Create backup
 
-ECHO %DATE% %TIME% INFO: Generating backup. >> upgrade\upgrade.log
+ECHO %DATE% %TIME% INFO: Generating backup.>> upgrade\upgrade.log
 
 IF EXIST %temp%\backup DEL /S /Q %temp%\backup
 IF EXIST %temp%\backup RMDIR /S /Q %temp%\backup
@@ -32,7 +32,7 @@ ECHO Windows Registry Editor Version 5.00 > backup\backup.reg
 FOR /F %%I IN ('REG QUERY HKCR\Installer\Products ^| FIND "\Installer\Products\"') DO (
     REG QUERY %%I /v ProductName | FIND "Wazuh Agent" && (
         REG EXPORT %%I backup_key.reg
-        TYPE backup_key.reg | FIND /V "Windows Registry Editor Version 5.00" >> backup\backup.reg
+        TYPE backup_key.reg | FIND /V "Windows Registry Editor Version 5.00">> backup\backup.reg
     )
 )
 
@@ -42,7 +42,7 @@ IF EXIST backup_key.reg DEL /Q backup_key.reg
 
 TASKLIST /FI "IMAGENAME eq msiexec.exe" 2>NUL | FIND /I /N "msiexec.exe" > NUL
 IF "%ERRORLEVEL%"=="0" (
-    ECHO %DATE% %TIME% INFO: Stopping msiexec process. >> upgrade\upgrade.log
+    ECHO %DATE% %TIME% INFO: Stopping msiexec process.>> upgrade\upgrade.log
     TASKKILL /F /IM msiexec.exe
 )
 
@@ -50,7 +50,7 @@ IF "%ERRORLEVEL%"=="0" (
 
 TASKLIST /FI "IMAGENAME eq win32ui.exe" 2>NUL | FIND "win32ui.exe" > NUL
 IF "%ERRORLEVEL%"=="0" (
-    ECHO %DATE% %TIME% INFO: Closing Agent Manager UI. >> upgrade\upgrade.log
+    ECHO %DATE% %TIME% INFO: Closing Agent Manager UI.>> upgrade\upgrade.log
     TASKKILL /F /IM win32ui.exe
 )
 
@@ -58,7 +58,7 @@ IF "%ERRORLEVEL%"=="0" (
 
 IF EXIST upgrade\upgrade_result DEL /Q upgrade\upgrade_result
 
-ECHO %DATE% %TIME% INFO: Starting new version installer. >> upgrade\upgrade.log
+ECHO %DATE% %TIME% INFO: Starting new version installer.>> upgrade\upgrade.log
 
 NET STOP wazuh
 IF EXIST ossec-agent.status DEL /Q ossec-agent.status
@@ -78,7 +78,7 @@ IF "%curversion%"=="%newversion%" (
     )
 )
 
-ECHO %DATE% %TIME% INFO: Installer finished. Checking connection status. >> upgrade\upgrade.log
+ECHO %DATE% %TIME% INFO: Installer finished. Checking connection status.>> upgrade\upgrade.log
 NET START wazuh
 
 :: Expect state to connected, or restore
@@ -102,13 +102,13 @@ IF "%ERRORLEVEL%"=="1" (
         )
         REG IMPORT backup.reg
         NET START wazuh
-        ECHO %DATE% %TIME% ERROR: Upgrade failed: agent cannot connect. Rolled back to previous version. >> upgrade\upgrade.log
+        ECHO %DATE% %TIME% ERROR: Upgrade failed: agent cannot connect. Rolled back to previous version.>> upgrade\upgrade.log
         ECHO 2 > upgrade\upgrade_result
         DEL /Q backup.reg
         EXIT
     )
 )
 
-ECHO %DATE% %TIME% INFO: Upgrade finished successfully. New version is %newversion%. >> upgrade\upgrade.log
+ECHO %DATE% %TIME% INFO: Upgrade finished successfully. New version is %newversion%.>> upgrade\upgrade.log
 ECHO 0 > upgrade\upgrade_result
 EXIT
