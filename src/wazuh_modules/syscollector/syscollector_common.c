@@ -188,14 +188,10 @@ static void wm_sys_setup(wm_sys_t *_sys) {
 
     #ifndef WIN32
 
-    int i;
     // Connect to socket
-    for (i = 0; (queue_fd = StartMQ(DEFAULTQPATH, WRITE)) < 0 && i < WM_MAX_ATTEMPTS; i++)
+    while (queue_fd = StartMQ(DEFAULTQPATH, WRITE), queue_fd < 0) {
+        mtwarn(WM_SYS_LOGTAG, "Can't connect to queue.");
         delay(1000 * WM_MAX_WAIT);
-
-    if (i == WM_MAX_ATTEMPTS) {
-        mterror(WM_SYS_LOGTAG, "Can't connect to queue.");
-        pthread_exit(NULL);
     }
 
     // Cleanup exiting

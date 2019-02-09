@@ -49,6 +49,14 @@ void monitor_agents()
             if (SendMSG(mond.a_queue, str, ARGV0,
                         LOCALFILE_MQ) < 0) {
                 merror(QUEUE_SEND);
+                close(mond.a_queue);
+
+                while ((mond.a_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
+                    mwarn(QUEUE_ERROR " Trying again.", DEFAULTQUEUE, strerror(errno));
+                    sleep(5);
+                }
+
+                SendMSG(mond.a_queue, str, ARGV0, LOCALFILE_MQ);
             }
         }
 
@@ -60,4 +68,3 @@ void monitor_agents()
     mond.agents = av_agents;
     return;
 }
-

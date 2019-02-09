@@ -96,8 +96,6 @@ void* wm_oscap_main(wm_oscap *oscap) {
 // Setup module
 
 void wm_oscap_setup(wm_oscap *_oscap) {
-    int i;
-
     oscap = _oscap;
     wm_oscap_check();
 
@@ -111,12 +109,9 @@ void wm_oscap_setup(wm_oscap *_oscap) {
 
     // Connect to socket
 
-    for (i = 0; (queue_fd = StartMQ(DEFAULTQPATH, WRITE)) < 0 && i < WM_MAX_ATTEMPTS; i++)
+    while (queue_fd = StartMQ(DEFAULTQPATH, WRITE), queue_fd < 0) {
+        mtwarn(WM_OSCAP_LOGTAG, "Can't connect to queue. Trying again.");
         sleep(WM_MAX_WAIT);
-
-    if (i == WM_MAX_ATTEMPTS) {
-        mterror(WM_OSCAP_LOGTAG, "Can't connect to queue.");
-        pthread_exit(NULL);
     }
 
     // Cleanup exiting

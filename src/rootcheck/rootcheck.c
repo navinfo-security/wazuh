@@ -233,8 +233,9 @@ void rootcheck_connect() {
         mtdebug1(ARGV0, "Starting queue ...");
 
         /* Start the queue */
-        if ((rootcheck.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
-            mterror_exit(ARGV0, QUEUE_FATAL, DEFAULTQPATH);
+        while ((rootcheck.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
+            mwarn(QUEUE_ERROR " Trying again.", DEFAULTQPATH, strerror(errno));
+            sleep(5);
         }
     }
 #endif

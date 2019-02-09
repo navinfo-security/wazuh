@@ -159,8 +159,9 @@ int main(int argc, char **argv)
     sleep(6);
 
     /* Start the queue */
-    if ((logr_queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
-        merror_exit(QUEUE_FATAL, DEFAULTQPATH);
+    while ((logr_queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
+        mwarn(QUEUE_ERROR " Trying again.", DEFAULTQPATH, strerror(errno));
+        sleep(5);
     }
 
     /* Main loop */

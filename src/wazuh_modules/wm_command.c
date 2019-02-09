@@ -140,15 +140,10 @@ void * wm_command_main(wm_command_t * command) {
 
 #ifndef WIN32
     if (!command->ignore_output) {
-        int i;
 
-        for (i = 0; command->queue_fd = StartMQ(DEFAULTQPATH, WRITE), command->queue_fd < 0 && i < WM_MAX_ATTEMPTS; i++) {
+        while (command->queue_fd = StartMQ(DEFAULTQPATH, WRITE), command->queue_fd < 0) {
+            mtwarn(WM_COMMAND_LOGTAG, "Can't connect to queue. Trying again.");
             sleep(WM_MAX_WAIT);
-        }
-
-        if (i == WM_MAX_ATTEMPTS) {
-            mterror(WM_COMMAND_LOGTAG, "Can't connect to queue.");
-            pthread_exit(NULL);
         }
     }
 #endif

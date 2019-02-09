@@ -117,11 +117,14 @@ static void HandleClient(int client_socket, char *srcip)
 
         /* Send to the queue */
         if (SendMSG(logr.m_queue, buffer_pt, srcip, SYSLOG_MQ) < 0) {
-            merror(QUEUE_ERROR, DEFAULTQUEUE, strerror(errno));
+            merror(QUEUE_SEND, DEFAULTQUEUE, strerror(errno));
 
-            if ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
-                merror_exit(QUEUE_FATAL, DEFAULTQUEUE);
+            while ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
+                mwarn(QUEUE_ERROR " Trying again.", DEFAULTQUEUE, strerror(errno));
+                sleep(5);
             }
+
+            SendMSG(logr.m_queue, buffer_pt, srcip, SYSLOG_MQ);
         }
 
         /* Clean up the buffers */
@@ -146,10 +149,10 @@ void HandleSyslogTCP()
     memset(srcip, '\0', IPSIZE + 1);
 
     /* Connecting to the message queue
-     * Exit if it fails.
      */
-    if ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
-        merror_exit(QUEUE_FATAL, DEFAULTQUEUE);
+    while ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
+        mwarn(QUEUE_ERROR " Trying again.", DEFAULTQUEUE, strerror(errno));
+        sleep(5);
     }
 
     while (1) {

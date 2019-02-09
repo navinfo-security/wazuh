@@ -59,8 +59,9 @@ static int send_intcheck_msg(const char *script, const char *host, const char *m
     if (SendMSG(lessdc.queue, msg, sys_location, SYSCHECK_MQ) < 0) {
         merror(QUEUE_SEND);
 
-        if ((lessdc.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
-            merror_exit(QUEUE_FATAL, DEFAULTQPATH);
+        while ((lessdc.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
+            mwarn(QUEUE_ERROR " Trying again.", DEFAULTQPATH, strerror(errno));
+            sleep(5);
         }
 
         /* If we reach here, we can try to send it again */
@@ -80,8 +81,9 @@ static int send_log_msg(const char *script, const char *host, const char *msg)
 
     if (SendMSG(lessdc.queue, msg, sys_location, LOCALFILE_MQ) < 0) {
         merror(QUEUE_SEND);
-        if ((lessdc.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
-            merror_exit(QUEUE_FATAL, DEFAULTQPATH);
+        while ((lessdc.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
+            mwarn(QUEUE_ERROR " Trying again.", DEFAULTQPATH, strerror(errno));
+            sleep(5);
         }
 
         /* If we reach here, we can try to send it again */
@@ -136,8 +138,9 @@ static int gen_diff_alert(const char *host, const char *script, time_t alert_dif
     if (SendMSG(lessdc.queue, diff_alert, buf, LOCALFILE_MQ) < 0) {
         merror(QUEUE_SEND);
 
-        if ((lessdc.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
-            merror_exit(QUEUE_FATAL, DEFAULTQPATH);
+        while ((lessdc.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
+            mwarn(QUEUE_ERROR " Trying again.", DEFAULTQPATH, strerror(errno));
+            sleep(5);
         }
 
         /* If we reach here, we can try to send it again */
@@ -452,9 +455,10 @@ void Agentlessd()
 
     today = p->tm_mday;
 
-    /* Connect to the message queue. Exit if it fails. */
-    if ((lessdc.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
-        merror_exit(QUEUE_FATAL, DEFAULTQUEUE);
+    /* Connect to the message queue. */
+    while ((lessdc.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
+        mwarn(QUEUE_ERROR " Trying again.", DEFAULTQPATH, strerror(errno));
+        sleep(5);
     }
 
     /* Main monitor loop */

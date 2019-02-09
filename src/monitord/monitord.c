@@ -57,9 +57,10 @@ void Monitord()
     snprintf(path_json, PATH_MAX, "%s%s", isChroot() ? "" : DEFAULTDIR, LOGJSONFILE);
 #endif
 
-    /* Connect to the message queue or exit */
-    if ((mond.a_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
-        merror_exit(QUEUE_FATAL, DEFAULTQUEUE);
+    /* Connect to the message queue */
+    while ((mond.a_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
+        mwarn(QUEUE_ERROR " Trying again.", DEFAULTQUEUE, strerror(errno));
+        sleep(5);
     }
 
     /* Send startup message */

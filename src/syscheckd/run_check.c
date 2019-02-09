@@ -33,8 +33,9 @@ int send_syscheck_msg(const char *msg)
     if (SendMSG(syscheck.queue, msg, SYSCHECK, SYSCHECK_MQ) < 0) {
         merror(QUEUE_SEND);
 
-        if ((syscheck.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
-            merror_exit(QUEUE_FATAL, DEFAULTQPATH);
+        while ((syscheck.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
+            mwarn(QUEUE_ERROR " Trying again.", DEFAULTQPATH, strerror(errno));
+            sleep(5);
         }
 
         /* Try to send it again */
@@ -49,8 +50,9 @@ int send_rootcheck_msg(const char *msg)
     if (SendMSG(syscheck.queue, msg, ROOTCHECK, ROOTCHECK_MQ) < 0) {
         merror(QUEUE_SEND);
 
-        if ((syscheck.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
-            merror_exit(QUEUE_FATAL, DEFAULTQPATH);
+        while ((syscheck.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
+            mwarn(QUEUE_ERROR " Trying again.", DEFAULTQPATH, strerror(errno));
+            sleep(5);
         }
 
         /* Try to send it again */

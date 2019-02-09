@@ -34,7 +34,7 @@ int StartMQ(const char *path, short int type)
                 if (File_DateofChange(path) < 0) {
                     sleep(15);
                     if (File_DateofChange(path) < 0) {
-                        merror(QUEUE_ERROR, path, "Queue not found");
+                        mdebug1(QUEUE_ERROR, path, "Queue not found");
                         return (-1);
                     }
                 }
@@ -49,7 +49,7 @@ int StartMQ(const char *path, short int type)
             if ((rc = OS_ConnectUnixDomain(path, SOCK_DGRAM, OS_MAXSTR + 256)) < 0) {
                 sleep(2);
                 if ((rc = OS_ConnectUnixDomain(path, SOCK_DGRAM, OS_MAXSTR + 256)) < 0) {
-                    merror(QUEUE_ERROR, path, strerror(errno));
+                    mdebug1(QUEUE_ERROR, path, strerror(errno));
                     return (-1);
                 }
             }

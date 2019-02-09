@@ -648,9 +648,10 @@ int wm_vulnerability_detector_report_agent_vulnerabilities(agent_software *agent
             free(str_json);
 
             if (wm_sendmsg(usec, *vu_queue, alert_msg, header, send_queue) < 0) {
-                mterror(WM_VULNDETECTOR_LOGTAG, QUEUE_ERROR, DEFAULTQUEUE, strerror(errno));
-                if ((*vu_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
-                    mterror_exit(WM_VULNDETECTOR_LOGTAG, QUEUE_FATAL, DEFAULTQUEUE);
+                mterror(WM_VULNDETECTOR_LOGTAG, QUEUE_SEND, DEFAULTQUEUE, strerror(errno));
+                while ((*vu_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
+                    mtwarn(WM_VULNDETECTOR_LOGTAG, "Can't connect to queue. Trying again.");
+                    sleep(WM_MAX_WAIT);
                 }
             }
 
@@ -2264,7 +2265,8 @@ void * wm_vulnerability_detector_main(wm_vulnerability_detector_t * vulnerabilit
         pthread_exit(NULL);
     }
 
-    for (i = 0; vulnerability_detector->queue_fd = StartMQ(DEFAULTQPATH, WRITE), vulnerability_detector->queue_fd < 0 && i < WM_MAX_ATTEMPTS; i++) {
+    while (vulnerability_detector->queue_fd = StartMQ(DEFAULTQPATH, WRITE), vulnerability_detector->queue_fd < 0) {
+        mtwarn(WM_VULNDETECTOR_LOGTAG, "Can't connect to queue. Trying again.");
         sleep(WM_MAX_WAIT);
     }
 

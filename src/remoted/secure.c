@@ -96,10 +96,10 @@ void HandleSecure()
     }
 
     /* Connect to the message queue
-     * Exit if it fails.
      */
-    if ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
-        merror_exit(QUEUE_FATAL, DEFAULTQUEUE);
+    while ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
+        mwarn(QUEUE_ERROR " Trying again.", DEFAULTQUEUE, strerror(errno));
+        sleep(5);
     }
 
     minfo(AG_AX_AGENTS, MAX_AGENTS);
@@ -444,14 +444,17 @@ static void HandleSecureMessage(char *buffer, int recv_b, struct sockaddr_in *pe
      */
     if (SendMSG(logr.m_queue, tmp_msg, srcmsg,
                 SECURE_MQ) < 0) {
-        merror(QUEUE_ERROR, DEFAULTQUEUE, strerror(errno));
+        merror(QUEUE_SEND, DEFAULTQUEUE, strerror(errno));
 
-        if ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
-            merror_exit(QUEUE_FATAL, DEFAULTQUEUE);
+        while ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
+            mwarn(QUEUE_ERROR " Trying again.", DEFAULTQUEUE, strerror(errno));
+            sleep(5);
         }
-    } else {
-        rem_inc_evt();
+
+        SendMSG(logr.m_queue, tmp_msg, srcmsg, SECURE_MQ);
     }
+
+    rem_inc_evt();
 }
 
 // Close and remove socket from keystore
