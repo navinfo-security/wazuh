@@ -649,6 +649,8 @@ int wm_vulnerability_detector_report_agent_vulnerabilities(agent_software *agent
 
             if (wm_sendmsg(usec, *vu_queue, alert_msg, header, send_queue) < 0) {
                 mterror(WM_VULNDETECTOR_LOGTAG, QUEUE_SEND, DEFAULTQUEUE, strerror(errno));
+                close(*vu_queue);
+
                 while ((*vu_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
                     mtwarn(WM_VULNDETECTOR_LOGTAG, "Can't connect to queue. Trying again.");
                     sleep(WM_MAX_WAIT);

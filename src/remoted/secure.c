@@ -440,11 +440,12 @@ static void HandleSecureMessage(char *buffer, int recv_b, struct sockaddr_in *pe
     key_unlock();
 
     /* If we can't send the message, try to connect to the
-     * socket again. If it not exit.
+     * socket again.
      */
     if (SendMSG(logr.m_queue, tmp_msg, srcmsg,
                 SECURE_MQ) < 0) {
         merror(QUEUE_SEND, DEFAULTQUEUE, strerror(errno));
+        close(logr.m_queue);
 
         while ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
             mwarn(QUEUE_ERROR " Trying again.", DEFAULTQUEUE, strerror(errno));

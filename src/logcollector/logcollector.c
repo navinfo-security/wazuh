@@ -1086,6 +1086,7 @@ void * w_output_thread(void * args){
 
         if (SendMSGtoSCK(logr_queue, message->buffer, message->file, message->queue_mq, message->log_target) < 0) {
             merror(QUEUE_SEND);
+            close(logr_queue);
 
             while ((logr_queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
                 mwarn(QUEUE_ERROR " Trying again.", DEFAULTQPATH, strerror(errno));

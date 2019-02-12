@@ -41,6 +41,7 @@ int notify_rk(int rk_type, const char *msg)
     /* When running in context of OSSEC-HIDS, send problem to the rootcheck queue */
     if (SendMSG(rootcheck.queue, msg, ROOTCHECK, ROOTCHECK_MQ) < 0) {
         mterror(ARGV0, QUEUE_SEND);
+        close(rootcheck.queue);
 
         while ((rootcheck.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
             mtwarn(ARGV0, QUEUE_ERROR " Trying again.", DEFAULTQPATH, strerror(errno));

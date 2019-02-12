@@ -118,6 +118,7 @@ static void HandleClient(int client_socket, char *srcip)
         /* Send to the queue */
         if (SendMSG(logr.m_queue, buffer_pt, srcip, SYSLOG_MQ) < 0) {
             merror(QUEUE_SEND, DEFAULTQUEUE, strerror(errno));
+            close(logr.m_queue);
 
             while ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
                 mwarn(QUEUE_ERROR " Trying again.", DEFAULTQUEUE, strerror(errno));

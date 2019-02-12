@@ -58,6 +58,7 @@ static int send_intcheck_msg(const char *script, const char *host, const char *m
 
     if (SendMSG(lessdc.queue, msg, sys_location, SYSCHECK_MQ) < 0) {
         merror(QUEUE_SEND);
+        close(lessdc.queue);
 
         while ((lessdc.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
             mwarn(QUEUE_ERROR " Trying again.", DEFAULTQPATH, strerror(errno));
@@ -81,6 +82,8 @@ static int send_log_msg(const char *script, const char *host, const char *msg)
 
     if (SendMSG(lessdc.queue, msg, sys_location, LOCALFILE_MQ) < 0) {
         merror(QUEUE_SEND);
+        close(lessdc.queue);
+
         while ((lessdc.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
             mwarn(QUEUE_ERROR " Trying again.", DEFAULTQPATH, strerror(errno));
             sleep(5);
@@ -137,6 +140,7 @@ static int gen_diff_alert(const char *host, const char *script, time_t alert_dif
 
     if (SendMSG(lessdc.queue, diff_alert, buf, LOCALFILE_MQ) < 0) {
         merror(QUEUE_SEND);
+        close(lessdc.queue);
 
         while ((lessdc.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
             mwarn(QUEUE_ERROR " Trying again.", DEFAULTQPATH, strerror(errno));

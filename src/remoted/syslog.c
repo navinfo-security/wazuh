@@ -99,6 +99,7 @@ void HandleSyslog()
 
         if (SendMSG(logr.m_queue, buffer_pt, srcip, SYSLOG_MQ) < 0) {
             merror(QUEUE_SEND, DEFAULTQUEUE, strerror(errno));
+            close(logr.m_queue);
 
             while ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
                 mwarn(QUEUE_ERROR " Trying again.", DEFAULTQUEUE, strerror(errno));
