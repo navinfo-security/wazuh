@@ -96,6 +96,15 @@ void *Read_Log(wm_osquery_monitor_t * osquery)
                 mdebug2("Sending... '%s'", line);
                 if (wm_sendmsg(osquery->msg_delay, osquery->queue_fd, line, "osquery", LOCALFILE_MQ) < 0) {
                     mterror(WM_OSQUERYMONITOR_LOGTAG, QUEUE_ERROR, DEFAULTQUEUE, strerror(errno));
+                    mterror(WM_OSQUERYMONITOR_LOGTAG, QUEUE_SEND, DEFAULTQUEUE, strerror(errno));
+                    close(osquery->queue_fd);
+
+                    while (osquery->queue_fd = StartMQ(DEFAULTQPATH, WRITE), osquery->queue_fd < 0) {
+                        mtwarn(WM_OSCAP_LOGTAG, "Can't connect to queue. Trying again.");
+                        sleep(WM_MAX_WAIT);
+                    }
+
+                    wm_sendmsg(osquery->msg_delay, osquery->queue_fd, line, "osquery", LOCALFILE_MQ);
                 }
             }
 
@@ -277,7 +286,15 @@ void *Execute_Osquery(wm_osquery_monitor_t *osquery)
                 // Report to manager
 
                 if (wm_sendmsg(osquery->msg_delay, osquery->queue_fd, text, "osquery", LOCALFILE_MQ) < 0) {
-                    mterror(WM_OSQUERYMONITOR_LOGTAG, QUEUE_ERROR, DEFAULTQUEUE, strerror(errno));
+                    mterror(WM_OSQUERYMONITOR_LOGTAG, QUEUE_SEND, DEFAULTQUEUE, strerror(errno));
+                    close(osquery->queue_fd);
+
+                    while (osquery->queue_fd = StartMQ(DEFAULTQPATH, WRITE), osquery->queue_fd < 0) {
+                        mtwarn(WM_OSCAP_LOGTAG, "Can't connect to queue. Trying again.");
+                        sleep(WM_MAX_WAIT);
+                    }
+
+                    wm_sendmsg(osquery->msg_delay, osquery->queue_fd, text, "osquery", LOCALFILE_MQ);
                 }
             }
         }

@@ -192,7 +192,17 @@ void * wm_command_main(wm_command_t * command) {
             #ifdef WIN32
                 wm_sendmsg(usec, 0, line, extag, LOCALFILE_MQ);
             #else
-                wm_sendmsg(usec, command->queue_fd, line, extag, LOCALFILE_MQ);
+                if (wm_sendmsg(usec, command->queue_fd, line, extag, LOCALFILE_MQ) < 0) {
+                    mterror(WM_COMMAND_LOGTAG, QUEUE_SEND);
+                    close(command->queue_fd);
+
+                    while (command->queue_fd = StartMQ(DEFAULTQPATH, WRITE), command->queue_fd < 0) {
+                        mtwarn(WM_COMMAND_LOGTAG, "Can't connect to queue. Trying again.");
+                        sleep(WM_MAX_WAIT);
+                    }
+
+                    wm_sendmsg(usec, command->queue_fd, line, extag, LOCALFILE_MQ);
+                }
             #endif
             }
 

@@ -569,7 +569,18 @@ void wm_ciscat_run(wm_ciscat_eval *eval, char *path, int id) {
     // Send rootcheck message
 
     snprintf(msg, OS_MAXSTR, "Starting CIS-CAT scan. File: %s. ", eval->path);
-    SendMSG(queue_fd, msg, "rootcheck", ROOTCHECK_MQ);
+
+    if (SendMSG(queue_fd, msg, "rootcheck", ROOTCHECK_MQ) < 0) {
+        mterror(WM_CISCAT_LOGTAG, QUEUE_SEND);
+        close(queue_fd);
+
+        while (queue_fd = StartMQ(DEFAULTQPATH, WRITE), queue_fd < 0) {
+            mtwarn(WM_CISCAT_LOGTAG, "Can't connect to queue. Trying again.");
+            sleep(WM_MAX_WAIT);
+        }
+
+        SendMSG(queue_fd, msg, "rootcheck", ROOTCHECK_MQ);
+    }
 
     // Execute the scan
 
@@ -659,7 +670,18 @@ void wm_ciscat_run(wm_ciscat_eval *eval, char *path, int id) {
     }
 
     snprintf(msg, OS_MAXSTR, "Ending CIS-CAT scan. File: %s. ", eval->path);
-    SendMSG(queue_fd, msg, "rootcheck", ROOTCHECK_MQ);
+
+    if (SendMSG(queue_fd, msg, "rootcheck", ROOTCHECK_MQ) < 0) {
+        mterror(WM_CISCAT_LOGTAG, QUEUE_SEND);
+        close(queue_fd);
+
+        while (queue_fd = StartMQ(DEFAULTQPATH, WRITE), queue_fd < 0) {
+            mtwarn(WM_CISCAT_LOGTAG, "Can't connect to queue. Trying again.");
+            sleep(WM_MAX_WAIT);
+        }
+
+        SendMSG(queue_fd, msg, "rootcheck", ROOTCHECK_MQ);
+    }
 
     free(output);
     free(command);
@@ -1409,7 +1431,17 @@ void wm_ciscat_send_scan(wm_scan_data *info, int id){
 #ifdef WIN32
     wm_sendmsg(usec, 0, msg, WM_CISCAT_LOCATION, CISCAT_MQ);
 #else
-    wm_sendmsg(usec, queue_fd, msg, WM_CISCAT_LOCATION, CISCAT_MQ);
+    if (wm_sendmsg(usec, queue_fd, msg, WM_CISCAT_LOCATION, CISCAT_MQ) < 0) {
+        mterror(WM_CISCAT_LOGTAG, QUEUE_SEND);
+        close(queue_fd);
+
+        while (queue_fd = StartMQ(DEFAULTQPATH, WRITE), queue_fd < 0) {
+            mtwarn(WM_CISCAT_LOGTAG, "Can't connect to queue. Trying again.");
+            sleep(WM_MAX_WAIT);
+        }
+
+        wm_sendmsg(usec, queue_fd, msg, WM_CISCAT_LOCATION, CISCAT_MQ);
+    }
 #endif
     cJSON_Delete(object);
 
@@ -1450,7 +1482,17 @@ void wm_ciscat_send_scan(wm_scan_data *info, int id){
     #ifdef WIN32
         wm_sendmsg(usec, 0, msg, WM_CISCAT_LOCATION, CISCAT_MQ);
     #else
-        wm_sendmsg(usec, queue_fd, msg, WM_CISCAT_LOCATION, CISCAT_MQ);
+        if (wm_sendmsg(usec, queue_fd, msg, WM_CISCAT_LOCATION, CISCAT_MQ) < 0) {
+            mterror(WM_CISCAT_LOGTAG, QUEUE_SEND);
+            close(queue_fd);
+
+            while (queue_fd = StartMQ(DEFAULTQPATH, WRITE), queue_fd < 0) {
+                mtwarn(WM_CISCAT_LOGTAG, "Can't connect to queue. Trying again.");
+                sleep(WM_MAX_WAIT);
+            }
+
+            wm_sendmsg(usec, queue_fd, msg, WM_CISCAT_LOCATION, CISCAT_MQ);
+        }
     #endif
         cJSON_Delete(object);
 

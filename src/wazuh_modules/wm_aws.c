@@ -277,7 +277,17 @@ void wm_aws_run_s3(wm_aws_bucket *exec_bucket) {
     char * line;
 
     for (line = strtok(output, "\n"); line; line = strtok(NULL, "\n")){
-        wm_sendmsg(usec, queue_fd, line, WM_AWS_CONTEXT.name, LOCALFILE_MQ);
+        if (wm_sendmsg(usec, queue_fd, line, WM_AWS_CONTEXT.name, LOCALFILE_MQ) < 0) {
+            mterror(WM_AWS_LOGTAG, QUEUE_SEND);
+            close(queue_fd);
+
+            while (queue_fd = StartMQ(DEFAULTQPATH, WRITE), queue_fd < 0) {
+                mtwarn(WM_AWS_LOGTAG, "Can't connect to queue. Trying again.");
+                sleep(WM_MAX_WAIT);
+            }
+
+            wm_sendmsg(usec, queue_fd, line, WM_AWS_CONTEXT.name, LOCALFILE_MQ);
+        }
     }
     free(line);
     free(trail_title);

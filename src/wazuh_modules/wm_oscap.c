@@ -189,7 +189,18 @@ void wm_oscap_run(wm_oscap_eval *eval) {
     // Send rootcheck message
 
     snprintf(msg, OS_MAXSTR, "Starting OpenSCAP scan. File: %s. ", eval->path);
-    SendMSG(queue_fd, msg, "rootcheck", ROOTCHECK_MQ);
+
+    if (SendMSG(queue_fd, msg, "rootcheck", ROOTCHECK_MQ) < 0) {
+        mterror(WM_OSCAP_LOGTAG, QUEUE_SEND);
+        close(queue_fd);
+
+        while (queue_fd = StartMQ(DEFAULTQPATH, WRITE), queue_fd < 0) {
+            mtwarn(WM_OSCAP_LOGTAG, "Can't connect to queue. Trying again.");
+            sleep(WM_MAX_WAIT);
+        }
+
+        SendMSG(queue_fd, msg, "rootcheck", ROOTCHECK_MQ);
+    }
 
     // Execute
 
@@ -218,7 +229,17 @@ void wm_oscap_run(wm_oscap_eval *eval) {
     }
 
     for (line = strtok(output, "\n"); line; line = strtok(NULL, "\n")){
-        wm_sendmsg(usec, queue_fd, line, WM_OSCAP_LOCATION, LOCALFILE_MQ);
+        if (wm_sendmsg(usec, queue_fd, line, WM_OSCAP_LOCATION, LOCALFILE_MQ) < 0) {
+            mterror(WM_OSCAP_LOGTAG, QUEUE_SEND);
+            close(queue_fd);
+
+            while (queue_fd = StartMQ(DEFAULTQPATH, WRITE), queue_fd < 0) {
+                mtwarn(WM_OSCAP_LOGTAG, "Can't connect to queue. Trying again.");
+                sleep(WM_MAX_WAIT);
+            }
+
+            wm_sendmsg(usec, queue_fd, line, WM_OSCAP_LOCATION, LOCALFILE_MQ);
+        }
     }
 
     snprintf(msg, OS_MAXSTR, "Ending OpenSCAP scan. File: %s. ", eval->path);
