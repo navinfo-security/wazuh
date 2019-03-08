@@ -2033,14 +2033,14 @@ Services\\Routing and Remote Access"
 #18.4.2 Ensure 'MSS: (DisableIPSourceRouting IPv6) IP source routing protection level (protects against packet spoofing)' is set to 'Enabled: Highest protection, source routing is completely disabled'
  - id: 1116
    title: "(DisableIPSourceRouting IPv6) IP source routing protection level (protects against packet spoofing)' is set to 'Enabled"
-   description: "(DisableIPSourceRouting IPv6) IP source routing protection level (protects against packet spoofing)' is set to 'Enabled"
-   rationale: ""
-   remediation: ""
+   description: "IP source routing is a mechanism that allows the sender to determine the IP route that a datagram should follow through the network. The recommended state for this setting is: Enabled: Highest protection, source routing is completely disabled."
+   rationale: "An attacker could use source routed packets to obscure their identity and location. Source routing allows a computer that sends a packet to specify the route that the packet takes"
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Highest protection, source routing is completely disabled: Computer Configuration\\Policies\\Administrative Templates\\MSS (Legacy)\\MSS: (DisableIPSourceRouting IPv6) IP source routing protection level (protects against packet spoofing)"
    compliance:
-    - cis: "Microsoft Windows 10 - Ensure 'MSS"
-    - cis_csc: ""
+    - cis: "18.4.2"
+    - cis_csc: "9"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33790-7
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters -> DisableIPSourceRouting -> !2;'
@@ -2050,14 +2050,14 @@ Services\\Routing and Remote Access"
 #18.4.3 Ensure 'MSS: (DisableIPSourceRouting) IP source routing protection level (protects against packet spoofing)' is set to 'Enabled: Highest protection, source routing is completely disabled'
  - id: 1117
    title: "(DisableIPSourceRouting) IP source routing protection level (protects against packet spoofing)' is set to 'Enabled"
-   description: "(DisableIPSourceRouting) IP source routing protection level (protects against packet spoofing)' is set to 'Enabled"
-   rationale: ""
-   remediation: ""
+   description: "IP source routing is a mechanism that allows the sender to determine the IP route that a datagram should take through the network. It is recommended to configure this setting to Not Defined for enterprise environments and to Highest Protection for high security environments to completely disable source routing. The recommended state for this setting is: Enabled: Highest protection, source routing is completely disabled."
+   rationale: "An attacker could use source routed packets to obscure their identity and location. Source routing allows a computer that sends a packet to specify the route that the packet takes."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Highest protection, source routing is completely disabled: Computer Configuration\\Policies\\Administrative Templates\\MSS (Legacy)\\MSS: (DisableIPSourceRouting) IP source routing protection level (protects against packet spoofing)"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.4.3 Ensure 'MSS"
-    - cis_csc: ""
+    - cis: "18.4.3"
+    - cis_csc: "9"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33816-0
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters -> DisableIPSourceRouting -> !2;'
@@ -2067,14 +2067,14 @@ Services\\Routing and Remote Access"
 #18.4.5 Ensure 'MSS: (EnableICMPRedirect) Allow ICMP redirects to override OSPF generated routes' is set to 'Disabled'
  - id: 1118
    title: "(EnableICMPRedirect) Allow ICMP redirects to override OSPF generated routes' is set to 'Disabled'"
-   description: "(EnableICMPRedirect) Allow ICMP redirects to override OSPF generated routes' is set to 'Disabled'"
-   rationale: ""
-   remediation: ""
+   description: "Internet Control Message Protocol (ICMP) redirects cause the IPv4 stack to plumb host routes. These routes override the Open Shortest Path First (OSPF) generated routes. The recommended state for this setting is: Disabled."
+   rationale: "This behavior is expected. The problem is that the 10 minute time-out period for the ICMP redirect-plumbed routes temporarily creates a network situation in which traffic will no longer be routed properly for the affected host. Ignoring such ICMP redirects will limit the system's exposure to attacks that will impact its ability to participate on the network."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\MSS (Legacy)\\MSS: (EnableICMPRedirect) Allow ICMP redirects to override OSPF generated routes"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.4.5 Ensure 'MSS"
-    - cis_csc: ""
+    - cis: "18.4.5"
+    - cis_csc: "9"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-34597-5
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters -> EnableICMPRedirect -> 1;'
@@ -2084,14 +2084,14 @@ Services\\Routing and Remote Access"
 #18.4.7 Ensure 'MSS: (NoNameReleaseOnDemand) Allow the computer to ignore NetBIOS name release requests except from WINS servers' is set to 'Enabled'
  - id: 1119
    title: "(NoNameReleaseOnDemand) Allow the computer to ignore NetBIOS name release requests except from WINS servers' is set to 'Enabled'"
-   description: "(NoNameReleaseOnDemand) Allow the computer to ignore NetBIOS name release requests except from WINS servers' is set to 'Enabled'"
-   rationale: ""
-   remediation: ""
+   description: "NetBIOS over TCP/IP is a network protocol that among other things provides a way to easily resolve NetBIOS names that are registered on Windows-based systems to the IP addresses that are configured on those systems. This setting determines whether the computer releases its NetBIOS name when it receives a name-release request. The recommended state for this setting is: Enabled."
+   rationale: "The NetBT protocol is designed not to use authentication, and is therefore vulnerable to spoofing. Spoofing makes a transmission appear to come from a user other than the user who performed the action. A malicious user could exploit the unauthenticated nature of the protocol to send a name-conflict datagram to a target computer, which would cause the computer to relinquish its name and not respond to queries. An attacker could send a request over the network and query a computer to release its NetBIOS name. As with any change that could affect applications, it is recommended that you test this change in a non-production environment before you change the production environment. The result of such an attack could be to cause intermittent connectivity issues on the target computer, or even to prevent the use of Network Neighborhood, domain logons, the NET SEND command, or additional NetBIOS name resolution."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\MSS (Legacy)\\MSS: (NoNameReleaseOnDemand) Allow the computer to ignore NetBIOS name release requests except from WINS servers"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.4.7 Ensure 'MSS"
-    - cis_csc: ""
+    - cis: "18.4.7"
+    - cis_csc: "9"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35405-0
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\NetBT\Parameters -> NoNameReleaseOnDemand -> !1;'
@@ -2100,14 +2100,14 @@ Services\\Routing and Remote Access"
 #18.4.9 Ensure 'MSS: (SafeDllSearchMode) Enable Safe DLL search mode (recommended)' is set to 'Enabled'
  - id: 1120
    title: "(SafeDllSearchMode) Enable Safe DLL search mode (recommended)' is set to 'Enabled'"
-   description: "(SafeDllSearchMode) Enable Safe DLL search mode (recommended)' is set to 'Enabled'"
-   rationale: ""
-   remediation: ""
+   description: "The DLL search order can be configured to search for DLLs that are requested by running processes in one of two ways:  Search folders specified in the system path first, and then search the current working folder.  Search current working folder first, and then search the folders specified in the system path. When enabled, the registry value is set to 1. With a setting of 1, the system first searches the folders that are specified in the system path and then searches the current working folder. When disabled the registry value is set to 0 and the system first searches the current working folder and then searches the folders that are specified in the system path. Applications will be forced to search for DLLs in the system path first. For applications that require unique versions of these DLLs that are included with the application, this entry could cause performance or stability problems. The recommended state for this setting is: Enabled."
+   rationale: "If a user unknowingly executes hostile code that was packaged with additional files that include modified versions of system DLLs, the hostile code could load its own versions of those DLLs and potentially increase the type and degree of damage the code can render."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\MSS (Legacy)\\MSS: (SafeDllSearchMode) Enable Safe DLL search mode (recommended)"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.4.9 Ensure 'MSS"
-    - cis_csc: ""
+    - cis: "18.4.9"
+    - cis_csc: "8"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-34022-4
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager -> SafeDllSearchMode -> 0;'
@@ -2116,14 +2116,14 @@ Services\\Routing and Remote Access"
 #18.4.10 Ensure 'MSS: (ScreenSaverGracePeriod) The time in seconds before the screen saver grace period expires (0 recommended)' is set to 'Enabled: 5 or fewer seconds'
  - id: 1121
    title: "(ScreenSaverGracePeriod) The time in seconds before the screen saver grace period expires (0 recommended)' is set to 'Enabled"
-   description: "(ScreenSaverGracePeriod) The time in seconds before the screen saver grace period expires (0 recommended)' is set to 'Enabled"
-   rationale: ""
-   remediation: ""
+   description: "Windows includes a grace period between when the screen saver is launched and when the console is actually locked automatically when screen saver locking is enabled. The recommended state for this setting is: Enabled: 5 or fewer seconds"
+   rationale: "The default grace period that is allowed for user movement before the screen saver lock takes effect is five seconds. If you leave the default grace period configuration, your computer is vulnerable to a potential attack from someone who could approach the console and attempt to log on to the computer before the lock takes effect. An entry to the registry can be made to adjust the length of the grace period."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: 5 or fewer seconds: Computer Configuration\\Policies\\Administrative Templates\\MSS (Legacy)\\MSS: (ScreenSaverGracePeriod) The time in seconds before the screen saver grace period expires (0 recommended)"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.4.10 Ensure 'MSS"
-    - cis_csc: ""
+    - cis: "18.4.10"
+    - cis_csc: "16.5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-34619-7
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon -> ScreenSaverGracePeriod -> 6;'
@@ -2136,14 +2136,14 @@ Services\\Routing and Remote Access"
 #18.4.13 Ensure 'MSS: (WarningLevel) Percentage threshold for the security event log at which the system will generate a warning' is set to 'Enabled: 90% or less'
  - id: 1122
    title: "(WarningLevel) Percentage threshold for the security event log at which the system will generate a warning' is set to 'Enabled"
-   description: "(WarningLevel) Percentage threshold for the security event log at which the system will generate a warning' is set to 'Enabled"
-   rationale: ""
-   remediation: ""
+   description: "This setting can generate a security audit in the Security event log when the log reaches a user-defined threshold. The recommended state for this setting is: Enabled: 90% or less."
+   rationale: "If the Security log reaches 90 percent of its capacity and the computer has not been configured to overwrite events as needed, more recent events will not be written to the log. If the log reaches its capacity and the computer has been configured to shut down when it can no longer record events to the Security log, the computer will shut down and will no longer be available to provide network services."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: 90% or less: Computer Configuration\\Policies\\Administrative Templates\\MSS (Legacy)\\MSS: (WarningLevel) Percentage threshold for the security event log at which the system will generate a warning"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.4.13 Ensure 'MSS"
-    - cis_csc: ""
+    - cis: "18.4.13"
+    - cis_csc: "6.3, 6.4"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35406-8
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Eventlog\Security -> WarningLevel -> 5B;'
@@ -2162,15 +2162,13 @@ Services\\Routing and Remote Access"
 #
 #18.5.4.1 Set 'NetBIOS node type' to 'P-node' (Ensure NetBT Parameter 'NodeType' is set to '0x2 (2)')
  - id: 1123
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'NetBIOS node type' to 'P-node' (Ensure NetBT Parameter 'NodeType' is set to '0x2 (2)')"
+   description: "This parameter determines which method NetBIOS over TCP/IP (NetBT) will use to register and resolve names.  A B-node (broadcast) system only uses broadcasts.  A P-node (point-to-point) system uses only name queries to a name server (WINS).  An M-node (mixed) system broadcasts first, then queries the name server (WINS).  An H-node (hybrid) system queries the name server (WINS) first, then broadcasts. The recommended state for this setting is: NodeType - 0x2 (2) (P-node / point-to-point)."
+   rationale: "In order to help mitigate the risk of NetBIOS Name Service (NBT-NS) poisoning attacks, setting the node type to P-node will prevent the system from sending out NetBIOS broadcasts."
+   remediation: "To establish the recommended configuration, set the following Registry value to 0x2 (2) (DWORD): HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\NetBT\\Parameters:NodeTyp e"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.5.4.1"
+    - cis_csc: "9"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\NetBT\Parameters -> NodeType -> !2;'
@@ -2179,15 +2177,15 @@ Services\\Routing and Remote Access"
 #
 #18.5.4.2 Ensure 'Turn off multicast name resolution' is set to 'Enabled'
  - id: 1124
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Turn off multicast name resolution' is set to 'Enabled'"
+   description: "LLMNR is a secondary name resolution protocol. With LLMNR, queries are sent using multicast over a local network link on a single subnet from a client computer to another client computer on the same subnet that also has LLMNR enabled. LLMNR does not require a DNS server or DNS client configuration, and provides name resolution in scenarios in which conventional DNS name resolution is not possible. The recommended state for this setting is: Enabled."
+   rationale: "An attacker can listen on a network for these LLMNR (UDP/5355) or NBT-NS (UDP/137) broadcasts and respond to them, tricking the host into thinking that it knows the location of the requested system."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Network\\DNS Client\\Turn off multicast name resolution"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.5.4.2"
+    - cis_csc: "9"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-34055-4
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient -> EnableMulticast -> !0;'
@@ -2196,15 +2194,13 @@ Services\\Routing and Remote Access"
 #
 #18.5.8.1 Ensure 'Enable insecure guest logons' is set to 'Disabled'
  - id: 1125
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Enable insecure guest logons' is set to 'Disabled'"
+   description: "This policy setting determines if the SMB client will allow insecure guest logons to an SMB server. The recommended state for this setting is: Disabled."
+   rationale: "Insecure guest logons are used by file servers to allow unauthenticated access to shared folders."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Network\\Lanman Workstation\\Enable insecure guest logons"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.5.8.1"
+    - cis_csc: "9.1, 9.2"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\LanmanWorkstation -> AllowInsecureGuestAuth -> !0;'
@@ -2213,15 +2209,15 @@ Services\\Routing and Remote Access"
 #
 #18.5.11.2 Ensure 'Prohibit installation and configuration of Network Bridge on your DNS domain network' is set to 'Enabled'
  - id: 1126
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Prohibit installation and configuration of Network Bridge on your DNS domain network' is set to 'Enabled'"
+   description: "You can use this procedure to controls user's ability to install and configure a Network Bridge. The recommended state for this setting is: Enabled."
+   rationale: "The Network Bridge setting, if enabled, allows users to create a Layer 2 Media Access Control (MAC) bridge, enabling them to connect two or more physical network segments together. A Network Bridge thus allows a computer that has connections to two different networks to share data between those networks. In an enterprise managed environment, where there is a need to control network traffic to only authorized paths, allowing users to create a Network Bridge increases the risk and attack surface from the bridged network."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Network\\Network Connections\\Prohibit installation and configuration of Network Bridge on your DNS domain network"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.5.11.2"
+    - cis_csc: "5.1"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33107-4
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Network Connections -> NC_AllowNetBridge_NLA -> 1;'
@@ -2230,15 +2226,13 @@ Services\\Routing and Remote Access"
 #
 #18.5.11.3 Ensure 'Prohibit use of Internet Connection Sharing on your DNS domain network' is set to 'Enabled'
  - id: 1127
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Prohibit use of Internet Connection Sharing on your DNS domain network' is set to 'Enabled'"
+   description: "Although this legacy setting traditionally applied to the use of Internet Connection Sharing (ICS) in Windows 2000, Windows XP & Server 2003, this setting now freshly applies to the Mobile Hotspot feature in Windows 10 & Server 2016. The recommended state for this setting is: Enabled."
+   rationale: "Non-administrators should not be able to turn on the Mobile Hotspot feature and open their Internet connectivity up to nearby mobile devices."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Network\\Network Connections\\Prohibit use of Internet Connection Sharing on your DNS domain network"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.5.11.3"
+    - cis_csc: "9.1, 9.2"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Network Connections -> NC_ShowSharedAccessUI -> !0;'
@@ -2248,14 +2242,14 @@ Services\\Routing and Remote Access"
 #18.5.11.4 Ensure 'Require domain users to elevate when setting a network's location' is set to 'Enabled'
  - id: 1128
    title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   description: "This policy setting determines whether to require domain users to elevate when setting a network's location. The recommended state for this setting is: Enabled."
+   rationale: "Allowing regular users to set a network location increases the risk and attack surface."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Network\\Network Connections\\Require domain users to elevate when setting a network's location"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.5.11.4"
+    - cis_csc: "5.1"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35554-5
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Network Connections -> NC_StdDomainUserSetLocation -> !1;'
@@ -2264,15 +2258,13 @@ Services\\Routing and Remote Access"
 #
 #18.5.14.1 Ensure 'Hardened UNC Paths' is set to 'Enabled, with "Require Mutual Authentication" and "Require Integrity" set for all NETLOGON and SYSVOL shares'
  - id: 1129
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Hardened UNC Paths' is set to 'Enabled, with "Require Mutual Authentication" and "Require Integrity" set for all NETLOGON and SYSVOL shares'"
+   description: "This policy setting configures secure access to UNC paths. The recommended state for this setting is: Enabled, with Require Mutual Authentication and Require Integrity set for all NETLOGON and SYSVOL shares. Note: If the environment exclusively contains Windows 8.0 / Server 2012 (non-R2) or newer systems, then the "Privacy" setting may (optionally) also be set to enable SMB encryption. However, using SMB encryption will render the targeted share paths completely inaccessible by older OSes, so only use this additional option with caution and thorough testing"
+   rationale: "In February 2015, Microsoft released a new control mechanism to mitigate a security risk in Group Policy as part of the MS15-011 / MSKB 3000483 security update. This mechanism requires both the installation of the new security update and also the deployment of specific group policy settings to all computers on the domain from Windows Vista / Server 2008 (non-R2) or newer (the associated security patch to enable this feature was not released for Server 2003). A new group policy template (NetworkProvider.admx/adml) was also provided with the security update. Once the new GPO template is in place, the following are the minimum requirements to remediate the Group Policy security risk: \\*\\NETLOGON RequireMutualAuthentication=1, RequireIntegrity=1 \\*\\SYSVOL RequireMutualAuthentication=1, RequireIntegrity=1 Note: A reboot may be required after the setting is applied to a client machine to access the above paths."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled with the following paths configured, at a minimum: \\*\\NETLOGON RequireMutualAuthentication=1, RequireIntegrity=1 \\*\\SYSVOL RequireMutualAuthentication=1, RequireIntegrity=1 Computer Configuration\\Policies\\Administrative Templates\\Network\\Network Provider\\Hardened UNC Paths"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.5.14.1"
+    - cis_csc: "3"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\NetworkProvider\HardenedPaths -> \\\\*\\NETLOGON -> !r:RequireMutualAuthentication=1, RequireIntegrity=1;'
@@ -2281,15 +2273,15 @@ Services\\Routing and Remote Access"
 #
 #18.5.21.1 Ensure 'Minimize the number of simultaneous connections to the Internet or a Windows Domain' is set to 'Enabled'
  - id: 1130
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Minimize the number of simultaneous connections to the Internet or a Windows Domain' is set to 'Enabled' "
+   description: "This policy setting prevents computers from establishing multiple simultaneous connections to either the Internet or to a Windows domain. The recommended state for this setting is: Enabled."
+   rationale: "Blocking simultaneous connections can help prevent a user unknowingly allowing network traffic to flow between the Internet and the enterprise managed network."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Network\\Windows Connection Manager\\Minimize the number of simultaneous connections to the Internet or a Windows Domain"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.5.21.1"
+    - cis_csc: "12"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35242-7
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WcmSvc\GroupPolicy -> fMinimizeConnections -> !1;'
@@ -2297,15 +2289,15 @@ Services\\Routing and Remote Access"
 #
 #18.5.21.2 Ensure 'Prohibit connection to non-domain networks when connected to domain authenticated network' is set to 'Enabled'
  - id: 1131
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Prohibit connection to non-domain networks when connected to domain authenticated network' is set to 'Enabled'"
+   description: "This policy setting prevents computers from connecting to both a domain based network and a non-domain based network at the same time. The recommended state for this setting is: Enabled."
+   rationale: "The potential concern is that a user would unknowingly allow network traffic to flow between the insecure public network and the enterprise managed network."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Network\\Windows Connection Manager\\Prohibit connection to non-domain networks when connected to domain authenticated network"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.5.21.2"
+    - cis_csc: "12"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35375-5
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WcmSvc\GroupPolicy -> fBlockNonDomain -> 0;'
@@ -2315,14 +2307,14 @@ Services\\Routing and Remote Access"
 #18.5.23.2.1 Ensure 'Allow Windows to automatically connect to suggested open hotspots, to networks shared by contacts, and to hotspots offering paid services' is set to 'Disabled'
  - id: 1132
    title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   description: "This policy setting determines whether users can enable the following WLAN settings: Connect to suggested open hotspots, Connect to networks shared by my contacts, and Enable paid services.  Connect to suggested open hotspots enables Windows to automatically connect users to open hotspots it knows about by crowdsourcing networks that other people using Windows have connected to.  Connect to networks shared by my contacts enables Windows to automatically connect to networks that the user's contacts have shared with them, and enables users on this device to share networks with their contacts.  Enable paid services enables Windows to temporarily connect to open hotspots to determine if paid services are available. The recommended state for this setting is: Disabled."
+   rationale: "Automatically connecting to an open hotspot or network can introduce the system to a rogue network with malicious intent."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Network\\WLAN Service\\WLAN Settings\\Allow Windows to automatically connect to suggested open hotspots, to networks shared by contacts, and to hotspots offering paid services"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.5.23.2.1"
+    - cis_csc: "15.4, 15.5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-41378-1
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config -> AutoConnectAllowedOEM -> !0;'
@@ -2331,15 +2323,15 @@ Services\\Routing and Remote Access"
 #
 #18.8.3.1 Ensure 'Include command line in process creation events' is set to 'Disabled'
  - id: 1133
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: " 'Include command line in process creation events' is set to 'Disabled'"
+   description: "This policy setting determines what information is logged in security audit events when a new process has been created. The recommended state for this setting is: Disabled."
+   rationale: "When this policy setting is enabled, any user who has read access to the security events can read the command-line arguments for any successfully created process. Command-line arguments may contain sensitive or private information such as passwords or user data."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Audit Process Creation\\Include command line in process creation events"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.8.3.1"
+    - cis_csc: "16.14"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35802-8
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit -> ProcessCreationIncludeCmdLine_Enabled -> !0;'
@@ -2348,14 +2340,12 @@ Services\\Routing and Remote Access"
 #18.8.4.1 Ensure 'Remote host allows delegation of non-exportable credentials' is set to 'Enabled'
  - id: 1134
    title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   description: "Remote host allows delegation of non-exportable credentials. When using credential delegation, devices provide an exportable version of credentials to the remote host. This exposes users to the risk of credential theft from attackers on the remote host. The Restricted Admin Mode and Windows Defender Remote Credential Guard features are two options to help protect against this risk. The recommended state for this setting is: Enabled."
+   rationale: "Restricted Admin Mode was designed to help protect administrator accounts by ensuring that reusable credentials are not stored in memory on remote devices that could potentially be compromised. Windows Defender Remote Credential Guard helps you protect your credentials over a Remote Desktop connection by redirecting Kerberos requests back to the device that is requesting the connection. Both features should be enabled and supported, as they reduce the chance of credential theft."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Credentials Delegation\\Remote host allows delegation of non-exportable credentials"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.8.4.1"
+    - cis_csc: "16"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation -> AllowProtectedCreds -> 0;'
@@ -2364,15 +2354,15 @@ Services\\Routing and Remote Access"
 #
 #18.8.14.1 Ensure 'Boot-Start Driver Initialization Policy' is set to 'Enabled: Good, unknown and bad but critical'
  - id: 1135
-   title: "Good, unknown and bad but critical'"
-   description: "Good, unknown and bad but critical'"
-   rationale: ""
-   remediation: ""
+   title: "'Boot-Start Driver Initialization Policy' is set to 'Enabled'"
+   description: "This policy setting allows you to specify which boot-start drivers are initialized based on a classification determined by an Early Launch Antimalware boot-start driver. The Early Launch Antimalware boot-start driver can return the following classifications for each boot-start driver:  Good: The driver has been signed and has not been tampered with.  Bad: The driver has been identified as malware. It is recommended that you do not allow known bad drivers to be initialized.  Bad, but required for boot: The driver has been identified as malware, but the computer cannot successfully boot without loading this driver.  Unknown: This driver has not been attested to by your malware detection application and has not been classified by the Early Launch Antimalware boot-start driver. If you enable this policy setting you will be able to choose which boot-start drivers to initialize the next time the computer is started. If your malware detection application does not include an Early Launch Antimalware bootstart driver or if your Early Launch Antimalware boot-start driver has been disabled, this setting has no effect and all boot-start drivers are initialized. The recommended state for this setting is: Enabled: Good, unknown and bad but critical."
+   rationale: "This policy setting helps reduce the impact of malware that has already infected your system."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Good, unknown and bad but critical: Computer Configuration\\Policies\\Administrative Templates\\System\\Early Launch Antimalware\\Boot-Start Driver Initialization Policy"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.8.14.1 Ensure 'Boot-Start Driver Initialization Policy' is set to 'Enabled"
-    - cis_csc: ""
+    - cis: "18.8.14.1"
+    - cis_csc: "8"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33231-2
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Policies\EarlyLaunch -> DriverLoadPolicy -> !3;'
@@ -2380,15 +2370,15 @@ Services\\Routing and Remote Access"
 #
 #18.8.21.2 Ensure 'Configure registry policy processing: Do not apply during periodic background processing' is set to 'Enabled: FALSE'
  - id: 1136
-   title: "Do not apply during periodic background processing' is set to 'Enabled"
-   description: "Do not apply during periodic background processing' is set to 'Enabled"
-   rationale: ""
-   remediation: ""
+   title: "'Configure registry policy processing: Do not apply during periodic background processing' is set to 'Enabled"
+   description: "The "Do not apply during periodic background processing" option prevents the system from updating affected policies in the background while the computer is in use. When background updates are disabled, policy changes will not take effect until the next user logon or system restart."
+   rationale: "Setting this option to false (unchecked) will ensure that domain policy changes take effect more quickly, as compared to waiting until the next user logon or system restart."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled, then set the Do not apply during periodic background processing option to FALSE (unchecked): Computer Configuration\\Policies\\Administrative Templates\\System\\Group Policy\\Configure registry policy processing"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.8.21.2 Ensure 'Configure registry policy processing"
-    - cis_csc: ""
+    - cis: "18.8.21.1"
+    - cis_csc: "3.7, 5.4, 5.5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35384-7
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Group Policy\{35378EAC-683F-11D2-A89A-00C04FBBCFA2} -> NoBackgroundPolicy -> !0;'
@@ -2398,14 +2388,14 @@ Services\\Routing and Remote Access"
 #18.8.21.3 Ensure 'Configure registry policy processing: Process even if the Group Policy objects have not changed' is set to 'Enabled: TRUE'
  - id: 1137
    title: "Process even if the Group Policy objects have not changed' is set to 'Enabled"
-   description: "Process even if the Group Policy objects have not changed' is set to 'Enabled"
-   rationale: ""
-   remediation: ""
+   description: "The "Process even if the Group Policy objects have not changed" option updates and reapplies policies even if the policies have not changed."
+   rationale: "Setting this option to true (checked) will ensure unauthorized changes that might have been configured locally are forced to match the domain-based Group Policy settings again."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled, then set the Process even if the Group Policy objects have not changed option to TRUE (checked): Computer Configuration\\Policies\\Administrative Templates\\System\\Group Policy\\Configure registry policy processing"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.8.21.3 Ensure 'Configure registry policy processing"
-    - cis_csc: ""
+    - cis: "18.8.21.3"
+    - cis_csc: "3.7, 5.4, 5.5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35384-7
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Group Policy\{35378EAC-683F-11D2-A89A-00C04FBBCFA2} -> NoGPOListChanges -> !0;'
@@ -2414,15 +2404,13 @@ Services\\Routing and Remote Access"
 #
 #18.8.21.4 Ensure 'Continue experiences on this device' is set to 'Disabled'
  - id: 1138
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Continue experiences on this device' is set to 'Disabled'"
+   description: "This policy setting determines whether the Windows device is allowed to participate in cross-device experiences (continue experiences)."
+   rationale: "A cross-device experience is when a system can access app and send messages to other devices. In an enterprise managed environment only trusted systems should be communicating within the network. Access to any other system should be prohibited."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Group Policy\\Continue experiences on this device"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.8.21.4"
+    - cis_csc: "9.1, 9.2"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System -> EnableCdp -> !0;'
@@ -2431,15 +2419,15 @@ Services\\Routing and Remote Access"
 #
 #18.8.21.5 Ensure 'Turn off background refresh of Group Policy' is set to 'Disabled'
  - id: 1139
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Turn off background refresh of Group Policy' is set to 'Disabled'"
+   description: "This policy setting prevents Group Policy from being updated while the computer is in use. This policy setting applies to Group Policy for computers, users and Domain Controllers."
+   rationale: "This setting ensures that group policy changes take effect more quickly, as compared to waiting until the next user logon or system restart."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Group Policy\\Turn off background refresh of Group Policy"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.8.21.5"
+    - cis_csc: "3.7, 5.4, 5.5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35776-4
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -> DisableBkGndGroupPolicy -> !0;'
@@ -2448,14 +2436,14 @@ Services\\Routing and Remote Access"
 #18.8.22.1.2 Ensure 'Turn off downloading of print drivers over HTTP' is set to 'Enabled'
  - id: 1140
    title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   description: "This policy setting specifies whether to use the Store service for finding an application to open a file with an unhandled file type or protocol association. When a user opens a file type or protocol that is not associated with any applications on the computer, the user is given the choice to select a local application or use the Store service to find an application."
+   rationale: "The Store service is a retail outlet built into Windows, primarily for consumer use. In an enterprise managed environment the IT department should be managing the installation of all applications to reduce the risk of the installation of vulnerable software."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Internet Communication Management\\Internet Communication settings\\Turn off access to the Store"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.8.22.1.2"
+    - cis_csc: "2"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35626-1
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Printers -> DisableWebPnPDownload -> !1;'
@@ -2465,14 +2453,14 @@ Services\\Routing and Remote Access"
 #18.8.22.1.6 Ensure 'Turn off Internet download for Web publishing and online ordering wizards' is set to 'Enabled'
  - id: 1141
    title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   description: "This policy setting controls whether Windows will download a list of providers for the Web publishing and online ordering wizards."
+   rationale: "Although the risk is minimal, enabling this setting will reduce the possibility of a user unknowingly downloading malicious content through this feature."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Internet Communication Management\\Internet Communication settings\\Turn off Internet download for Web publishing and online ordering wizards"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.8.22.1.6"
+    - cis_csc: "7"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33143-9
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer -> NoWebServices -> !1;'
@@ -2481,15 +2469,15 @@ Services\\Routing and Remote Access"
 #
 #18.8.22.1.7 Ensure 'Turn off printing over HTTP' is set to 'Enabled'
  - id: 1142
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Turn off printing over HTTP' is set to 'Enabled'"
+   description: "This policy setting allows you to disable the client computer's ability to print over HTTP, which allows the computer to print to printers on the intranet as well as the Internet."
+   rationale: "Information that is transmitted over HTTP through this capability is not protected and can be intercepted by malicious users. For this reason, it is not often used in enterprise managed environments."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Internet Communication Management\\Internet Communication settings\\Turn off printing over HTTP"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.8.22.1.7"
+    - cis_csc: "13.1"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33783-2
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Printers -> DisableHTTPPrinting -> !1;'
@@ -2498,15 +2486,13 @@ Services\\Routing and Remote Access"
 #
 #18.8.27.1 Ensure 'Block user from showing account details on sign-in' is set to 'Enabled'
  - id: 1143
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Block user from showing account details on sign-in' is set to 'Enabled'"
+   description: "This policy prevents the user from showing account details (email address or user name) on the sign-in screen."
+   rationale: "An attacker with access to the console (for example, someone with physical access or someone who is able to connect to the workstation through Remote Desktop Services) could view the name of the last user who logged on to the server. The attacker could then try to guess the password, use a dictionary, or use a brute-force attack to try and log on."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Logon\\Block user from showing account details on sign-in"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.8.27.1"
+    - cis_csc: "16.5"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System -> BlockUserFromShowingAccountDetailsOnSignin -> !1;'
@@ -2515,15 +2501,15 @@ Services\\Routing and Remote Access"
 #
 #18.8.27.2 Ensure 'Do not display network selection UI' is set to 'Enabled'
  - id: 1144
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Do not display network selection UI' is set to 'Enabled' "
+   description: "This policy setting allows you to control whether anyone can interact with available networks UI on the logon screen."
+   rationale: "An unauthorized user could disconnect the PC from the network or can connect the PC to other available networks without signing into Windows."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Logon\\Do not display network selection UI"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.8.27.2"
+    - cis_csc: "5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33822-8
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System -> DontDisplayNetworkSelectionUI -> !1;'
@@ -2532,15 +2518,15 @@ Services\\Routing and Remote Access"
 #
 #18.8.27.3 Ensure 'Do not enumerate connected users on domain-joined computers' is set to 'Enabled'
  - id: 1145
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Do not enumerate connected users on domain-joined computers' is set to 'Enabled'"
+   description: "This policy setting prevents connected users from being enumerated on domain-joined computers."
+   rationale: "A malicious user could use this feature to gather account names of other users, that information could then be used in conjunction with other types of attacks such as guessing passwords or social engineering. The value of this countermeasure is small because a user with domain credentials could gather the same account information using other methods."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Logon\\Do not enumerate connected users on domain-joined computers"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.8.27.3"
+    - cis_csc: "16.9"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35207-0
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System -> DontEnumerateConnectedUsers -> !1;'
@@ -2549,15 +2535,15 @@ Services\\Routing and Remote Access"
 #
 #18.8.27.4 Ensure 'Enumerate local users on domain-joined computers' is set to 'Disabled'
  - id: 1146
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: " 'Enumerate local users on domain-joined computers' is set to 'Disabled' "
+   description: "This policy setting allows local users to be enumerated on domain-joined computers."
+   rationale: "A malicious user could use this feature to gather account names of other users, that information could then be used in conjunction with other types of attacks such as guessing passwords or social engineering. The value of this countermeasure is small because a user with domain credentials could gather the same account information using other methods."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Logon\\Enumerate local users on domain-joined computers"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.8.27.4"
+    - cis_csc: "16.9"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-34838-3
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System -> EnumerateLocalUsers -> !0;'
@@ -2565,15 +2551,15 @@ Services\\Routing and Remote Access"
 #
 #18.8.27.5 Ensure 'Turn off app notifications on the lock screen' is set to 'Enabled'
  - id: 1147
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: " 'Turn off app notifications on the lock screen' is set to 'Enabled' "
+   description: "This policy setting allows you to prevent app notifications from appearing on the lock screen."
+   rationale: "App notifications might display sensitive business or personal data"
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Logon\\Turn off app notifications on the lock screen"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.8.27.5"
+    - cis_csc: "16.5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-34837-5
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System -> DisableLockScreenAppNotifications -> !1;'
@@ -2583,14 +2569,14 @@ Services\\Routing and Remote Access"
 #18.8.27.6 Ensure 'Turn off picture password sign-in' is set to 'Enabled'
  - id: 1148
    title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   description: "This policy setting allows you to control whether a domain user can sign in using a picture password. The recommended state for this setting is: Enabled."
+   rationale: "Picture passwords bypass the requirement for a typed complex password. In a shared work environment, a simple shoulder surf where someone observed the on-screen gestures would allow that person to gain access to the system without the need to know the complex password. Vertical monitor screens with an image are much more visible at a distance than horizontal key strokes, increasing the likelihood of a successful observation of the mouse gestures."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Logon\\Turn off picture password sign-in"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.8.27.6"
+    - cis_csc: "16.5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35291-4
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System -> BlockDomainPicturePassword -> !1;'
@@ -2599,15 +2585,15 @@ Services\\Routing and Remote Access"
 #
 #18.8.27.7 Ensure 'Turn on convenience PIN sign-in' is set to 'Disabled'
  - id: 1149
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Turn on convenience PIN sign-in' is set to 'Disabled'"
+   description: "This policy setting allows you to control whether a domain user can sign in using a convenience PIN. In Windows 10, convenience PIN was replaced with Passport, which has stronger security properties. To configure Passport for domain users, use the policies under Computer Configuration\\Administrative Templates\\Windows Components\\Microsoft Passport for Work."
+   rationale: "A PIN is created from a much smaller selection of characters than a password, so in most cases a PIN will be much less robust than a password."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Logon\\Turn on convenience PIN sign-in"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.8.27.7"
+    - cis_csc: "16.5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35095-9
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System -> AllowDomainPINLogon -> !0;'
@@ -2615,15 +2601,13 @@ Services\\Routing and Remote Access"
 #
 #18.8.33.6.1 Ensure 'Allow network connectivity during connected-standby (on battery)' is set to 'Disabled'
  - id: 1150
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Allow network connectivity during connected-standby (on battery)' is set to 'Disabled'"
+   description: "This policy setting allows you to control the network connectivity state in standby on modern standby-capable systems."
+   rationale: "Disabling this setting ensures that the computer will not be accessible to attackers over a WLAN network while left unattended, on battery and in a sleep state."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Power Management\\Sleep Settings\\Allow network connectivity during connected-standby (on battery)"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.8.33.6.1"
+    - cis_csc: "9"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Power\PowerSettings\f15576e8-98b7-4186-b944-eafa664402d9 -> DCSettingIndex -> !0;'
@@ -2632,15 +2616,13 @@ Services\\Routing and Remote Access"
 #
 #18.8.33.6.2 Ensure 'Allow network connectivity during connected-standby (plugged in)' is set to 'Disabled'
  - id: 1151
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: " 'Allow network connectivity during connectedstandby (plugged in)' is set to 'Disabled' "
+   description: "This policy setting allows you to control the network connectivity state in standby on modern standby-capable systems."
+   rationale: "Disabling this setting ensures that the computer will not be accessible to attackers over a WLAN network while left unattended, plugged in and in a sleep state."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Power Management\\Sleep Settings\\Allow network connectivity during connected-standby (plugged in)"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.8.33.6.2"
+    - cis_csc: "9"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Power\PowerSettings\f15576e8-98b7-4186-b944-eafa664402d9 -> ACSettingIndex -> !0;'
@@ -2649,15 +2631,15 @@ Services\\Routing and Remote Access"
 #
 #18.8.33.6.5 Ensure 'Require a password when a computer wakes (on battery)' is set to 'Enabled'
  - id: 1152
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Allow standby states (S1-S3) when sleeping (on battery)' is set to 'Disabled' "
+   description: "Dictates whether or not Windows is allowed to use standby states when sleeping the computer."
+   rationale: "System sleep states (S1-S3) keep power to the RAM which may contain secrets, such as the BitLocker volume encryption key. An attacker finding a computer in sleep states (S1-S3) could directly attack the memory of the computer and gain access to the secrets through techniques such as RAM reminisce and direct memory access (DMA)."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Power Management\\Sleep Settings\\Allow standby states (S1-S3) when sleeping (on battery)"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.8.33.6.5"
+    - cis_csc: "13.2, 13.6"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33169-4
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Power\PowerSettings\0e796bdb-100d-47d6-a2d5-f7d2daa51f51 -> DCSettingIndex -> !1;'
@@ -2665,15 +2647,15 @@ Services\\Routing and Remote Access"
 #
 #18.8.33.6.6 Ensure 'Require a password when a computer wakes (plugged in)' is set to 'Enabled'
  - id: 1153
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Require a password when a computer wakes (plugged in)' is set to 'Enabled'"
+   description: "Specifies whether or not the user is prompted for a password when the system resumes from sleep."
+   rationale: "Enabling this setting ensures that anyone who wakes an unattended computer from sleep state will have to provide logon credentials before they can access the system."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Power Management\\Sleep Settings\\Require a password when a computer wakes (plugged in)"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.8.33.6.6"
+    - cis_csc: "16.5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35462-1
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Power\PowerSettings\0e796bdb-100d-47d6-a2d5-f7d2daa51f51 -> ACSettingIndex -> !1;'
@@ -2681,15 +2663,15 @@ Services\\Routing and Remote Access"
 #
 #18.8.35.1 Ensure 'Configure Offer Remote Assistance' is set to 'Disabled'
  - id: 1154
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Configure Offer Remote Assistance' is set to 'Disabled'"
+   description: "This policy setting allows you to turn on or turn off Offer (Unsolicited) Remote Assistance on this computer. Help desk and support personnel will not be able to proactively offer assistance, although they can still respond to user assistance requests."
+   rationale: "A user might be tricked and accept an unsolicited Remote Assistance offer from a malicious user."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Remote Assistance\\Configure Offer Remote Assistance"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.8.35.1"
+    - cis_csc: "9.1, 9.2"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33801-2
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services -> fAllowUnsolicited -> !0;'
@@ -2697,15 +2679,15 @@ Services\\Routing and Remote Access"
 #
 #18.8.35.2 Ensure 'Configure Solicited Remote Assistance' is set to 'Disabled'
  - id: 1155
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Configure Solicited Remote Assistance' is set to 'Disabled'"
+   description: "This policy setting allows you to turn on or turn off Solicited (Ask for) Remote Assistance on this computer."
+   rationale: "There is slight risk that a rogue administrator will gain access to another user's desktop session, however, they cannot connect to a user's computer unannounced or control it without permission from the user. When an expert tries to connect, the user can still choose to deny the connection or give the expert view-only privileges. The user must explicitly click the Yes button to allow the expert to remotely control the workstation."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Remote Assistance\\Configure Solicited Remote Assistance"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.8.35.2"
+    - cis_csc: "5.1"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35331-8
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services -> fAllowToGetHelp -> !0;'
@@ -2714,15 +2696,15 @@ Services\\Routing and Remote Access"
 #
 #18.8.36.1 Ensure 'Enable RPC Endpoint Mapper Client Authentication' is set to 'Enabled'
  - id: 1156
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Enable RPC Endpoint Mapper Client Authentication' is set to 'Enabled'"
+   description: "This policy setting controls whether RPC clients authenticate with the Endpoint Mapper Service when the call they are making contains authentication information. The Endpoint Mapper Service on computers running Windows NT4 (all service packs) cannot process authentication information supplied in this manner. This policy setting can cause a specific issue with 1-way forest trusts if it is applied to the trusting domain DCs (see Microsoft KB3073942), so we do not recommend applying it to Domain Controllers."
+   rationale: "Anonymous access to RPC services could result in accidental disclosure of information to unauthenticated users."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\System\\Remote Procedure Call\\Enable RPC Endpoint Mapper Client Authentication"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.8.36.1"
+    - cis_csc: "9.1, 9.2"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35392-0
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Rpc -> EnableAuthEpResolution -> !1;'
@@ -2731,15 +2713,15 @@ Services\\Routing and Remote Access"
 #
 #18.8.36.2 Ensure 'Restrict Unauthenticated RPC clients' is set to 'Enabled: Authenticated'
  - id: 1157
-   title: "Authenticated'"
-   description: "Authenticated'"
-   rationale: ""
-   remediation: ""
+   title: "Restrict Unauthenticated RPC clients' is set to 'Enabled'"
+   description: "This policy setting controls how the RPC server runtime handles unauthenticated RPC clients connecting to RPC servers. This policy setting impacts all RPC applications. In a domain environment this policy setting should be used with caution as it can impact a wide range of functionality including group policy processing itself. Reverting a change to this policy setting can require manual intervention on each affected machine. This policy setting should never be applied to a Domain Controller. A client will be considered an authenticated client if it uses a named pipe to communicate with the server or if it uses RPC Security. RPC Interfaces that have specifically requested to be accessible by unauthenticated clients may be exempt from this restriction, depending on the selected value for this policy setting. -- None allows all RPC clients to connect to RPC Servers running on the machine on which the policy setting is applied. -- Authenticated allows only authenticated RPC Clients (per the definition above) to connect to RPC Servers running on the machine on which the policy setting is applied. Exemptions are granted to interfaces that have requested them. -- Authenticated without exceptions allows only authenticated RPC Clients (per the definition above) to connect to RPC Servers running on the machine on which the policy setting is applied. No exceptions are allowed. This value has the potential to cause serious problems and is not recommended.'"
+   rationale: "Unauthenticated RPC communication can create a security vulnerability."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Authenticated: Computer Configuration\\Policies\\Administrative Templates\\System\\Remote Procedure Call\\Restrict Unauthenticated RPC clients"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.8.36.2 Ensure 'Restrict Unauthenticated RPC clients' is set to 'Enabled"
-    - cis_csc: ""
+    - cis: "18.8.36.2"
+    - cis_csc: "9.1, 9.2"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35391-2
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Rpc -> RestrictRemoteClients -> !1;'
@@ -2747,15 +2729,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.6.1 Ensure 'Allow Microsoft accounts to be optional' is set to 'Enabled'
  - id: 1158
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Allow Microsoft accounts to be optional' is set to 'Enabled' "
+   description: "This policy setting lets you control whether Microsoft accounts are optional for Windows Store apps that require an account to sign in. This policy only affects Windows Store apps that support it"
+   rationale: "Enabling this setting allows an organization to use their enterprise user accounts instead of using their Microsoft accounts when accessing Windows store apps. This provides the organization with greater control over relevant credentials. Microsoft accounts cannot be centrally managed and as such enterprise credential security policies cannot be applied to them, which could put any information accessed by using Microsoft accounts at risk."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\App runtime\\Allow Microsoft accounts to be optional"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.6.1"
+    - cis_csc: "16.9"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35803-6
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -> MSAOptional -> !1;'
@@ -2764,15 +2746,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.8.1 Ensure 'Disallow Autoplay for non-volume devices' is set to 'Enabled'
  - id: 1159
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Disallow Autoplay for non-volume devices' is set to 'Enabled'"
+   description: "This policy setting disallows AutoPlay for MTP devices like cameras or phones"
+   rationale: "An attacker could use this feature to launch a program to damage a client computer or data on the computer."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\AutoPlay Policies\\Disallow Autoplay for non-volume devices"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.8.1"
+    - cis_csc: "8.3, 8.4, 8.5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35289-8
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Explorer -> NoAutoplayfornonVolume -> !1;'
@@ -2781,15 +2763,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.8.2 Ensure 'Set the default behavior for AutoRun' is set to 'Enabled: Do not execute any autorun commands'
  - id: 1160
-   title: "Do not execute any autorun commands'"
-   description: "Do not execute any autorun commands'"
-   rationale: ""
-   remediation: ""
+   title: "'Set the default behavior for AutoRun' is set to 'Enabled'"
+   description: "This policy setting sets the default behavior for Autorun commands. Autorun commands are generally stored in autorun.inf files. They often launch the installation program or other routines. The recommended state for this setting is: Enabled: Do not execute any autorun commands."
+   rationale: "Prior to Windows Vista, when media containing an autorun command is inserted, the system will automatically execute the program without user intervention. This creates a major security concern as code may be executed without user's knowledge. The default behavior starting with Windows Vista is to prompt the user whether autorun command is to be run. The autorun command is represented as a handler in the Autoplay dialog"
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Do not execute any autorun commands: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\AutoPlay Policies\\Set the default behavior for AutoRun"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.8.2 Ensure 'Set the default behavior for AutoRun' is set to 'Enabled"
-    - cis_csc: ""
+    - cis: "18.9.8.2"
+    - cis_csc: "8.3, 8.4, 8.5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-34771-6
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer -> NoAutorun -> !1;'
@@ -2798,15 +2780,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.8.3 Ensure 'Turn off Autoplay' is set to 'Enabled: All drives'
  - id: 1161
-   title: "All drives'"
-   description: "All drives'"
-   rationale: ""
-   remediation: ""
+   title: "'Turn off Autoplay' is set to 'Enabled'"
+   description: "Autoplay starts to read from a drive as soon as you insert media in the drive, which causes the setup file for programs or audio media to start immediately. An attacker could use this feature to launch a program to damage the computer or data on the computer. Autoplay is disabled by default on some removable drive types, such as floppy disk and network drives, but not on CD-ROM drives."
+   rationale: "An attacker could use this feature to launch a program to damage a client computer or data on the computer."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: All drives: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\AutoPlay Policies\\Turn off Autoplay"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.8.3 Ensure 'Turn off Autoplay' is set to 'Enabled"
-    - cis_csc: ""
+    - cis: "18.9.8.3"
+    - cis_csc: "8.3, 8.4, 8.5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33791-5
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer-> NoDriveTypeAutoRun -> !ff;'
@@ -2815,15 +2797,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.10.1.1 Ensure 'Configure enhanced anti-spoofing' is set to 'Enabled'
  - id: 1162
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: " 'Configure enhanced anti-spoofing' is set to 'Enabled' "
+   description: "This policy setting determines whether enhanced anti-spoofing is configured for devices which support it."
+   rationale: "Enterprise managed environments are now supporting a wider range of mobile devices, increasing the security on these devices will help protect against unauthorized access on your network."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Biometrics\\Facial Features\\Configure enhanced anti-spoofing"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.10.1.1"
+    - cis_csc: "16"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Biometrics\FacialFeatures -> EnhancedAntiSpoofing -> !1;'
@@ -2832,15 +2812,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.13.1 Ensure 'Turn off Microsoft consumer experiences' is set to 'Enabled'
  - id: 1163
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Turn off Microsoft consumer experiences' is set to 'Enabled'"
+   description: "This policy setting turns off experiences that help consumers make the most of their devices and Microsoft account."
+   rationale: "Having apps silently install in an enterprise managed environment is not good security practice - especially if the apps send data back to a 3rd party."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Cloud Content\\Turn off Microsoft consumer experiences"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.13.1"
+    - cis_csc: "13"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\CloudContent -> DisableWindowsConsumerFeatures -> !1;'
@@ -2849,15 +2827,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.14.1 Ensure 'Require pin for pairing' is set to 'Enabled'
  - id: 1164
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Require pin for pairing' is set to 'Enabled'"
+   description: "This policy setting controls whether or not a PIN is required for pairing to a wireless display device."
+   rationale: "If this setting is not configured or disabled then a PIN would not be required when pairing wireless display devices to the system, increasing the risk of unauthorized use."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Connect\\Require pin for pairing"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.14.1"
+    - cis_csc: "15.8, 15.9"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Connect -> RequirePinForPairing -> !1;'
@@ -2866,15 +2842,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.15.1 Ensure 'Do not display the password reveal button' is set to 'Enabled'
  - id: 1165
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Do not display the password reveal button' is set to 'Enabled'"
+   description: "This policy setting allows you to configure the display of the password reveal button in password entry user experiences."
+   rationale: "This is a useful feature when entering a long and complex password, especially when using a touchscreen. The potential risk is that someone else may see your password while surreptitiously observing your screen."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Credential User Interface\\Do not display the password reveal button"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.15.1"
+    - cis_csc: "16"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-32965-6
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\CredUI -> DisablePasswordReveal -> !1;'
@@ -2883,15 +2859,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.15.2 Ensure 'Enumerate administrator accounts on elevation' is set to 'Disabled'
  - id: 1166
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Enumerate administrator accounts on elevation' is set to 'Disabled'"
+   description: "This policy setting controls whether administrator accounts are displayed when a user attempts to elevate a running application."
+   rationale: "Users could see the list of administrator accounts, making it slightly easier for a malicious user who has logged onto a console session to try to crack the passwords of those accounts."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Credential User Interface\\Enumerate administrator accounts on elevation"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.15.2"
+    - cis_csc: "16"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35194-0
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\CredUI -> EnumerateAdministrators -> !0;'
@@ -2899,15 +2875,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.16.1 Ensure 'Allow Telemetry' is set to 'Enabled: 0 - Security (Enterprise Only)' or 'Enabled: 1 - Basic'
  - id: 1167
-   title: "0 - Security (Enterprise Only)' or 'Enabled"
-   description: "0 - Security (Enterprise Only)' or 'Enabled"
-   rationale: ""
-   remediation: ""
+   title: "'Allow Telemetry' is set to 'Enabled: 0 - Security [Enterprise Only]' or 'Enabled: 1 - Basic' "
+   description: "This policy setting determines the amount of diagnostic and usage data reported to Microsoft:  A value of 0 - Security [Enterprise Only] will send minimal data to Microsoft. This data includes Malicious Software Removal Tool (MSRT) & Windows Defender data, if enabled, and telemetry client settings. Setting a value of 0 applies to enterprise, EDU, IoT and server devices only. Setting a value of 0 for other devices is equivalent to choosing a value of 1.  A value of 1 - Basic sends only a basic amount of diagnostic and usage data. Note that setting values of 0 or 1 will degrade certain experiences on the device.  A value of 2 - Enhanced sends enhanced diagnostic and usage data.  A value of 3 - Full sends the same data as a value of 2, plus additional diagnostics data, including the files and content that may have caused the problem. Windows 10 telemetry settings apply to the Windows operating system and some first party apps. This setting does not apply to third party apps running on Windows 10. The recommended state for this setting is: Enabled: 0 - Security [Enterprise Only] or Enabled: 1 - Basic."
+   rationale: "Sending any data to a 3rd party vendor is a security concern and should only be done on an as needed basis."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: 0 - Security [Enterprise Only] or Enabled: 1 - Basic: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Data Collection and Preview Builds\\Allow Telemetry"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.16.1 Ensure 'Allow Telemetry' is set to 'Enabled"
-    - cis_csc: ""
+    - cis: "18.9.16.1"
+    - cis_csc: "13"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - . CCE-41400-3
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DataCollection -> AllowTelemetry -> 2;'
@@ -2917,15 +2893,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.16.3 Ensure 'Disable pre-release features or settings' is set to 'Disabled'
  - id: 1168
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Disable pre-release features or settings' is set to 'Disabled'"
+   description: "This policy setting determines the level that Microsoft can experiment with the product to study user preferences or device behavior. A value of 1 permits Microsoft to configure device settings only. A value of 2 allows Microsoft to conduct full experimentations."
+   rationale: "It can be dangerous in an enterprise managed environment if experimental features are allowed because this can introduce bugs and security holes into systems, making it easier for an attacker to gain access."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Data Collection and Preview Builds\\Disable pre-release features or settings"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.16.2"
+    - cis_csc: "3"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-41379-9
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\PreviewBuilds -> EnableConfigFlighting -> !0;'
@@ -2935,14 +2911,12 @@ Services\\Routing and Remote Access"
 #18.9.16.4 Ensure 'Do not show feedback notifications' is set to 'Enabled'
  - id: 1169
    title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   description: "This policy setting allows an organization to prevent its devices from showing feedback questions from Microsoft."
+   rationale: "Users should not be sending any feedback to 3rd party vendors in an enterprise managed environment."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Data Collection and Preview Builds\\Do not show feedback notifications"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.16.4"
+    - cis_csc: "13"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DataCollection -> DoNotShowFeedbackNotifications -> 1;'
@@ -2951,15 +2925,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.16.5 Ensure 'Toggle user control over Insider builds' is set to 'Disabled'
  - id: 1170
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Toggle user control over Insider builds' is set to 'Disabled' "
+   description: "This policy setting determines whether users can access the Insider build controls in the Advanced Options for Windows Update. These controls are located under "Get Insider builds," and enable users to make their devices available for downloading and installing Windows preview software."
+   rationale: "It can be risky for experimental features to be allowed in an enterprise managed environment because this can introduce bugs and security holes into systems, making it easier for an attacker to gain access. It is generally preferred to only use production-ready builds."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Data Collection and Preview Builds\\Toggle user control over Insider builds"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.16.5"
+    - cis_csc: "3"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-41380-7
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\PreviewBuilds -> AllowBuildPreview -> 1;'
@@ -2969,14 +2943,12 @@ Services\\Routing and Remote Access"
 #18.9.17.1 Ensure 'Download Mode' is NOT set to 'Enabled: Internet'
  - id: 1171
    title: "Internet'"
-   description: "Internet'"
-   rationale: ""
-   remediation: ""
+   description: "This policy setting specifies the download method that Delivery Optimization can use in downloads of Windows Updates, Apps and App updates. The following methods are supported:  0 = HTTP only, no peering.  1 = HTTP blended with peering behind the same NAT.  2 = HTTP blended with peering across a private group. Peering occurs on devices in the same Active Directory Site (if exist) or the same domain by default. When this option is selected, peering will cross NATs. To create a custom group use Group ID in combination with Mode 2.  3 = HTTP blended with Internet Peering.  99 = Simple download mode with no peering. Delivery Optimization downloads using HTTP only and does not attempt to contact the Delivery Optimization cloud services.  100 = Bypass mode. Do not use Delivery Optimization and use BITS instead."
+   rationale: "Due to privacy concerns and security risks, updates should only be downloaded directly from Microsoft, or from a trusted machine on the internal network that received its updates from a trusted source and approved by the network administrator."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to any value other than Enabled: Internet: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Delivery Optimization\Download Mode"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.17.1 Ensure 'Download Mode' is NOT set to 'Enabled"
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.17.1"
+    - cis_csc: "4.5, 3.4, 3.5"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization -> DODownloadMode -> 3;'
@@ -2986,14 +2958,14 @@ Services\\Routing and Remote Access"
 #18.9.26.1.1 Ensure 'Application: Control Event Log behavior when the log file reaches its maximum size' is set to 'Disabled'
  - id: 1172
    title: "Control Event Log behavior when the log file reaches its maximum size' is set to 'Disabled'"
-   description: "Control Event Log behavior when the log file reaches its maximum size' is set to 'Disabled'"
-   rationale: ""
-   remediation: ""
+   description: "This policy setting controls Event Log behavior when the log file reaches its maximum size."
+   rationale: "If new events are not recorded it may be difficult or impossible to determine the root cause of system problems or the unauthorized activities of malicious users."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Event Log Service\\Application\\Control Event Log behavior when the log file reaches its maximum size"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.26.1.1 Ensure 'Application"
-    - cis_csc: ""
+    - cis: "18.9.26.1.1"
+    - cis_csc: "6.3, 6.4"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-34169-3
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\EventLog\Application -> Retention -> 1;'
@@ -3001,15 +2973,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.26.1.2 Ensure 'Application: Specify the maximum log file size (KB)' is set to 'Enabled: 32,768 or greater'
  - id: 1173
-   title: "Specify the maximum log file size (KB)' is set to 'Enabled"
-   description: "Specify the maximum log file size (KB)' is set to 'Enabled"
-   rationale: ""
-   remediation: ""
+   title: "'Application: Specify the maximum log file size (KB)' is set to 'Enabled: 32,768 or greater'"
+   description: "This policy setting specifies the maximum size of the log file in kilobytes. The maximum log file size can be configured between 1 megabyte (1,024 kilobytes) and 4 terabytes (4,194,240 kilobytes) in kilobyte increments."
+   rationale: "If events are not recorded it may be difficult or impossible to determine the root cause of system problems or the unauthorized activities of malicious users."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: 32,768 or greater: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Event Log Service\\Application\\Specify the maximum log file size (KB)"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.26.1.2 Ensure 'Application"
-    - cis_csc: ""
+    - cis: "18.9.26.1.2"
+    - cis_csc: "6.3, 6.4"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33975-4
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\EventLog\Application -> MaxSize -> r:\w;'
@@ -3029,14 +3001,14 @@ Services\\Routing and Remote Access"
 #18.9.26.2.1 Ensure 'Security: Control Event Log behavior when the log file reaches its maximum size' is set to 'Disabled'
  - id: 1174
    title: "Control Event Log behavior when the log file reaches its maximum size' is set to 'Disabled'"
-   description: "Control Event Log behavior when the log file reaches its maximum size' is set to 'Disabled'"
-   rationale: ""
-   remediation: ""
+   description: "This policy setting controls Event Log behavior when the log file reaches its maximum size."
+   rationale: "If new events are not recorded it may be difficult or impossible to determine the root cause of system problems or the unauthorized activities of malicious users."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Event Log Service\\Security\\Control Event Log behavior when the log file reaches its maximum size"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.26.2.1 Ensure 'Security"
-    - cis_csc: ""
+    - cis: "18.9.26.2.1"
+    - cis_csc: "6.3, 6.4"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - . CCE-35090-0
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\EventLog\Security -> Retention -> !0;'
@@ -3044,15 +3016,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.26.2.2 Ensure 'Security: Specify the maximum log file size (KB)' is set to 'Enabled: 196,608 or greater'
  - id: 1175
-   title: "Specify the maximum log file size (KB)' is set to 'Enabled"
-   description: "Specify the maximum log file size (KB)' is set to 'Enabled"
-   rationale: ""
-   remediation: ""
+   title: "'Security: Specify the maximum log file size (KB)' is set to 'Enabled'"
+   description: "This policy setting specifies the maximum size of the log file in kilobytes. The maximum log file size can be configured between 1 megabyte (1,024 kilobytes) and 4 terabytes (4,194,240 kilobytes) in kilobyte increments."
+   rationale: "If events are not recorded it may be difficult or impossible to determine the root cause of system problems or the unauthorized activities of malicious users."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: 196,608 or greater: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Event Log Service\\Security\\Specify the maximum log file size (KB)"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.26.2.2 Ensure 'Security"
-    - cis_csc: ""
+    - cis: "18.9.26.2.2"
+    - cis_csc: "6.3, 6.4"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33428-4
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\EventLog\Security -> MaxSize -> r:\w;'
@@ -3065,21 +3037,33 @@ Services\\Routing and Remote Access"
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\EventLog\Security -> !MaxSize;'
 #
 #
-#18.9.26.3.1 Ensure 'Setup: Control Event Log behavior when the log file reaches its maximum size' is set to 'Disabled'[CIS - Microsoft Windows 10 - 18.9.26.3.1 Ensure 'Setup: Control Event Log behavior when the log file reaches its maximum size' is set to 'Disabled'] [any] [https://workbench.cisecurity.org/benchmarks/766]
+#18.9.26.3.1 Ensure 'Setup: Control Event Log behavior when the log file reaches its maximum size' is set to 'Disabled'
+  - id: 1175
+     title: "'Setup: Control Event Log behavior when the log file reaches its maximum size' is set to 'Disabled' "
+     description: "This policy setting controls Event Log behavior when the log file reaches its maximum size."
+     rationale: "If new events are not recorded it may be difficult or impossible to determine the root cause of system problems or the unauthorized activities of malicious users."
+     remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Event Log Service\\Setup\\Control Event Log behavior when the log file reaches its maximum size"
+     compliance:
+      - cis: "18.9.26.3.1"
+      - cis_csc: "6.3, 6.4"
+     references:
+      - CCE-34170-1
+     condition: any
+     rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\EventLog\Setup -> Retention -> !0;'
 #
 #
 #18.9.26.3.2 Ensure 'Setup: Specify the maximum log file size (KB)' is set to 'Enabled: 32,768 or greater'
  - id: 1176
    title: "Specify the maximum log file size (KB)' is set to 'Enabled"
-   description: "Specify the maximum log file size (KB)' is set to 'Enabled"
-   rationale: ""
-   remediation: ""
+   description: "This policy setting specifies the maximum size of the log file in kilobytes. The maximum log file size can be configured between 1 megabyte (1,024 kilobytes) and 4 terabytes (4,194,240 kilobytes) in kilobyte increments."
+   rationale: "If events are not recorded it may be difficult or impossible to determine the root cause of system problems or the unauthorized activities of malicious users"
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: 32,768 or greater: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Event Log Service\\Setup\Specify the maximum log file size (KB)"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.26.3.2 Ensure 'Setup"
-    - cis_csc: ""
+    - cis: "18.9.26.3.2"
+    - cis_csc: "6.3, 6.4"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35091-8
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\EventLog\Setup -> MaxSize -> r:\w;'
@@ -3099,14 +3083,14 @@ Services\\Routing and Remote Access"
 #18.9.26.4.1 Ensure 'System: Control Event Log behavior when the log file reaches its maximum size' is set to 'Disabled'
  - id: 1177
    title: "Control Event Log behavior when the log file reaches its maximum size' is set to 'Disabled'"
-   description: "Control Event Log behavior when the log file reaches its maximum size' is set to 'Disabled'"
-   rationale: ""
-   remediation: ""
+   description: "This policy setting controls Event Log behavior when the log file reaches its maximum size."
+   rationale: "If new events are not recorded it may be difficult or impossible to determine the root cause of system problems or the unauthorized activities of malicious users."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Event Log Service\\System\\Control Event Log behavior when the log file reaches its maximum size"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.26.4.1 Ensure 'System"
-    - cis_csc: ""
+    - cis: "18.9.26.4.1"
+    - cis_csc: "6.3, 6.4"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33729-5
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\EventLog\System -> Retention -> !0;'
@@ -3115,14 +3099,14 @@ Services\\Routing and Remote Access"
 #18.9.26.4.2 Ensure 'System: Specify the maximum log file size (KB)' is set to 'Enabled: 32,768 or greater'
  - id: 1178
    title: "Specify the maximum log file size (KB)' is set to 'Enabled"
-   description: "Specify the maximum log file size (KB)' is set to 'Enabled"
-   rationale: ""
-   remediation: ""
+   description: "This policy setting specifies the maximum size of the log file in kilobytes. The maximum log file size can be configured between 1 megabyte (1,024 kilobytes) and 4 terabytes (4,194,240 kilobytes) in kilobyte increments."
+   rationale: "If events are not recorded it may be difficult or impossible to determine the root cause of system problems or the unauthorized activities of malicious users"
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: 32,768 or greater: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Event Log Service\\System\\Specify the maximum log file size (KB)"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.26.4.2 Ensure 'System"
-    - cis_csc: ""
+    - cis: "18.9.26.4.2"
+    - cis_csc: "6.3, 6.4"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35288-0
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\EventLog\System -> MaxSize -> r:\w;'
@@ -3141,15 +3125,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.30.2 Ensure 'Turn off Data Execution Prevention for Explorer' is set to 'Disabled'
  - id: 1179
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Turn off Data Execution Prevention for Explorer' is set to 'Disabled'"
+   description: "Disabling Data Execution Prevention can allow certain legacy plug-in applications to function without terminating Explorer."
+   rationale: "Data Execution Prevention is an important security feature supported by Explorer that helps to limit the impact of certain types of malware."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\File Explorer\\Turn off Data Execution Prevention for Explorer"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.30.2"
+    - cis_csc: "8.4, 8.3"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33608-1
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Explorer -> NoDataExecutionPrevention -> !0;'
@@ -3157,15 +3141,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.30.3 Ensure 'Turn off heap termination on corruption' is set to 'Disabled'
  - id: 1180
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Turn off heap termination on corruption' is set to 'Disabled'"
+   description: "Without heap termination on corruption, legacy plug-in applications may continue to function when a File Explorer session has become corrupt. Ensuring that heap termination on corruption is active will prevent this."
+   rationale: "Allowing an application to function after its session has become corrupt increases the risk posture to the system."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\File Explorer\\Turn off heap termination on corruption"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.30.3"
+    - cis_csc: "8.4, 8.3"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33745-1
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Explorer -> NoHeapTerminationOnCorruption -> !0;'
@@ -3173,15 +3157,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.30.4 Ensure 'Turn off shell protocol protected mode' is set to 'Disabled'
  - id: 1181
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Turn off shell protocol protected mode' is set to 'Disabled'"
+   description: "This policy setting allows you to configure the amount of functionality that the shell protocol can have. When using the full functionality of this protocol, applications can open folders and launch files. The protected mode reduces the functionality of this protocol allowing applications to only open a limited set of folders. Applications are not able to open files with this protocol when it is in the protected mode. It is recommended to leave this protocol in the protected mode to increase the security of Windows."
+   rationale: "Limiting the opening of files and folders to a limited set reduces the attack surface of the system."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\File Explorer\\Turn off shell protocol protected mode"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.30.4"
+    - cis_csc: "8.4, 8.3"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33764-2
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer -> PreXPSP2ShellProtocolBehavior -> !0;'
@@ -3189,15 +3173,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.35.1 Ensure 'Prevent the computer from joining a homegroup' is set to 'Enabled'
  - id: 1182
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Prevent the computer from joining a homegroup' is set to 'Enabled'"
+   description: "By default, users can add their computer to a HomeGroup on a home network."
+   rationale: "While resources on a domain-joined computer cannot be shared with a HomeGroup, information from the domain-joined computer can be leaked to other computers in the HomeGroup."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\HomeGroup\\Prevent the computer from joining a homegroup"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.35.1"
+    - cis_csc: "14.1, 14.2"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-34776-5
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\HomeGroup -> DisableHomeGroup -> !1;'
@@ -3206,15 +3190,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.44.1 Ensure 'Block all consumer Microsoft account user authentication' is set to 'Enabled'
  - id: 1183
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Block all consumer Microsoft account user authentication' is set to 'Enabled'"
+   description: "This setting determines whether applications and services on the device can utilize new consumer Microsoft account authentication via the Windows OnlineID and WebAccountManager APIs."
+   rationale: "Organizations that want to effectively implement identity management policies and maintain firm control of what accounts are used on their computers will probably want to block Microsoft accounts. Organizations may also need to block Microsoft accounts in order to meet the requirements of compliance standards that apply to their information systems."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Microsoft accounts\\Block all consumer Microsoft account user authentication"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.44.1"
+    - cis_csc: "16"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\MicrosoftAccount -> DisableUserAuth -> !1;'
@@ -3223,15 +3205,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.45.4 Ensure 'Configure cookies' is set to 'Enabled: Block only 3rd-party cookies' or higher
  - id: 1184
-   title: "Block only 3rd-party cookies' or higher"
-   description: "Block only 3rd-party cookies' or higher"
-   rationale: ""
-   remediation: ""
+   title: "'Configure cookies' is set to 'Enabled'"
+   description: "This setting lets you configure how your company deals with cookies. The recommended state for this setting is: Enabled: Block only 3rd-party cookies. Configuring this setting to Enabled: Block all cookies also conforms to the benchmark."
+   rationale: "Cookies can pose a serious privacy concern, although many websites depend on them for operation. It is recommended when possible to block 3rd party cookies in order to reduce tracking"
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Block only 3rd-party cookies (or, if applicable for your environment, Enabled: Block all cookies): Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Microsoft Edge\\Configure cookies"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.45.4 Ensure 'Configure cookies' is set to 'Enabled"
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.45.4"
+    - cis_csc: "13"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\MicrosoftEdge\Main -> Cookies -> 2;'
@@ -3241,14 +3221,12 @@ Services\\Routing and Remote Access"
 #18.9.45.5 Ensure 'Configure Password Manager' is set to 'Disabled'
  - id: 1185
    title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   description: "This setting lets you decide whether employees can save their passwords locally, using Password Manager."
+   rationale: "Using Password Manager can potentially makes it easier for an unauthorized user who gains access to the user’s desktop (including a coworker who sits down at a user’s desk soon after the user walks away and forgets to lock their workstation), to log in to sites as the user, without needing to know or enter the password."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Microsoft Edge\\Configure Password Manager"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.45.5"
+    - cis_csc: "16"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\MicrosoftEdge\Main -> FormSuggest Passwords -> !no;'
@@ -3257,15 +3235,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.45.8 Ensure 'Configure the Adobe Flash Click-to-Run setting' is set to 'Enabled'
  - id: 1186
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Configure the Adobe Flash Click-to-Run setting' is set to 'Enabled'"
+   description: "This setting controls whether Adobe Flash (within the Microsoft Edge web browser) will require the user to click on the Flash element before the browser will display the Flash content."
+   rationale: "Adobe Flash is a very insecure product and has been a frequent attack vector on the web. However, disabling it completely may not be a practical option for many organizations, as it is still used frequently on many websites. This feature at least makes Adobe Flash content "opt-in", so the user has to choose to click on each specific piece of Flash content before it will run."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Microsoft Edge\\Configure the Adobe Flash Click-to-Run setting"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.45.8"
+    - cis_csc: "7.2"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\MicrosoftEdge\Security -> FlashClickToRunMode -> !1;'
@@ -3273,15 +3249,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.52.1 Ensure 'Prevent the usage of OneDrive for file storage' is set to 'Enabled'
  - id: 1187
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Prevent the usage of OneDrive for file storage' is set to 'Enabled'"
+   description: "This policy setting lets you prevent apps and features from working with files on OneDrive using the Next Generation Sync Client."
+   rationale: "Enabling this setting prevents users from accidentally uploading confidential or sensitive corporate information to the OneDrive cloud service using the Next Generation Sync Client."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\OneDrive\\Prevent the usage of OneDrive for file storage"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.52.1"
+    - cis_csc: "13"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33826-9
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\OneDrive -> DisableFileSyncNGSC -> !1;'
@@ -3290,15 +3266,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.58.2.2 Ensure 'Do not allow passwords to be saved' is set to 'Enabled'
  - id: 1188
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Do not allow passwords to be saved' is set to 'Enabled'"
+   description: "This policy setting helps prevent Remote Desktop clients from saving passwords on a computer."
+   rationale: "An attacker with physical access to the computer may be able to break the protection guarding saved passwords. An attacker who compromises a user's account and connects to their computer could use saved passwords to gain access to additional hosts"
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Remote Desktop Services\\Remote Desktop Connection Client\\Do not allow passwords to be saved"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.58.2.2"
+    - cis_csc: "16.4"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-34506-6
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services -> DisablePasswordSaving -> !1;'
@@ -3308,14 +3284,14 @@ Services\\Routing and Remote Access"
 #18.9.58.3.3.2 Ensure 'Do not allow drive redirection' is set to 'Enabled'
  - id: 1189
    title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   description: "This policy setting prevents users from sharing the local drives on their client computers to Remote Desktop Servers that they access. Mapped drives appear in the session folder tree in Windows Explorer in the following format: \\TSClient\\<driveletter>$ If local drives are shared they are left vulnerable to intruders who want to exploit the data that is stored on them."
+   rationale: "Data could be forwarded from the user's Remote Desktop Services session to the user's local computer without any direct user interaction. Malicious software already present on a compromised server would have direct and stealthy disk access to the user's local computer during the Remote Desktop session."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Remote Desktop Services\\Remote Desktop Session Host\\Device and Resource Redirection\\Do not allow drive redirection"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.58.3.3.2"
+    - cis_csc: "13"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-34697-3
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services -> fDisableCdma -> !1;'
@@ -3324,15 +3300,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.58.3.9.1 Ensure 'Always prompt for password upon connection' is set to 'Enabled'
  - id: 1190
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Always prompt for password upon connection' is set to 'Enabled'"
+   description: "This policy setting specifies whether Remote Desktop Services always prompts the client computer for a password upon connection. You can use this policy setting to enforce a password prompt for users who log on to Remote Desktop Services, even if they already provided the password in the Remote Desktop Connection client."
+   rationale: "Users have the option to store both their username and password when they create a new Remote Desktop Connection shortcut. If the server that runs Remote Desktop Services allows users who have used this feature to log on to the server but not enter their password, then it is possible that an attacker who has gained physical access to the user's computer could connect to a Remote Desktop Server through the Remote Desktop Connection shortcut, even though they may not know the user's password."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Remote Desktop Services\\Remote Desktop Session Host\\Security\\Always prompt for password upon connection"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.58.3.9.1"
+    - cis_csc: "16.14"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33960-6
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services -> fPromptForPassword -> !1;'
@@ -3342,14 +3318,14 @@ Services\\Routing and Remote Access"
 #18.9.58.3.9.2 Ensure 'Require secure RPC communication' is set to 'Enabled'
  - id: 1191
    title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   description: "This policy setting allows you to specify whether Remote Desktop Services requires secure Remote Procedure Call (RPC) communication with all clients or allows unsecured communication. You can use this policy setting to strengthen the security of RPC communication with clients by allowing only authenticated and encrypted requests."
+   rationale: "Allowing unsecure RPC communication can exposes the server to man in the middle attacks and data disclosure attacks."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Remote Desktop Services\\Remote Desktop Session Host\\Security\\Require secure RPC communication"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.58.3.9.2"
+    - cis_csc: "3.4"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35723-6
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services -> fEncryptRPCTraffic -> !1;'
@@ -3358,15 +3334,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.58.3.9.3 Ensure 'Set client connection encryption level' is set to 'Enabled: High Level'
  - id: 1192
-   title: "High Level'"
-   description: "High Level'"
-   rationale: ""
-   remediation: ""
+   title: "'Set client connection encryption level' is set to 'Enabled'"
+   description: "This policy setting specifies whether to require the use of a specific encryption level to secure communications between client computers and RD Session Host servers during Remote Desktop Protocol (RDP) connections. This policy only applies when you are using native RDP encryption. However, native RDP encryption (as opposed to SSL encryption) is not recommended. This policy does not apply to SSL encryption."
+   rationale: "If Remote Desktop client connections that use low level encryption are allowed, it is more likely that an attacker will be able to decrypt any captured Remote Desktop Services network traffic."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: High Level: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Remote Desktop Services\\Remote Desktop Session Host\\Security\\Set client connection encryption level"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.58.3.9.3 Ensure 'Set client connection encryption level' is set to 'Enabled"
-    - cis_csc: ""
+    - cis: "18.9.58.3.9.3"
+    - cis_csc: "3.4"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35578-4
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services -> MinEncryptionLevel -> !3;'
@@ -3374,15 +3350,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.58.3.11.1 Ensure 'Do not delete temp folders upon exit' is set to 'Disabled'
  - id: 1193
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Do not delete temp folders upon exit' is set to 'Disabled'"
+   description: "This policy setting specifies whether Remote Desktop Services retains a user's per-session temporary folders at logoff."
+   rationale: "Sensitive information could be contained inside the temporary folders and visible to other administrators that log into the system."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Remote Desktop Services\\Remote Desktop Session Host\\Temporary Folders\\Do not delete temp folders upon exit"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.58.3.11.1"
+    - cis_csc: "14.4, 14.6"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-34136-2
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services -> DeleteTempDirsOnExit -> !1;'
@@ -3390,15 +3366,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.58.3.11.2 Ensure 'Do not use temporary folders per session' is set to 'Disabled'
  - id: 1194
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Do not use temporary folders per session' is set to 'Disabled'"
+   description: "By default, Remote Desktop Services creates a separate temporary folder on the RD Session Host server for each active session that a user maintains on the RD Session Host server. The temporary folder is created on the RD Session Host server in a Temp folder under the user's profile folder and is named with the sessionid. This temporary folder is used to store individual temporary files. To reclaim disk space, the temporary folder is deleted when the user logs off from a session."
+   rationale: "Disabling this setting keeps the cached data independent for each session, both reducing the chance of problems from shared cached data between sessions, and keeping possibly sensitive data separate to each user session."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Remote Desktop Services\\Remote Desktop Session Host\\Temporary Folders\\Do not use temporary folders per session"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.58.3.11.2"
+    - cis_csc: "14.4, 14.6"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-34531-4
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services -> PerSessionTempDir -> !1;'
@@ -3406,15 +3382,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.59.1 Ensure 'Prevent downloading of enclosures' is set to 'Enabled'
  - id: 1195
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Prevent downloading of enclosures' is set to 'Enabled'"
+   description: "This policy setting prevents the user from having enclosures (file attachments) downloaded from an RSS feed to the user's computer."
+   rationale: "Allowing attachments to be downloaded through the RSS feed can introduce files that could have malicious intent."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\RSS Feeds\\Prevent downloading of enclosures"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.59.1"
+    - cis_csc: "7.2"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-34822-7
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Internet Explorer\Feeds -> DisableEnclosureDownload -> !1;'
@@ -3423,15 +3399,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.60.3 Ensure 'Allow Cortana' is set to 'Disabled'
  - id: 1196
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Allow Cortana' is set to 'Disabled'"
+   description: "This policy setting specifies whether Cortana is allowed on the device"
+   rationale: "If Cortana is enabled, sensitive information could be contained in search history and sent out to Microsoft."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Search\\Allow Cortana"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.60.3"
+    - cis_csc: "9.1, 9.2"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-41421-9
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Windows Search -> AllowCortana -> !0;'
@@ -3440,15 +3416,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.60.4 Ensure 'Allow Cortana above lock screen' is set to 'Disabled'
  - id: 1197
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Allow Cortana above lock screen' is set to 'Disabled'"
+   description: "This policy setting determines whether or not the user can interact with Cortana using speech while the system is locked."
+   rationale: "Access to any computer resource should not be allowed when the device is locked."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Search\\Allow Cortana above lock screen"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.60.4"
+    - cis_csc: "16.5"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Windows Search -> AllowCortanaAboveLock -> !0;'
@@ -3457,15 +3431,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.60.5 Ensure 'Allow indexing of encrypted files' is set to 'Disabled'
  - id: 1198
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Allow indexing of encrypted files' is set to 'Disabled'"
+   description: "This policy setting controls whether encrypted items are allowed to be indexed. When this setting is changed, the index is rebuilt completely. Full volume encryption (such as BitLocker Drive Encryption or a non-Microsoft solution) must be used for the location of the index to maintain security for encrypted files."
+   rationale: "Indexing and allowing users to search encrypted files could potentially reveal confidential data stored within the encrypted files."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Search\\Allow indexing of encrypted files"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.60.5"
+    - cis_csc: "13.1"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35314-4
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Windows Search -> AllowIndexingEncryptedStoresOrItems -> !0;'
@@ -3473,15 +3447,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.60.6 Ensure 'Allow search and Cortana to use location' is set to 'Disabled'
  - id: 1199
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Allow search and Cortana to use location' is set to 'Disabled'"
+   description: "This policy setting specifies whether search and Cortana can provide location aware search and Cortana results."
+   rationale: "In an enterprise managed environment, allowing Cortana and Search to have access to location data is unnecessary. Organizations likely do not want this information shared out"
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Search\\Allow search and Cortana to use location"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.60.6"
+    - cis_csc: "9.1, 9.2"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-41372-4
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Windows Search -> AllowSearchToUseLocation -> !0;'
@@ -3490,15 +3464,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.68.2 Ensure 'Turn off Automatic Download and Install of updates' is set to 'Disabled'
  - id: 1200
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Turn off Automatic Download and Install of updates' is set to 'Disabled'"
+   description: "This setting enables or disables the automatic download and installation of Windows Store app updates."
+   rationale: "Keeping your system properly patched can help protect against 0 day vulnerabilities."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Store\\Turn off Automatic Download and Install of updates"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.68.2"
+    - cis_csc: "3.1, 3.4, 3.5, 4.5, 5.1"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35807-7
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\WindowsStore -> AutoDownload -> !4;'
@@ -3506,15 +3480,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.68.3 Ensure 'Turn off the offer to update to the latest version of Windows' is set to 'Enabled'
  - id: 1201
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Turn off the offer to update to the latest version of Windows' is set to 'Enabled' "
+   description: "Enables or disables the Windows Store offer to update to the latest version of Windows."
+   rationale: "Unplanned OS upgrades can lead to more preventable support calls. The IT department should be managing and approving all upgrades and updates."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Store\\Turn off the offer to update to the latest version of Windows"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.68.3"
+    - cis_csc: "3.1, 3.4, 3.5, 4.5, 5.1"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35809-3
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\WindowsStore -> DisableOSUpgrade -> !1;'
@@ -3523,15 +3497,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.76.3.1 Ensure 'Configure local setting override for reporting to Microsoft MAPS' is set to 'Disabled'
  - id: 1202
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Configure local setting override for reporting to Microsoft MAPS' is set to 'Disabled' "
+   description: "This policy setting configures a local override for the configuration to join Microsoft Active Protection Service (MAPS), which Microsoft has now renamed to "Windows Defender Antivirus Cloud Protection Service". This setting can only be set by Group Policy."
+   rationale: "The decision on whether or not to participate in Microsoft MAPS / Windows Defender Antivirus Cloud Protection Service for malicious software reporting should be made centrally in an enterprise managed environment, so that all computers within it behave consistently in that regard. Configuring this setting to Disabled ensures that the decision remains centrally managed."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Defender Antivirus\\MAPS\\Configure local setting override for reporting to Microsoft MAPS"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.76.3.1"
+    - cis_csc: "8"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33833-5
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet -> LocalSettingOverrideSpynetReporting -> !0;'
@@ -3539,15 +3513,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.76.7.1 Ensure 'Turn on behavior monitoring' is set to 'Enabled'
  - id: 1203
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Turn on behavior monitoring' is set to 'Enabled' "
+   description: "This policy setting allows you to configure behavior monitoring for Windows Defender Antivirus."
+   rationale: "When running an antivirus solution such as Windows Defender Antivirus, it is important to ensure that it is configured to heuristically monitor in real-time for suspicious and known malicious activity."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Defender Antivirus\\Real-Time Protection\\Turn on behavior monitoring"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.76.7.1"
+    - cis_csc: "8.1, 8.6"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33865-7
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection -> DisableBehaviorMonitoring -> !1;'
@@ -3555,15 +3529,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.76.10.1 Ensure 'Scan removable drives' is set to 'Enabled'
  - id: 1204
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Scan removable drives' is set to 'Enabled'"
+   description: "This policy setting allows you to manage whether or not to scan for malicious software and unwanted software in the contents of removable drives, such as USB flash drives, when running a full scan."
+   rationale: "It is important to ensure that any present removable drives are always included in any type of scan, as removable drives are more likely to contain malicious software brought in to the enterprise managed environment from an external, unmanaged computer."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Defender Antivirus\\Scan\\Scan removable drives"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.76.10.1"
+    - cis_csc: "13"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - . CCE-33888-9
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Scan -> DisableRemovableDriveScanning -> !0;'
@@ -3572,15 +3546,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.76.10.2 Ensure 'Turn on e-mail scanning' is set to 'Enabled'
  - id: 1205
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Turn on e-mail scanning' is set to 'Enabled'"
+   description: "This policy setting allows you to configure e-mail scanning. When e-mail scanning is enabled, the engine will parse the mailbox and mail files, according to their specific format, in order to analyze the mail bodies and attachments. Several e-mail formats are currently supported, for example: pst (Outlook), dbx, mbx, mime (Outlook Express), binhex (Mac)."
+   rationale: "Incoming e-mails should be scanned by an antivirus solution such as Windows Defender Antivirus, as email attachments are a commonly used attack vector to infiltrate computers with malicious software."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Defender Antivirus\\Scan\\Turn on e-mail scanning"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.76.10.2"
+    - cis_csc: "13"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33906-9
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Scan -> DisableEmailScanning -> !0;'
@@ -3589,15 +3563,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.76.13.1.1 Ensure 'Configure Attack Surface Reduction rules' is set to 'Enabled'
  - id: 1206
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Configure Attack Surface Reduction rules' is set to 'Enabled'"
+   description: "This policy setting controls the state for the Attack Surface Reduction (ASR) rules."
+   rationale: "Attack surface reduction helps prevent actions and apps that are typically used by exploitseeking malware to infect machines."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Defender Antivirus\\Windows Defender Exploit Guard\\Attack Surface Reduction\\Configure Attack Surface Reduction rules"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.76.13.1.1"
+    - cis_csc: "8.4"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\ASR -> ExploitGuard_ASR_Rules -> !1;'
@@ -3606,15 +3578,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.76.13.1.2 Ensure 'Configure Attack Surface Reduction rules: Set the state for each ASR rule' is 'configured'
  - id: 1207
-   title: "Set the state for each ASR rule' is 'configured'"
-   description: "Set the state for each ASR rule' is 'configured'"
-   rationale: ""
-   remediation: ""
+   title: "'Configure Attack Surface Reduction rules: Set the state for each ASR rule' is 'configured'"
+   description: "This policy setting sets the Attack Surface Reduction rules. The recommended state for this setting is: 75668c1f-73b5-4cf0-bb93-3ecf5cb7cc84 - 1 (Block Office applications from injecting code into other processes) 3b576869-a4ec-4529-8536-b80a7769e899 - 1 (Block Office applications from creating executable content) d4f940ab-401b-4efc-aadc-ad5f3c50688a - 1 (Block Office applications from creating child processes) 92e97fa1-2edf-4476-bdd6-9dd0b4dddc7b - 1 (Block Win32 API calls from Office macro) 5beb7efe-fd9a-4556-801d-275e5ffc04cc - 1 (Block execution of potentially obfuscated scripts) d3e037e1-3eb8-44c8-a917-57927947596d - 1 (Block JavaScript or VBScript from launching downloaded executable content) be9ba2d9-53ea-4cdc-84e5-9b1eeee46550 - 1 (Block executable content from email client and webmail)"
+   rationale: "Attack surface reduction helps prevent actions and apps that are typically used by exploitseeking malware to infect machines."
+   remediation: "To establish the recommended configuration via GP, set the following UI path so that 75668c1f-73b5-4cf0-bb93-3ecf5cb7cc84, 3b576869-a4ec-4529-8536-b80a7769e899, d4f940ab-401b-4efc-aadc-ad5f3c50688a, 92e97fa1-2edf-4476-bdd6-9dd0b4dddc7b, 5beb7efe-fd9a-4556-801d-275e5ffc04cc, d3e037e1-3eb8-44c8-a917-57927947596d, and be9ba2d9-53ea-4cdc-84e5-9b1eeee46550 are each set to a value of 1: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Defender Antivirus\\Windows Defender Exploit Guard\\Attack Surface Reduction\\Configure Attack Surface Reduction rules: Set the state for each ASR rule"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.76.13.1.2 Ensure 'Configure Attack Surface Reduction rules"
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.76.13.1.2"
+    - cis_csc: "8.4"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\ASR\Rules -> BE9BA2D9-53EA-4CDC-84E5-9B1EEEE46550 -> !1;'
@@ -3635,15 +3605,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.76.13.3.1 Ensure 'Prevent users and apps from accessing dangerous websites' is set to 'Enabled: Block'
  - id: 1208
-   title: "Block'"
-   description: "Block'"
-   rationale: ""
-   remediation: ""
+   title: "'Prevent users and apps from accessing dangerous websites' is set to 'Enabled'"
+   description: "This policy setting controls Windows Defender Exploit Guard network protection."
+   rationale: "This setting can help prevent employees from using any application to access dangerous domains that may host phishing scams, exploit-hosting sites, and other malicious content on the Internet."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Block: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Defender Antivirus\\Windows Defender Exploit Guard\\Network Protection\\Prevent users and apps from accessing dangerous websites"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.76.13.3.1 Ensure 'Prevent users and apps from accessing dangerous websites' is set to 'Enabled"
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.76.13.3.1"
+    - cis_csc: "7"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\Network Protection -> EnableNetworkProtection -> !1;'
@@ -3652,15 +3620,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.76.14 Ensure 'Turn off Windows Defender AntiVirus' is set to 'Disabled'
  - id: 1209
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Turn off Windows Defender AntiVirus' is set to 'Disabled'"
+   description: "This policy setting turns off Windows Defender Antivirus. If the setting is configured to Disabled, Windows Defender Antivirus runs and computers are scanned for malware and other potentially unwanted software."
+   rationale: "It is important to ensure a current, updated antivirus product is scanning each computer for malicious file activity. Microsoft provides a competent solution out of the box in Windows Defender Antivirus. Organizations that choose to purchase a reputable 3rd-party antivirus solution may choose to exempt themselves from this recommendation in lieu of the commercial alternative."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Defender Antivirus\\Turn off Windows Defender AntiVirus"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.76.14"
+    - cis_csc: "8.1, 8.6"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33478-9
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender -> DisableAntiSpyware -> 1;'
@@ -3668,15 +3636,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.79.1.1 Ensure 'Prevent users from modifying settings' is set to 'Enabled'
  - id: 1210
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Prevent users from modifying settings' is set to 'Enabled'"
+   description: "This policy setting prevent users from making changes to the Exploit protection settings area in the Windows Defender Security Center."
+   rationale: "Only authorized IT staff should be able to make changes to the exploit protection settings in order to ensure the organizations specific configuration is not modified."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Defender Security Center\\App and browser protection\\Prevent users from modifying settings"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.79.1.1"
+    - cis_csc: "8.4"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\App and Browser protection -> DisallowExploitProtectionOverride -> 0;'
@@ -3685,15 +3651,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.80.1.1 Ensure 'Configure Windows Defender SmartScreen' is set to 'Enabled: Warn and prevent bypass'
  - id: 1211
-   title: "Warn and prevent bypass'"
-   description: "Warn and prevent bypass'"
-   rationale: ""
-   remediation: ""
+   title: "'Configure Windows Defender SmartScreen' is set to 'Enabled'"
+   description: "This policy setting allows you to manage the behavior of Windows SmartScreen. Windows SmartScreen helps keep PCs safer by warning users before running unrecognized programs downloaded from the Internet. Some information is sent to Microsoft about files and programs run on PCs with this feature enabled."
+   rationale: "Windows SmartScreen helps keep PCs safer by warning users before running unrecognized programs downloaded from the Internet. However, due to the fact that some information is sent to Microsoft about files and programs run on PCs some organizations may prefer to disable it."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Warn and prevent bypass: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Defender SmartScreen\\Explorer\\Configure Windows Defender SmartScreen"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.80.1.1 Ensure 'Configure Windows Defender SmartScreen' is set to 'Enabled"
-    - cis_csc: ""
+    - cis: "18.9.80.1.1"
+    - cis_csc: "2"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-34026-5
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System -> EnableSmartScreen -> !1;'
@@ -3704,15 +3670,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.80.2.1 Ensure 'Configure Windows Defender SmartScreen' is set to 'Enabled'
  - id: 1212
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Configure Windows Defender SmartScreen' is set to 'Enabled'"
+   description: "This setting lets you decide whether to turn on SmartScreen Filter. SmartScreen Filter provides warning messages to help protect your employees from potential phishing scams and malicious software."
+   rationale: "SmartScreen serves an important purpose as it helps to warn users of possible malicious sites and files. Allowing users to turn off this setting can make the browser become more vulnerable to compromise."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Defender SmartScreen\\Microsoft Edge\\Configure Windows Defender SmartScreen"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.80.2.1"
+    - cis_csc: "2"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter -> EnabledV9 -> !1;'
@@ -3720,15 +3684,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.80.2.2 Ensure 'Prevent bypassing Windows Defender SmartScreen prompts for files' is set to 'Enabled'
  - id: 1213
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Prevent bypassing Windows Defender SmartScreen prompts for files' is set to 'Enabled'"
+   description: "This setting lets you decide whether employees can override the SmartScreen Filter warnings about downloading unverified files."
+   rationale: "SmartScreen will warn an employee if a file is potentially malicious. Enabling this setting prevents these warnings from being bypassed."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: In the Windows 10 Release 1703 Administrative Templates the setting was in the following location: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Defender SmartScreen\\Microsoft Edge\\Prevent bypassing Windows Defender SmartScreen prompts for files In the Windows 10 Release 1709 Administrative Templates the setting was removed from the new location above and left in the old location: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Microsoft Edge\\Prevent bypassing Windows Defender SmartScreen prompts for files"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.80.2.2"
+    - cis_csc: "7"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter -> PreventOverrideAppRepUnknown -> !1;'
@@ -3737,13 +3699,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.80.2.3 Ensure 'Prevent bypassing Windows Defender SmartScreen prompts for sites' is set to 'Enabled'
  - id: 1214
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Prevent bypassing Windows Defender SmartScreen prompts for sites' is set to 'Enabled'"
+   description: "This setting lets you decide whether employees can override the SmartScreen Filter warnings about potentially malicious websites."
+   rationale: "SmartScreen will warn an employee if a website is potentially malicious. Enabling this setting prevents these warnings from being bypassed."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Defender SmartScreen\\Microsoft Edge\\Prevent bypassing Windows Defender SmartScreen prompts for sites"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.80.2.3"
+    - cis_csc: "7"
    references:
     - https://workbench.cisecurity.org/benchmarks/766
    condition: any
@@ -3754,15 +3716,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.82.1 Ensure 'Enables or disables Windows Game Recording and Broadcasting' is set to 'Disabled'
  - id: 1215
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Enables or disables Windows Game Recording and Broadcasting' is set to 'Disabled'"
+   description: "This setting enables or disables the Windows Game Recording and Broadcasting features."
+   rationale: "If this setting is allowed users could record and broadcast session info to external sites which is a privacy concern."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Game Recording and Broadcasting\\Enables or disables Windows Game Recording and Broadcasting"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.82.1"
+    - cis_csc: "13"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\GameDVR -> AllowGameDVR -> 1;'
@@ -3771,15 +3731,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.84.2 Ensure 'Allow Windows Ink Workspace' is set to 'Enabled: On, but disallow access above lock' OR 'Disabled' but not 'Enabled: On'
  - id: 1216
-   title: "On, but disallow access above lock' OR 'Disabled' but not 'Enabled"
-   description: "On, but disallow access above lock' OR 'Disabled' but not 'Enabled"
-   rationale: ""
-   remediation: ""
+   title: "'Allow Windows Ink Workspace' is set to 'Enabled: On, but disallow access above lock' OR 'Disabled' but not 'Enabled: On'"
+   description: "This policy setting determines whether Windows Ink items are allowed above the lock screen."
+   rationale: "Allowing any apps to be accessed while system is locked is not recommended. If this feature is permitted, it should only be accessible once a user authenticates with the proper credentials."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: On, but disallow access above lock OR Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Ink Workspace\\Allow Windows Ink Workspace"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.84.2 Ensure 'Allow Windows Ink Workspace' is set to 'Enabled"
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.84.2"
+    - cis_csc: "16.5"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\WindowsInkWorkspace -> AllowWindowsInkWorkspace -> 2;'
@@ -3788,15 +3746,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.85.1 Ensure 'Allow user control over installs' is set to 'Disabled'
  - id: 1217
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Allow user control over installs' is set to 'Disabled'"
+   description: "This setting controls whether users are permitted to change installation options that typically are available only to system administrators. The security features of Windows Installer normally prevent users from changing installation options that are typically reserved for system administrators, such as specifying the directory to which files are installed. If Windows Installer detects that an installation package has permitted the user to change a protected option, it stops the installation and displays a message. These security features operate only when the installation program is running in a privileged security context in which it has access to directories denied to the user."
+   rationale: "In an enterprise managed environment, only IT staff with administrative rights should be installing or changing software on a system. Allowing users the ability to have any control over installs can risk unapproved software from being installed or removed from a system, which could cause the system to become vulnerable to compromise."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Installer\\Allow user control over installs"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.85.1"
+    - cis_csc: "5.1"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35431-6
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Installer -> EnableUserControl -> !0;'
@@ -3804,15 +3762,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.85.2 Ensure 'Always install with elevated privileges' is set to 'Disabled'
  - id: 1218
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Always install with elevated privileges' is set to 'Disabled'"
+   description: "This setting controls whether or not Windows Installer should use system permissions when it installs any program on the system. Note: This setting appears both in the Computer Configuration and User Configuration folders. To make this setting effective, you must enable the setting in both folders. Caution: If enabled, skilled users can take advantage of the permissions this setting grants to change their privileges and gain permanent access to restricted files and folders. Note that the User Configuration version of this setting is not guaranteed to be secure."
+   rationale: "Users with limited privileges can exploit this feature by creating a Windows Installer installation package that creates a new local account that belongs to the local built-in Administrators group, adds their current account to the local built-in Administrators group, installs malicious software, or performs other unauthorized activities."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Installer\\Always install with elevated privileges"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.85.2"
+    - cis_csc: "5.1"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35400-1
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Installer -> AlwaysInstallElevated -> !0;'
@@ -3820,15 +3778,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.86.1 Ensure 'Sign-in last interactive user automatically after a system-initiated restart' is set to 'Disabled'
  - id: 1219
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Sign-in last interactive user automatically after a system-initiated restart' is set to 'Disabled'"
+   description: "This policy setting controls whether a device will automatically sign-in the last interactive user after Windows Update restarts the system."
+   rationale: "Disabling this feature will prevent the caching of user's credentials and unauthorized use of the device, and also ensure the user is aware of the restart."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Logon Options\\Sign-in last interactive user automatically after a system-initiated restart"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.86.1"
+    - cis_csc: "16.5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33891-3
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -> DisableAutomaticRestartSignOn -> !1;'
@@ -3837,15 +3795,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.95.1 Ensure 'Turn on PowerShell Script Block Logging' is set to 'Disabled'
  - id: 1220
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Turn on PowerShell Script Block Logging' is set to 'Disabled'"
+   description: "This policy setting enables logging of all PowerShell script input to the Microsoft-WindowsPowerShell/Operational event log."
+   rationale: "There are potential risks of capturing passwords in the PowerShell logs. This setting should only be needed for debugging purposes, and not in normal operation, it is important to ensure this is set to Disabled."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows PowerShell\\Turn on PowerShell Script Block Logging"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.95.1"
+    - cis_csc: "16.4"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging -> EnableScriptBlockLogging -> !0;'
@@ -3854,15 +3810,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.95.2 Ensure 'Turn on PowerShell Transcription' is set to 'Disabled'
  - id: 1221
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Turn on PowerShell Transcription' is set to 'Disabled'"
+   description: "This Policy setting lets you capture the input and output of Windows PowerShell commands into text-based transcripts."
+   rationale: "If this setting is enabled there is a risk that passwords could get stored in plain text in the PowerShell_transcript output file"
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows PowerShell\\Turn on PowerShell Transcription"
    compliance:
-    - cis: ""
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.95.2"
+    - cis_csc: "16.4"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription -> EnableTranscripting -> !0;'
@@ -3870,15 +3824,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.97.1.1 Ensure 'Allow Basic authentication' is set to 'Disabled'
  - id: 1222
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Allow Basic authentication' is set to 'Disabled'"
+   description: "This policy setting allows you to manage whether the Windows Remote Management (WinRM) client uses Basic authentication."
+   rationale: "Basic authentication is less robust than other authentication methods available in WinRM because credentials including passwords are transmitted in plain text. An attacker who is able to capture packets on the network where WinRM is running may be able to determine the credentials used for accessing remote hosts via WinRM."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Remote Management (WinRM)\\WinRM Client\Allow Basic authentication"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.97.1.1"
+    - cis_csc: "16.13, 16.5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35258-3
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WinRM\Client -> AllowBasic -> !0;'
@@ -3886,15 +3840,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.97.1.2 Ensure 'Allow unencrypted traffic' is set to 'Disabled'
  - id: 1223
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Allow unencrypted traffic' is set to 'Disabled'"
+   description: "This policy setting allows you to manage whether the Windows Remote Management (WinRM) client sends and receives unencrypted messages over the network."
+   rationale: "Encrypting WinRM network traffic reduces the risk of an attacker viewing or modifying WinRM messages as they transit the network."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Remote Management (WinRM)\\WinRM Client\\Allow unencrypted traffic"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.97.1.2"
+    - cis_csc: "16.5, 16.13"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-34458-0
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WinRM\Client -> AllowUnencryptedTraffic -> !0;'
@@ -3902,15 +3856,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.97.1.3 Ensure 'Disallow Digest authentication' is set to 'Enabled'
  - id: 1224
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Disallow Digest authentication' is set to 'Enabled' "
+   description: "This policy setting allows you to manage whether the Windows Remote Management (WinRM) client will not use Digest authentication."
+   rationale: "Digest authentication is less robust than other authentication methods available in WinRM, an attacker who is able to capture packets on the network where WinRM is running may be able to determine the credentials used for accessing remote hosts via WinRM."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Remote Management (WinRM)\\WinRM Client\\Disallow Digest authentication"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.97.1.3"
+    - cis_csc: "16.5, 16.13"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-34778-1
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WinRM\Client -> AllowDigest -> !0;'
@@ -3919,15 +3873,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.97.2.1 Ensure 'Allow Basic authentication' is set to 'Disabled'
  - id: 1225
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Allow Basic authentication' is set to 'Disabled'"
+   description: "This policy setting allows you to manage whether the Windows Remote Management (WinRM) service accepts Basic authentication from a remote client."
+   rationale: "Basic authentication is less robust than other authentication methods available in WinRM because credentials including passwords are transmitted in plain text. An attacker who is able to capture packets on the network where WinRM is running may be able to determine the credentials used for accessing remote hosts via WinRM."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Remote Management (WinRM)\\WinRM Service\\Allow Basic authentication"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.97.2.1"
+    - cis_csc: "16.5, 16.13"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - . CCE-34779-9
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WinRM\Service -> AllowBasic -> !0;'
@@ -3935,15 +3889,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.97.2.3 Ensure 'Allow unencrypted traffic' is set to 'Disabled'
  - id: 1226
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Allow unencrypted traffic' is set to 'Disabled'"
+   description: "This policy setting allows you to manage whether the Windows Remote Management (WinRM) service automatically listens on the network for requests on the HTTP transport over the default HTTP port."
+   rationale: "Any feature is a potential avenue of attack, those that enable inbound network connections are particularly risky. Only enable the use of the Windows Remote Management (WinRM) service on trusted networks and when feasible employ additional controls such as IPsec."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Administrative Templates\\Windows Components\\Windows Remote Management (WinRM)\\WinRM Service\\Allow remote server management through WinRM"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "'Allow unencrypted traffic' is set to 'Disabled'"
+    - cis_csc: "3.4"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33146-2
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WinRM\Service -> AllowUnencryptedTraffic -> !0;'
@@ -3951,15 +3905,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.97.2.4 Ensure 'Disallow WinRM from storing RunAs credentials' is set to 'Enabled'
  - id: 1227
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Disallow WinRM from storing RunAs credentials' is set to 'Enabled'"
+   description: "This policy setting allows you to manage whether the Windows Remote Management (WinRM) service sends and receives unencrypted messages over the network."
+   rationale: "Encrypting WinRM network traffic reduces the risk of an attacker viewing or modifying WinRM messages as they transit the network."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Remote Management (WinRM)\\WinRM Service\\Allow unencrypted traffic"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.97.2.4"
+    - cis_csc: "16.5, 16.13"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35054-6
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WinRM\Service -> DisableRunAs -> !1;'
@@ -3968,15 +3922,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.101.1.1 Ensure 'Manage preview builds' is set to 'Enabled: Disable preview builds'
  - id: 1228
-   title: "Disable preview builds'"
-   description: "Disable preview builds'"
-   rationale: ""
-   remediation: ""
+   title: "'Manage preview builds' is set to 'Enabled: Disable preview builds'"
+   description: "This policy setting determines whether users can access the Windows Insider Program controls in Settings -> Update and Security. These controls enable users to make their devices available for downloading and installing preview (beta) builds of Windows software."
+   rationale: "It can be risky for experimental features to be allowed in an enterprise managed environment because this can introduce bugs and security holes into systems, making it easier for an attacker to gain access. It is generally preferred to only use production-ready builds."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Disable preview builds: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Update\\Windows Update for Business\\Manage preview builds"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.101.1.1 Ensure 'Manage preview builds' is set to 'Enabled"
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.101.1.1"
+    - cis_csc: "3"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate -> ManagePreviewBuilds -> !1;'
@@ -3988,14 +3940,12 @@ Services\\Routing and Remote Access"
 #18.9.101.1.2 Ensure 'Select when Preview Builds and Feature Updates are received' is set to 'Enabled: Semi-Annual Channel, 180 or more days'
  - id: 1229
    title: "Semi-Annual Channel, 180 or more days'"
-   description: "Semi-Annual Channel, 180 or more days'"
-   rationale: ""
-   remediation: ""
+   description: "This policy setting determines the level of Preview Build or Feature Updates to receive, and when. The Windows readiness level for each new Windows 10 Feature Update is classified in one of 5 categories, depending on your organizations level of comfort with receiving them:  Preview Build - Fast: Devices set to this level will be the first to receive new builds of Windows with features not yet available to the general public. Select Fast to participate in identifying and reporting issues to Microsoft, and provide suggestions on new functionality.  Preview Build - Slow: Devices set to this level receive new builds of Windows before they are available to the general public, but at a slower cadence than those set to Fast, and with changes and fixes identified in earlier builds.  Release Preview: Receive builds of Windows just before Microsoft releases them to the general public.  Semi-Annual Channel (Targeted): Receive feature updates when they are released to the general public.  Semi-Annual Channel: Feature updates will arrive when they are declared SemiAnnual Channel. This usually occurs about 4 months after Semi-Annual Channel (Targeted), indicating that Microsoft, Independent Software Vendors (ISVs), partners and customer believe that the release is ready for broad deployment."
+   rationale: "Forcing new features without prior testing in your environment could cause software incompatibilities as well as introducing new bugs into the operating system. In an enterprise managed environment, it is generally preferred to delay Feature Updates until thorough testing and a deployment plan is in place. This recommendation delays the automatic installation of new features as long as possible."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Semi-Annual Channel, 180 or more days: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Update\\Windows Update for Business\\Select when Preview Builds and Feature Updates are received"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.101.1.2 Ensure 'Select when Preview Builds and Feature Updates are received' is set to 'Enabled"
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - cis: "18.9.101.1.2"
+    - cis_csc: "3"
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate -> DeferFeatureUpdates -> !1;'
@@ -4016,13 +3966,13 @@ Services\\Routing and Remote Access"
 #
 #18.9.101.1.13 Ensure 'Select when Quality Updates are received' is set to 'Enabled: 0 days'
  - id: 1230
-   title: "0 days'"
-   description: "0 days'"
-   rationale: ""
-   remediation: ""
+   title: "'Select when Quality Updates are received' is set to 'Enabled'"
+   description: "This settings controls when Quality Updates are received."
+   rationale: "Quality Updates can contain important bug fixes and/or security patches, and should be installed as soon as possible."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled:0 days: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Update\\Windows Update for Business\\Select when Quality Updates are received"
    compliance:
     - cis: "Microsoft Windows 10 - 18.9.101.1.13 Ensure 'Select when Quality Updates are received' is set to 'Enabled"
-    - cis_csc: ""
+    - cis_csc: "3.4, 3.5, 4.5"
    references:
     - https://workbench.cisecurity.org/benchmarks/766
    condition: any
@@ -4035,15 +3985,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.101.2 Ensure 'Configure Automatic Updates' is set to 'Enabled'
  - id: 1231
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'Configure Automatic Updates' is set to 'Enabled'"
+   description: "This policy setting specifies whether computers in your environment will receive security updates from Windows Update or WSUS. If you configure this policy setting to Enabled, the operating system will recognize when a network connection is available and then use the network connection to search Windows Update or your designated intranet site for updates that apply to them. After you configure this policy setting to Enabled, select one of the following three options in the Configure Automatic Updates Properties dialog box to specify how the service will work:  2 - Notify for download and auto install (Notify before downloading any updates)  3 - Auto download and notify for install (Download the updates automatically and notify when they are ready to be installed.) (Default setting)  4 - Auto download and schedule the install (Automatically download updates and install them on the schedule specified below.))  5 - Allow local admin to choose setting (Leave decision on above choices up to the local Administrators (Not Recommended))"
+   rationale: "Although each version of Windows is thoroughly tested before release, it is possible that problems will be discovered after the products are shipped. The Configure Automatic Updates setting can help you ensure that the computers in your environment will always have the most recent critical operating system updates and service packs installed."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Enabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Update\\Configure Automatic Updates"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.101.2"
+    - cis_csc: "3.4, 3.5, 4.5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35111-4
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU -> NoAutoUpdate -> !1;'
@@ -4052,15 +4002,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.101.3 Ensure 'Configure Automatic Updates: Scheduled install day' is set to '0 - Every day'
  - id: 1232
-   title: "Scheduled install day' is set to '0 - Every day'"
-   description: "Scheduled install day' is set to '0 - Every day'"
-   rationale: ""
-   remediation: ""
+   title: "'Configure Automatic Updates: Scheduled install day' is set to '0 - Every day'"
+   description: "This policy setting specifies when computers in your environment will receive security updates from Windows Update or WSUS."
+   rationale: "Although each version of Windows is thoroughly tested before release, it is possible that problems will be discovered after the products are shipped. The Configure Automatic Updates setting can help you ensure that the computers in your environment will always have the most recent critical operating system updates and service packs installed."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to 0 - Every day: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Update\\Configure Automatic Updates: Scheduled install day"
    compliance:
-    - cis: "Microsoft Windows 10 - 18.9.101.3 Ensure 'Configure Automatic Updates"
-    - cis_csc: ""
+    - cis: "18.9.101.3"
+    - cis_csc: "3.4, 3.5, 4.5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-35111-4
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU -> ScheduledInstallDay -> !0;'
@@ -4069,15 +4019,15 @@ Services\\Routing and Remote Access"
 #
 #18.9.101.4 Ensure 'No auto-restart with logged on users for scheduled automatic updates installations' is set to 'Disabled'
  - id: 1233
-   title: ""
-   description: ""
-   rationale: ""
-   remediation: ""
+   title: "'No auto-restart with logged on users for scheduled automatic updates installations' is set to 'Disabled'"
+   description: "This policy setting specifies that Automatic Updates will wait for computers to be restarted by the users who are logged on to them to complete a scheduled installation."
+   rationale: "Some security updates require that the computer be restarted to complete an installation. If the computer cannot restart automatically, then the most recent update will not completely install and no new updates will download to the computer until it is restarted. Without the auto-restart functionality, users who are not security-conscious may choose to indefinitely delay the restart, therefore keeping the computer in a less secure state."
+   remediation: "To establish the recommended configuration via GP, set the following UI path to Disabled: Computer Configuration\\Policies\\Administrative Templates\\Windows Components\\Windows Update\\No auto-restart with logged on users for scheduled automatic updates installations"
    compliance:
-    - cis: ""
-    - cis_csc: ""
+    - cis: "18.9.101.4"
+    - cis_csc: "3.4, 3.5, 4.5"
    references:
-    - https://workbench.cisecurity.org/benchmarks/766
+    - CCE-33813-7
    condition: any
    rules:
      - 'r:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU -> NoAutoRebootWithLoggedOnUsers -> !0;'
