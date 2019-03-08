@@ -32,7 +32,7 @@ variables:
 
 checks:
 #2.18 Disable Mounting of cramfs Filesystems
- - id: 1000
+ - id: 11000
    title: "Disable Mounting of cramfs Filesystems"
    description: "The cramfs filesystem type is a compressed read-only Linux filesystem embedded in small footprint systems. A cramfs image can be used without having to first decompress the image."
    rationale: "Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
@@ -44,7 +44,7 @@ checks:
      - 'f:!/etc/modprobe.d/CIS.conf;'
      - 'f:/etc/modprobe.d/CIS.conf -> !r:^install cramfs /bin/true;'
 #2.19 Disable Mounting of freevxfs Filesystems
- - id: 1001
+ - id: 11001
    title: "Disable Mounting of freevxfs Filesystems"
    description: "The freevxfs filesystem type is a free version of the Veritas type filesystem. This is the primary filesystem type for HP-UX operating systems."
    rationale: "Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
@@ -56,7 +56,7 @@ checks:
      - 'f:!/etc/modprobe.d/CIS.conf;'
      - 'f:/etc/modprobe.d/CIS.conf -> !r:^install freevxfs /bin/true;'
 #2.20 Disable Mounting of jffs2 Filesystems
- - id: 1002
+ - id: 11002
    title: "Disable Mounting of jffs2 Filesystems"
    description: "The jffs2 (journaling flash filesystem 2) filesystem type is a log-structured filesystem used in flash memory devices."
    rationale: "Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
@@ -68,7 +68,7 @@ checks:
      - 'f:!/etc/modprobe.d/CIS.conf;'
      - 'f:/etc/modprobe.d/CIS.conf -> !r:^install jffs2 /bin/true;'
 #2.21 Disable Mounting of hfs Filesystems
- - id: 1003
+ - id: 11003
    title: "Disable Mounting of hfs Filesystems"
    description: "The hfs filesystem type is a hierarchical filesystem that allows you to mount Mac OS filesystems."
    rationale: "Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
@@ -80,7 +80,7 @@ checks:
      - 'f:!/etc/modprobe.d/CIS.conf;'
      - 'f:/etc/modprobe.d/CIS.conf -> !r:^install hfs /bin/true;'
 #2.22 Disable Mounting of hfsplus Filesystems
- - id: 1004
+ - id: 11004
    title: "Disable Mounting of hfsplus Filesystems"
    description: "The hfsplus filesystem type is a hierarchical filesystem designed to replace hfs that allows you to mount Mac OS filesystems."
    rationale: "Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
@@ -92,7 +92,7 @@ checks:
      - 'f:!/etc/modprobe.d/CIS.conf;'
      - 'f:/etc/modprobe.d/CIS.conf -> !r:^install hfsplus /bin/true;'
 #2.23 Disable Mounting of squashfs Filesystems
- - id: 1005
+ - id: 11005
    title: "Disable Mounting of squashfs Filesystems"
    description: "The squashfs filesystem type is a compressed read-only Linux filesystem embedded in small footprint systems (similar to cramfs). A squashfs image can be used without having to first decompress the image."
    rationale: "Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
@@ -104,7 +104,7 @@ checks:
      - 'f:!/etc/modprobe.d/CIS.conf;'
      - 'f:/etc/modprobe.d/CIS.conf -> !r:^install squashfs /bin/true;'
 #2.24 Disable Mounting of udf Filesystems
- - id: 1006
+ - id: 11006
    title: "Disable Mounting of udf Filesystems"
    description: "The udf filesystem type is the universal disk format used to implement ISO/IEC 13346 and ECMA-167 specifications. This is an open vendor filesystem type for data storage on a broad range of media. This filesystem type is necessary to support writing DVDs and newer optical disc formats"
    rationale: "Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
@@ -116,7 +116,7 @@ checks:
      - 'f:!/etc/modprobe.d/CIS.conf;'
      - 'f:/etc/modprobe.d/CIS.conf -> !r:^install udf /bin/true;'
 #4.5 Activate AppArmor
- - id: 1007
+ - id: 11007
    title: ""
    description: "AppArmor provides a Mandatory Access Control (MAC) system that greatly augments the default Discretionary Access Control (DAC) model."
    rationale: "For an action to occur, both the traditional DAC permissions must be satisfied as well as the AppArmor MAC rules. The action will not be allowed if either one of these models does not permit the action. In this way, AppArmor rules can only make a system's permissions more restrictive and secure."
@@ -128,7 +128,7 @@ checks:
    rules:
      - 'f:/etc/default/grub -> !r:apparmor=1 && !r:security=apparmor;'
 #8.1.1.1 Configure Audit Log Storage Size
- - id: 1008
+ - id: 11008
    title: "Configure Audit Log Storage Size"
    description: "Configure the maximum size of the audit log file. Once the log reaches the maximum size, it will be rotated and a new log file will be started."
    rationale: "It is important that an appropriate size is determined for log files so that they do not impact the system and audit data is not lost."
@@ -141,7 +141,7 @@ checks:
      - 'f:!/etc/audit/auditd.conf;'
      - 'f:/etc/audit/auditd.conf -> !r:max_log_file\s*=\s*\d+;'
 #8.1.1.2 Disable System on Audit Log Full
- - id: 1009
+ - id: 11009
    title: "Disable System on Audit Log Full"
    description: "The auditd daemon can be configured to halt the system when the audit logs are full."
    rationale: "In high security contexts, the risk of detecting unauthorized access or nonrepudiation exceeds the benefit of the system's availability."
@@ -158,7 +158,7 @@ checks:
      - 'f:/etc/audit/auditd.conf -> !r:^admin_space_left_action\s*=\s*halt;'
      - 'f:/etc/audit/auditd.conf -> !r:^# && r:admin_space_left_action\s*=\s*ignore|syslog|email|suspend|single;'
 #8.1.1.3 Keep All Auditing Information
- - id: 1010
+ - id: 11010
    title: "Keep All Auditing Information"
    description: "Normally, auditd will hold 4 logs of maximum log file size before deleting older log files."
    rationale: "In high security contexts, the benefits of maintaining a long audit history exceed the cost of storing the audit history."
@@ -172,7 +172,7 @@ checks:
      - 'f:/etc/audit/auditd.conf -> !r:^max_log_file_action\s*=\s*keep_logs;'
      - 'f:/etc/audit/auditd.conf -> !r:^# && r:max_log_file_action\s*=\s*ignore|syslog|suspend|rotate;'
 #8.1.3 Enable Auditing for Processes That Start Prior to auditd
- - id: 1011
+ - id: 11011
    title: "Enable Auditing for Processes That Start Prior to auditd"
    description: "Configure grub or lilo so that processes that are capable of being audited can be audited even if they start up prior to auditd startup."
    rationale: "Audit events need to be captured on processes that start up prior to auditd, so that potential malicious activity cannot go undetected."
@@ -183,7 +183,7 @@ checks:
    rules:
      - 'f:/etc/default/grub -> !r:^GRUB_CMDLINE_LINUX\s*=\s*\.*audit\s*=\s*1\.*;'
 #8.1.4 Record Events That Modify Date and Time Information
- - id: 1012
+ - id: 11012
    title: ""
    description: "Capture events where the system date and/or time has been modified. The parameters in this section are set to determine if the adjtimex (tune kernel clock), settimeofday (Set time, using timeval and timezone structures) stime (using seconds since 1/1/1970) or clock_settime (allows for the setting of several internal clocks and timers) system calls have been executed and always write an audit record to the /var/log/audit.log file upon exit, tagging the records with the identifier \"time-change\""
    rationale: "Unexpected changes in system date and/or time could be a sign of malicious activity on the system."
@@ -198,7 +198,7 @@ checks:
      - 'f:/etc/audit/audit.rules -> !r:^-a always,exit -F arch=b32 -S clock_settime -k time-change;'
      - 'f:/etc/audit/audit.rules -> !r:^-w /etc/localtime -p wa -k time-change;'
 #8.1.5 Record Events That Modify User/Group Information
- - id: 1013
+ - id: 11013
    title: "Record Events That Modify User/Group Information"
    description: "Record events affecting the group, passwd (user IDs), shadow and gshadow (passwords) or /etc/security/opasswd (old passwords, based on remember parameter in the PAM configuration) files. The parameters in this section will watch the files to see if they have been opened for write or have had attribute changes (e.g. permissions) and tag them with the identifier \"identity\" in the audit log file."
    rationale: "Unexpected changes to these files could be an indication that the system has been compromised and that an unauthorized user is attempting to hide their activities or compromise additional accounts."
@@ -215,7 +215,7 @@ checks:
      - 'f:/etc/audit/audit.rules -> !r:^-w /etc/shadow -p wa -k identity;'
      - 'f:/etc/audit/audit.rules -> !r:^-w /etc/security/opasswd -p wa -k identity;'
 #8.1.6 Record Events That Modify the System's Network Environment
- - id: 1014
+ - id: 11014
    title: "Record Events That Modify the System's Network Environment"
    description: "Record changes to network environment files or system calls. The below parameters monitor the sethostname (set the systems host name) or setdomainname (set the systems domainname) system calls, and write an audit event on system call exit. The other parameters monitor the /etc/issue and /etc/issue.net files (messages displayed prelogin), /etc/hosts (file containing host names and associated IP addresses) and /etc/network (directory containing network interface scripts and configurations) files."
    rationale: "Monitoring sethostname and setdomainname will identify potential unauthorized changes to host and domainname of a system. The changing of these names could potentially break security parameters that are set based on those names. The /etc/hosts file is monitored for changes in the file that can indicate an unauthorized intruder is trying to change machine associations with IP addresses and trick users and processes into connecting to unintended machines. Monitoring /etc/issue and /etc/issue.net is important, as intruders could put disinformation into those files and trick users into providing information to the intruder. Monitoring /etc/network is important as it can show if network interfaces or scripts are being modified in a way that can lead to the machine becoming unavailable or compromised. All audit records will be tagged with the identifier \"system-locale.\""
@@ -232,7 +232,7 @@ checks:
      - 'f:/etc/audit/audit.rules -> !r:^-w /etc/hosts -p wa -k system-locale;'
      - 'f:/etc/audit/audit.rules -> !r:^-w /etc/network -p wa -k system-locale;'
 #8.1.7 Record Events That Modify the System's Mandatory Access Controls
- - id: 1015
+ - id: 11015
    title: "Record Events That Modify the System's Mandatory Access Controls"
    description: "Monitor SELinux mandatory access controls. The parameters below monitor any write access (potential additional, deletion or modification of files in the directory) or attribute changes to the /etc/selinux directory."
    rationale: "Changes to files in this directory could indicate that an unauthorized user is attempting to modify access controls and change security contexts, leading to a compromise of the system."
@@ -245,7 +245,7 @@ checks:
      - 'f:!/etc/audit/audit.rules;'
      - 'f:/etc/audit/audit.rules -> !r:^-w /etc/selinux/ -p wa -k MAC-policy;'
 #8.1.8 Collect Login and Logout Events
- - id: 1016
+ - id: 11016
    title: "Collect Login and Logout Events"
    description: "Monitor login and logout events. The parameters below track changes to files associated with login/logout events. The file /var/log/faillog tracks failed events from login. The file /var/log/lastlog maintain records of the last time a user successfully logged in. The file /var/log/tallylog maintains records of failures via the pam_tally2 module"
    rationale: "Monitoring login/logout events could provide a system administrator with information associated with brute force attacks against user logins."
@@ -260,7 +260,7 @@ checks:
      - 'f:/etc/audit/audit.rules -> !r:^-w /var/log/lastlog -p wa -k logins;'
      - 'f:/etc/audit/audit.rules -> !r:^-w /var/log/tallylog -p wa -k logins;'
 #8.1.9 Collect Session Initiation Information
- - id: 1017
+ - id: 11017
    title: "Collect Session Initiation Information"
    description: "Monitor session initiation events. The parameters in this section track changes to the files associated with session events. The file /var/run/utmp file tracks all currently logged in users. The /var/log/wtmp file tracks logins, logouts, shutdown and reboot events. All audit records will be tagged with the identifier \"session.\" The file /var/log/btmp keeps track of failed login attempts and can be read by entering the command /usr/bin/last -f /var/log/btmp. All audit records will be tagged with the identifier \"logins.\""
    rationale: "Monitoring these files for changes could alert a system administrator to logins occurring at unusual hours, which could indicate intruder activity (i.e. a user logging in at a time when they do not normally log in)."
@@ -275,7 +275,7 @@ checks:
      - 'f:/etc/audit/audit.rules -> !r:^-w /var/log/wtmp -p wa -k session;'
      - 'f:/etc/audit/audit.rules -> !r:^-w /var/log/btmp -p wa -k session;'
 #8.1.10 Collect Discretionary Access Control Permission Modification Events
- - id: 1018
+ - id: 11018
    title: "Collect Discretionary Access Control Permission Modification Events"
    description: "Monitor changes to file permissions, attributes, ownership and group. The parameters in this section track changes for system calls that affect file permissions and attributes. The chmod, fchmod and fchmodat system calls affect the permissions associated with a file. The chown, fchown, fchownat and lchown system calls affect owner and group attributes on a file. The setxattr, lsetxattr, fsetxattr (set extended file attributes) and removexattr, lremovexattr, fremovexattr (remove extended file attributes) control extended file attributes. In all cases, an audit record will only be written for non-system userids (auid >= 1000) and will ignore Daemon events (auid = 4294967295). All audit records will be tagged with the identifier \"perm_mod.\""
    rationale: "Monitoring for changes in file attributes could alert a system administrator to activity that could indicate intruder activity or policy violation."
@@ -293,7 +293,7 @@ checks:
      - 'f:/etc/audit/audit.rules -> !r:^-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S \\;'
      - 'f:/etc/audit/audit.rules -> !r:^lremovexattr -S fremovexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod;'
 #8.1.11 Collect Unsuccessful Unauthorized Access Attempts to Files
- - id: 1019
+ - id: 11019
    title: "Collect Unsuccessful Unauthorized Access Attempts to Files"
    description: "Monitor for unsuccessful attempts to access files. The parameters below are associated with system calls that control creation (creat), opening (open, openat) and truncation (truncate, ftruncate) of files. An audit log record will only be written if the user is a nonprivileged user (auid > = 500), is not a Daemon event (auid=4294967295) and if the system call returned EACCES (permission denied to the file) or EPERM (some other permanent error associated with the specific system call). All audit records will be tagged with the identifier \"access.\""
    rationale: "Failed attempts to open, create or truncate files could be an indication that an individual or process is trying to gain unauthorized access to the system."
@@ -309,7 +309,7 @@ checks:
      - 'f:/etc/audit/audit.rules -> !r:^-a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate \\;'
      - 'f:/etc/audit/audit.rules -> !r:^-F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access;'
 #8.1.13 Collect Successful File System Mounts
- - id: 1020
+ - id: 11020
    title: "Collect Successful File System Mounts"
    description: "Monitor the use of the mount system call. The mount (and umount) system call controls the mounting and unmounting of file systems. The parameters below configure the system to create an audit record when the mount system call is used by a non-privileged user"
    rationale: "It is highly unusual for a non privileged user to mount file systems to the system. While tracking mount commands gives the system administrator evidence that external media may have been mounted (based on a review of the source of the mount and confirming it's an external media type), it does not conclusively indicate that data was exported to the media. System administrators who wish to determine if data were exported, would also have to track successful open, creat and truncate system calls requiring write access to a file under the mount point of the external media file system. This could give a fair indication that a write occurred. The only way to truly prove it, would be to track successful writes to the external media. Tracking write system calls could quickly fill up the audit log and is not recommended. Recommendations on configuration options to track data export to media is beyond the scope of this document."
@@ -322,7 +322,7 @@ checks:
      - 'f:!/etc/audit/audit.rules;'
      - 'f:/etc/audit/audit.rules -> !r:^-a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts;'
 #8.1.14 Collect File Deletion Events by User
- - id: 1021
+ - id: 11021
    title: "Collect File Deletion Events by User"
    description: "Monitor the use of system calls associated with the deletion or renaming of files and file attributes. This configuration statement sets up monitoring for the unlink (remove a file), unlinkat (remove a file attribute), rename (rename a file) and renameat (rename a file attribute) system calls and tags them with the identifier \"delete\"."
    rationale: "Monitoring these calls from non-privileged users could provide a system administrator with evidence that inappropriate removal of files and file attributes associated with protected files is occurring. While this audit option will look at all events, system administrators will want to look for specific privileged files that are being deleted or altered."
@@ -336,7 +336,7 @@ checks:
      - 'f:/etc/audit/audit.rules -> !r:^-a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 \\;'
      - 'f:/etc/audit/audit.rules -> !r:^-F auid!=4294967295 -k delete;'
 #8.1.15 Collect Changes to System Administration Scope (sudoers)
- - id: 1022
+ - id: 11022
    title: "Collect Changes to System Administration Scope (sudoers)"
    description: "Monitor scope changes for system administrations. If the system has been properly configured to force system administrators to log in as themselves first and then use the sudo command to execute privileged commands, it is possible to monitor changes in scope. The file /etc/sudoers will be written to when the file or its attributes have changed. The audit records will be tagged with the identifier \"scope.\""
    rationale: "Changes in the /etc/sudoers file can indicate that an unauthorized change has been made to scope of system administrator activity."
@@ -349,7 +349,7 @@ checks:
      - 'f:!/etc/audit/audit.rules;'
      - 'f:/etc/audit/audit.rules -> !r:^-w /etc/sudoers -p wa -k scope;'
 #8.1.16 Collect System Administrator Actions (sudolog)
- - id: 1023
+ - id: 11023
    title: "Collect System Administrator Actions (sudolog)"
    description: "Monitor the sudo log file. If the system has been properly configured to disable the use of the su command and force all administrators to have to log in first and then use sudo to execute privileged commands, then all administrator commands will be logged to /var/log/sudo.log. Any time a command is executed, an audit event will be triggered as the /var/log/sudo.log file will be opened for write and the executed administration command will be written to the log."
    rationale: "Changes in /var/log/sudo.log indicate that an administrator has executed a command or the log file itself has been tampered with. Administrators will want to correlate the events written to the audit trail with the records written to /var/log/sudo.log to verify if unauthorized commands have been executed."
@@ -362,7 +362,7 @@ checks:
      - 'f:!/etc/audit/audit.rules;'
      - 'f:/etc/audit/audit.rules -> !r:^-w /var/log/sudo.log -p wa -k actions;'
 #8.1.17 Collect Kernel Module Loading and Unloading
- - id: 1024
+ - id: 11024
    title: "Collect Kernel Module Loading and Unloading"
    description: "Monitor the loading and unloading of kernel modules. The programs insmod (install a kernel module), rmmod (remove a kernel module), and modprobe (a more sophisticated program to load and unload modules, as well as some other features) control loading and unloading of modules. The init_module (load a module) and delete_module (delete a module) system calls control loading and unloading of modules. Any execution of the loading and unloading module programs and system calls will trigger an audit record with an identifier of \"modules\"."
    rationale: "Monitoring the use of insmod, rmmod and modprobe could provide system administrators with evidence that an unauthorized user loaded or unloaded a kernel module, possibly compromising the security of the system. Monitoring of the init_module and delete_module system calls would reflect an unauthorized user attempting to use a different program to load and unload modules."
@@ -378,7 +378,7 @@ checks:
      - 'f:/etc/audit/audit.rules -> !r:^-w /sbin/modprobe -p x -k modules;'
      - 'f:/etc/audit/audit.rules -> !r:^-a always,exit -F arch=b32 -S init_module -S delete_module -k modules|-a always,exit -F arch=b64 -S init_module -S delete_module -k modules;'
 #8.1.18 Make the Audit Configuration Immutable
- - id: 1025
+ - id: 11025
    title: "Make the Audit Configuration Immutable"
    description: "Set system audit so that audit rules cannot be modified with auditctl. Setting the flag \"-e 2\" forces audit to be put in immutable mode. Audit changes can only be made on system reboot"
    rationale: "In immutable mode, unauthorized users cannot execute changes to the audit system to potentially hide malicious activity and then put the audit rules back. Users would most likely notice a system reboot and that could alert administrators of an attempt to make unauthorized audit changes."
@@ -391,7 +391,7 @@ checks:
      - 'f:!/etc/audit/audit.rules;'
      - 'f:/etc/audit/audit.rules -> !r:^-e 2$;'
 #8.3.1 Install AIDE
- - id: 1026
+ - id: 11026
    title: "Install AIDE"
    description: "In some installations, AIDE is not installed automatically"
    rationale: "Install AIDE to make use of the file integrity features to monitor critical files for changes that could affect the security of the system."
@@ -402,7 +402,7 @@ checks:
    rules:
      - 'f:!/usr/sbin/aideinit;'
 #8.3.2 Implement Periodic Execution of File Integrity
- - id: 1027
+ - id: 11027
    title: "Implement Periodic Execution of File Integrity"
    description: "Implement periodic file checking, in compliance with site policy"
    rationale: "Periodic file checking allows the system administrator to determine on a regular basis if critical files have been changed in an unauthorized fashion."

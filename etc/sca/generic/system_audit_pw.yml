@@ -22,7 +22,7 @@ policy:
 
 checks:
 # 5.3 Configure PAM
- - id: 1000
+ - id: 13000
    title: "Ensure password creation requirements are configured"
    description: "The pam_pwquality.so module and pam_cracklib.so module (depending on the Linux distribution used) checks the strength of passwords. It performs checks such as making sure a password is not a dictionary word, it is a certain length, contains a mix of characters (e.g. alphabet, numeric, other) and more."
    rationale: "Strong passwords protect systems from being hacked through brute force methods."
@@ -69,7 +69,7 @@ checks:
      - 'f:/etc/pam.d/system-auth -> r:pam_cracklib.so && !r:ucredit=\p*\d+;'
      - 'f:/etc/pam.d/passwd -> r:pam_cracklib.so && !r:ucredit=\p*\d+;'
      - 'f:/etc/security/pwquality.conf -> !r:^ucredit=\p*\d+;'
- - id: 1001
+ - id: 13001
    title: "Ensure password hashing algorithm is SHA-512"
    description: "The password encryption should use a strong hashing algorithm such as SHA-256 or SHA-512 instead of MD5."
    rationale: "The SHA-512 algorithm provides much stronger hashing than MD5, thus providing additional protection to the system by increasing the level of effort for an attacker to successfully determine passwords."
@@ -94,7 +94,7 @@ checks:
      - 'f:/etc/pam.d/system-auth -> !r:^password\.+pam_unix.so\.+sha512|^password\.+pam_unix.so\.+sha256;'
      - 'f:/etc/pam.d/system-auth-ac -> !r:^# && r:password\.+pam_unix.so\.+md5|password\.+pam_unix.so\.+des;'
      - 'f:/etc/pam.d/system-auth-ac -> !r:^password\.+pam_unix.so\.+sha512|^password\.+pam_unix.so\.+sha256;'
- - id: 1002
+ - id: 13002
    title: "Ensure passwords in /etc/shadow are hashed with SHA-512 or SHA-256"
    description: "SHA-512 and SHA-256 are much stronger hashing algorithms than MD5."
    rationale: "The SHA-512 algorithm provides much stronger hashing than MD5, thus providing additional protection to the system by increasing the level of effort for an attacker to successfully determine passwords."
@@ -113,7 +113,7 @@ checks:
      - 'f:/etc/shadow -> !r:^# && r:\w+:\$md5\$\.+;'
      - 'f:/etc/shadow -> !r:^# && r:\w+:\$__unix__\$\.+;'
 # 5.4 User accounts and Environment
- - id: 1003
+ - id: 13003
    title: "Ensure password expiration is 365 days or less"
    description: "The PASS_MAX_DAYS parameter in /etc/login.defs allows an administrator to force passwords to expire once they reach a defined age. It is recommended that the PASS_MAX_DAYS parameter be set to less than or equal to 365 days."
    rationale: "The window of opportunity for an attacker to leverage compromised credentials or successfully compromise credentials via an online brute force attack is limited by the age of the password. Therefore, reducing the maximum age of a password also reduces an attacker's window of opportunity."
