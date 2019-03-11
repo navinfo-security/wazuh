@@ -175,7 +175,7 @@ checks:
    title: "Restrict Core Dumps to Protected Directory"
    description: "The action described in this section creates a protected directory to store core dumps and also causes the system to create a log entry whenever a regular process dumps core."
    rationale: "Core dumps, particularly those from set-UID and set-GID processes, may contain sensitive data."
-   remediation: "To implement the recommendation, run the commands: # chmod 700 /var/cores    # coreadm -g /var/cores/core_%n_%f_%u_%g_%t_%p \ -e log -e global -e global-setid \ -d process -d proc-setid    If the local site chooses, dumping of core files can be completely disabled with the following command: # coreadm -d global -d global-setid -d process -d proc-setid"
+   remediation: "To implement the recommendation, run the commands: # chmod 700 /var/cores    # coreadm -g /var/cores/core_%n_%f_%u_%g_%t_%p -e log -e global -e global-setid -d process -d proc-setid    If the local site chooses, dumping of core files can be completely disabled with the following command: # coreadm -d global -d global-setid -d process -d proc-setid"
    compliance:
     - cis: "3.1"
    condition: any
@@ -207,7 +207,7 @@ checks:
    title: "Enable Strong TCP Sequence Number Generation"
    description: "The variable TCP_STRONG_ISS defines the mechanism used for TCP initial sequence number generation. If an attacker can predict the next sequence number, it is possible to inject fraudulent packets into the data stream to hijack the session."
    rationale: "The RFC 1948 method is widely accepted as the strongest mechanism for TCP packet generation. This makes remote session hijacking attacks more difficult, as well as any other network-based attack that relies on predicting TCP sequence number information. It is theoretically possible that there may be a small performance hit in connection setup time when this setting is used, but there are no publicly available benchmarks that establish this."
-   remediation: "Run the following commands to set the TCP_STRONG_ISS parameter to use RFC 1948 sequence number generation in the /etc/default/inetinit file: # cd /etc/default    # awk '/TCP_STRONG_ISS=/ { $1 = \"TCP_STRONG_ISS=2\" }; \ { print }' inetinit > inetinit.CIS    # mv inetinit.CIS inetinit     To set the TCP_STRONG_ISS parameter on a running system, use the command: # ipadm set-prop -p _strong_iss=2 tcp"
+   remediation: "Run the following commands to set the TCP_STRONG_ISS parameter to use RFC 1948 sequence number generation in the /etc/default/inetinit file: # cd /etc/default    # awk '/TCP_STRONG_ISS=/ { $1 = \"TCP_STRONG_ISS=2\" }; { print }' inetinit > inetinit.CIS    # mv inetinit.CIS inetinit     To set the TCP_STRONG_ISS parameter on a running system, use the command: # ipadm set-prop -p _strong_iss=2 tcp"
    compliance:
     - cis: "3.3"
    condition: any
@@ -382,7 +382,7 @@ checks:
    title: "Restrict FTP Use"
    description: "If FTP is permitted to be used on the system, the file /etc/ftpd/ftpusers is used to specify a list of users who are not allowed to access the system via FTP."
    rationale: "FTP is an old and insecure protocol that transfers files and credentials in clear text and can be replaced by using sftp. However, if FTP is permitted for use in your environment, it is important to ensure that the default \"system\" accounts are not permitted to transfer files via FTP, especially the root role. Consider also adding the names of other privileged or shared accounts that may exist on your system such as user oracle and the account which your Web server process runs under. It should be reminded that the Solaris FTP service is disabled by default."
-   remediation: "Perform the following to implement the recommended state: # cd /etc/ftpd    # for user in `logins -s | awk '{ print $1 }'` aiuser noaccess nobody nobody4; do $(echo $user >> ftpusers) done    # sort -u ftpusers > ftpusers.CIS    # mv ftpusers.CIS ftpusers    If your site policy states that users have to be authorized to use FTP, consider placing all users in the /etc/ftpd/ftpusers file and then explicitly removing those who are permitted to use the service. To accomplish this, use the command: # getent passwd | cut -f1 -d":" > /etc/ftpd/ftpusers    This prohibits any user on the system from using ftp unless they are explicitly removed from the file. Note that this file will need to be updated as users are added to or removed from the system."
+   remediation: "Perform the following to implement the recommended state: # cd /etc/ftpd    # for user in `logins -s | awk '{ print $1 }'` aiuser noaccess nobody nobody4; do $(echo $user >> ftpusers) done    # sort -u ftpusers > ftpusers.CIS    # mv ftpusers.CIS ftpusers    If your site policy states that users have to be authorized to use FTP, consider placing all users in the /etc/ftpd/ftpusers file and then explicitly removing those who are permitted to use the service. To accomplish this, use the command: # getent passwd | cut -f1 -d\":\" > /etc/ftpd/ftpusers    This prohibits any user on the system from using ftp unless they are explicitly removed from the file. Note that this file will need to be updated as users are added to or removed from the system."
    compliance:
     - cis: "6.9"
    condition: any
@@ -432,7 +432,7 @@ checks:
    title: "Set Default Screen Lock for GNOME Users"
    description: "The timeout parameter dictates the invocation of a password-protected screen saver after a specified time of keyboard and mouse inactivity, specific to the xscreensaver application used in the GNOME windowing environment."
    rationale: "As a screensaver timeout provides protection for a desktop that has not been locked by the user upon his/her departure, to help prevent session hijacking, this value should be set as appropriate to the needs of the user."
-   remediation: "Perform the following to implement the recommended state: # cd /usr/share/X11/app-defaults    # cp XScreenSaver XScreenSaver.orig    # awk '/^\*timeout:/ { $2 = \"0:10:00\" } /^\*lockTimeout:/ { $2 = \"0:00:00\" } /^\*lock:/ { $2 = \"True\" } { print }' xScreenSaver > xScreenSaver.CIS    # mv xScreenSaver.CIS xScreenSaver"
+   remediation: "Perform the following to implement the recommended state: # cd /usr/share/X11/app-defaults    # cp XScreenSaver XScreenSaver.orig    # awk '/^\\*timeout:/ { $2 = \"0:10:00\" } /^\\*lockTimeout:/ { $2 = \"0:00:00\" } /^\\*lock:/ { $2 = \"True\" } { print }' xScreenSaver > xScreenSaver.CIS    # mv xScreenSaver.CIS xScreenSaver"
    compliance:
     - cis: "6.12"
    condition: any
@@ -508,7 +508,7 @@ checks:
    title: "Set Strong Password Creation Policies"
    description: "The variables in the /etc/default/passwd file indicate various strategies for creating differences required between an old and a new password. As requiring users to select a specific numbers of differences between the characters in the existing password and the new one can strengthen the password by increasing the symbol-set space, to further increase the difficulty of breaking any password by brute-force attacks, these values should be set as appropriate to the needs of the user."
    rationale: "Administrators may wish to add site-specific dictionaries to the DICTIONLIST parameter.  Warning: Sites often have differing opinions on the optimal value of the HISTORY parameter (how many previous passwords to remember per user in order to prevent re- use). The values specified here are in compliance with NSA/DISA requirements. If this is too restrictive for your site, you may wish to set a HISTORY value of 4 and a MAXREPEATS of 2. Consult your local security rules for guidance."
-   remediation: "Perform the following to implement the recommended state: # cd /etc/default    # awk '/PASSLENGTH=/ { $1 = \"PASSLENGTH=8\" }; /NAMECHECK=/ { $1 = \"NAMECHECK=YES\" }; /HISTORY=/ { $1 = \"HISTORY=10\" }; /MINDIFF=/ { $1 = \"MINDIFF=3\" }; /MINALPHA=/ { $1 = \"MINALPHA=2\" }; /MINUPPER=/ { $1 = \"MINUPPER=1\" }; /MINLOWER=/ { $1 = \"MINLOWER=1\" }; /MINNONALPHA=/ { $1 = \"MINNONALPHA=1\" }; /MAXREPEATS=/ { $1 = \"MAXREPEATS=0\" }; /WHITESPACE=/ { $1 = \"WHITESPACE=YES\" }; /DICTIONDBDIR=/ { $1 = \"DICTIONDBDIR=/var/passwd\" }; /DICTIONLIST=/ \ { $1 = \"DICTIONLIST=/usr/share/lib/dict/words\" }; { print }' passwd > passwd.CIS    # mv passwd.CIS passwd"
+   remediation: "Perform the following to implement the recommended state: # cd /etc/default    # awk '/PASSLENGTH=/ { $1 = \"PASSLENGTH=8\" }; /NAMECHECK=/ { $1 = \"NAMECHECK=YES\" }; /HISTORY=/ { $1 = \"HISTORY=10\" }; /MINDIFF=/ { $1 = \"MINDIFF=3\" }; /MINALPHA=/ { $1 = \"MINALPHA=2\" }; /MINUPPER=/ { $1 = \"MINUPPER=1\" }; /MINLOWER=/ { $1 = \"MINLOWER=1\" }; /MINNONALPHA=/ { $1 = \"MINNONALPHA=1\" }; /MAXREPEATS=/ { $1 = \"MAXREPEATS=0\" }; /WHITESPACE=/ { $1 = \"WHITESPACE=YES\" }; /DICTIONDBDIR=/ { $1 = \"DICTIONDBDIR=/var/passwd\" }; /DICTIONLIST=/ { $1 = \"DICTIONLIST=/usr/share/lib/dict/words\" }; { print }' passwd > passwd.CIS    # mv passwd.CIS passwd"
    compliance:
     - cis: "7.2"
    condition: any
@@ -591,7 +591,7 @@ checks:
  - id: 11543
    title: "Enable a Warning Banner for the SSH Service"
    description: "The contents of the Banner string in the /etc/ssh/sshd_config file are sent to the remote user before authentication is allowed, requiring that the user read the legal caution."
-   remediation: "Perform the following to implement the recommended state: # awk '/^#Banner/ { $1 = \"Banner\" } \ { print }' /etc/ssh/sshd_config > /etc/ssh/sshd_config.CIS    # mv /etc/ssh/sshd_config.CIS /etc/ssh/sshd_config    # svcadm restart svc:/network/ssh"
+   remediation: "Perform the following to implement the recommended state: # awk '/^#Banner/ { $1 = \"Banner\" } { print }' /etc/ssh/sshd_config > /etc/ssh/sshd_config.CIS    # mv /etc/ssh/sshd_config.CIS /etc/ssh/sshd_config    # svcadm restart svc:/network/ssh"
    compliance:
     - cis: "8.2"
    condition: any
