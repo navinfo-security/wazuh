@@ -11,7 +11,7 @@
 # Center for Internet Security Benchmark v1.4.0 for Microsoft Windows 10 Release 1709 v1.4.0 - 08-21-2018
 
 policy:
-  id: "cis_win10_enterprise_L2_rcl"
+  id: "cis_win10_enterprise_L2"
   file: "cis_win10_enterprise_L2_rcl.yml"
   name: "CIS benchmark for Windows 10 Enterprise (Release 1709)"
   description: "This document provides prescriptive guidance for establishing a secure configuration posture for Microsoft Windows (L2)."
