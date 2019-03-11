@@ -1,5 +1,5 @@
 # Security Configuration assessment
-# CIS Checks for Debian/Ubuntu
+# Level 2 CIS Checks for Debian Linux 7 and Debian Linux 8
 # Copyright (C) 2015-2019, Wazuh Inc.
 #
 # This program is a free software; you can redistribute it
@@ -8,14 +8,14 @@
 # Foundation
 #
 # Based on:
-# Center for Internet Security Debian Linux 8 Benchmark v2.0.0 - 12-28-2018
 # Center for Internet Security Debian Linux 7 Benchmark v1.0.0 - 12-31-2015
+# Center for Internet Security Debian Linux 8 Benchmark v2.0.0 - 12-28-2018
 
 policy:
-  id: "cis_debian"
+  id: "cis_debianlinux7-8_L2"
   file: "cis_debianlinux7-8_L2_rcl.yml"
-  name: "CIS benchmark for Debian/Linux 7-8 L2"
-  description: "This document provides prescriptive guidance for establishing a secure configuration posture for Debian Linux 7-8 L2 systems running on x86 and x64 platforms. Many lists are included including filesystem types, services, clients, and network protocols. Not all items in these lists are guaranteed to exist on all distributions and additional similar items may exist which should be considered in addition to those explicitly mentioned."
+  name: "CIS benchmark for Debian/Linux 7 and 8 L2"
+  description: "This document provides prescriptive guidance for establishing a secure configuration posture for Debian Linux 7 and 8."
   references:
     - https://www.cisecurity.org/cis-benchmarks/
 
@@ -26,9 +26,6 @@ requirements:
   rules:
     - 'f:/etc/debian_version;'
     - 'f:/proc/sys/kernel/ostype -> Linux;'
-
-variables:
- $rc_dirfiles: /etc/rc0.d/*,/etc/rc1.d/*,/etc/rc2.d/*,/etc/rc3.d/*,/etc/rc4.d/*,/etc/rc5.d/*,/etc/rc6.d/*,/etc/rc7.d/*,/etc/rc8.d/*,/etc/rc9.d/*,/etc/rca.d/*,/etc/rcb.d/*,/etc/rcc.d/*,/etc/rcs.d/*,/etc/rcS.d/*;
 
 checks:
 #2.18 Disable Mounting of cramfs Filesystems

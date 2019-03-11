@@ -14,10 +14,18 @@
 policy:
   id: "cis_debianlinux7-8_L1"
   file: "cis_debianlinux7-8_L1_rcl.yml"
-  name: "CIS benchmark for Debian/Linux 7 and 8"
+  name: "CIS benchmark for Debian/Linux 7 and 8 L1"
   description: "This document provides prescriptive guidance for establishing a secure configuration posture for Debian Linux 7 and 8."
   references:
     - https://www.cisecurity.org/cis-benchmarks/
+
+requirements:
+  title: "Check Debian version"
+  description: "Requirements for running the SCA scan against Debian/Ubuntu."
+  condition: "all required"
+  rules:
+    - 'f:/etc/debian_version;'
+    - 'f:/proc/sys/kernel/ostype -> Linux;'
 
 variables:
  $rc_dirs: /etc/rc0.d,/etc/rc1.d,/etc/rc2.d,/etc/rc3.d,/etc/rc4.d,/etc/rc5.d,/etc/rc6.d,/etc/rc7.d,/etc/rc8.d,/etc/rc9.d,/etc/rca.d,/etc/rcb.d,/etc/rcc.d,/etc/rcs.d,/etc/rcS.d;
