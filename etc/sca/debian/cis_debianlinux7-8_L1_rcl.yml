@@ -21,12 +21,11 @@ policy:
 
 requirements:
   title: "Check Debian version"
-  description: "Requirements for running the SCA scan against Debian 7 and 8."
+  description: "Requirements for running the SCA scan against Debian/Ubuntu."
   condition: "all required"
   rules:
     - 'f:/etc/debian_version;'
     - 'f:/proc/sys/kernel/ostype -> Linux;'
-    - 'f:/etc/os-release -> r:^VERSION_ID="7"|^VERSION_ID="8";'
 
 variables:
  $rc_dirs: /etc/rc0.d,/etc/rc1.d,/etc/rc2.d,/etc/rc3.d,/etc/rc4.d,/etc/rc5.d,/etc/rc6.d,/etc/rc7.d,/etc/rc8.d,/etc/rc9.d,/etc/rca.d,/etc/rcb.d,/etc/rcc.d,/etc/rcs.d,/etc/rcS.d;
