@@ -696,7 +696,7 @@ checks:
     - cis: "2.3.17.9"
    condition: any
    rules:
-     - 'r:HKEY_LOCAL_MACHINE\SofComputer Browser (Browser)' is set to 'Disabled' or 'Not Installedtware\Microsoft\Windows\CurrentVersion\Policies\System -> EnableVirtualization -> 0;'
+     - 'r:HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System -> EnableVirtualization -> 0;'
 # 5 System Services
  - id: 12055
    title: "Ensure 'Computer Browser (Browser)' is set to 'Disabled' or 'Not Installed'"
