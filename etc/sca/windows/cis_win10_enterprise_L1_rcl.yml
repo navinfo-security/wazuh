@@ -13,8 +13,8 @@
 policy:
   id: "cis_win10_enterprise_L1_rcl"
   file: "cis_win10_enterprise_L1_rcl.yml"
-  name: "CIS benchmark for Windows 10 Enterprise L1"
-  description: "This document provides prescriptive guidance for establishing a secure configuration posture for Windows 10 Enterprise L1."
+  name: "CIS benchmark for Windows 10 Enterprise (Release 1709)"
+  description: "This document provides prescriptive guidance for establishing a secure configuration posture for Microsoft Windows (L1)."
   references:
     - https://www.cisecurity.org/cis-benchmarks/
 
