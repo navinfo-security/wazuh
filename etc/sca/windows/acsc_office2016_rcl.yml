@@ -12,7 +12,7 @@
 # Center for Internet Security Microsoft Office 2016 v1.1.0 - 11-30-2016
 
 policy:
-  id: "acsc_office2016_rcl"
+  id: "acsc_office2016"
   file: "acsc_office2016_rcl.yml"
   name: "System audit for Office 2016 vulnerabilities"
   description: "Guidance for establishing a secure configuration for Office 2016 vulnerabilities."
