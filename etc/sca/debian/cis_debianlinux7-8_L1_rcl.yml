@@ -107,7 +107,6 @@ checks:
    remediation: "For new installations, during installation create a custom partition setup and specify a separate partition for /var/log.  For systems that were previously installed, use the Logical Volume Manager (LVM) to create partitions."
    compliance:
     - cis: "2.7"
-    - cis_csc: ""
    references:
     - http://tldp.org/HOWTO/LVM-HOWTO/
    condition: any
@@ -1251,10 +1250,6 @@ checks:
    remediation: "Remove all users from the shadow group, and change the primary group of any users with shadow as their primary group."
    compliance:
     - cis: "13.20"
-    - cis_csc: ""
-   references:
-    - https://workbench.cisecurity.org/benchmarks/80
-    - https://workbench.cisecurity.org/benchmarks/81
    condition: any
    rules:
      - 'f:/etc/group -> !r:^# && r:shadow:\w*:\w*:\S+;'
