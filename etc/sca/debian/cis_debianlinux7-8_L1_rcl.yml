@@ -524,7 +524,7 @@ checks:
     - cis: "6.15"
    condition: any
    rules:
-     - 'f:/etc/exim4/update-exim4.conf.conf -> r:^dc_local_interfaces= && !r:'127.0.0.1\s*\p\s*::1'$|'::1\s*\p\s*127.0.0.1'$|'127.0.0.1'$|'::1'$;'
+     - 'f:/etc/exim4/update-exim4.conf.conf -> r:^dc_local_interfaces= && !r:''127.0.0.1\s*\p\s*::1''$|''::1\s*\p\s*127.0.0.1''$|''127.0.0.1''$|''::1''$;'
  - id: 10546
    title: "Ensure rsync service is not enabled"
    description: "The rsyncd service can be used to synchronize files between systems over network links."
