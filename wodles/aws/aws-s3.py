@@ -74,6 +74,12 @@ from time import mktime
 if sys.version_info[0] == 3:
     unicode = str
 
+##### DEBUG VERSION
+import shutil
+import logging
+
+logging.basicConfig(filename='/var/ossec/wodles/aws/aws.log', filemode='a', level=logging.CRITICAL)
+
 
 ################################################################################
 # Constants
@@ -653,6 +659,9 @@ class AWSBucket(WazuhIntegration):
 
     def iter_files_in_bucket(self, aws_account_id, aws_region):
         try:
+            time_mark = datetime.strftime(datetime.utcnow(), "%Y%m%d--%I-%M-%S")
+            ### copy database before
+            shutil.copy('/var/ossec/wodles/aws/s3_cloudtrail.db', '/var/ossec/wodles/aws/s3_cloudtrail_{}.db'.format(time_mark))
             bucket_files = self.client.list_objects_v2(**self.build_s3_filter_args(aws_account_id, aws_region))
 
             if 'Contents' not in bucket_files:
@@ -670,6 +679,9 @@ class AWSBucket(WazuhIntegration):
                     else:
                         debug("++ Skipping previously processed file: {file}".format(file=bucket_file['Key']), 1)
                         continue
+
+                ##### logger
+                logging.critical('- {} - LOG TO BE PROCESSED -> {}'.format(time_mark, bucket_file['Key']))
 
                 debug("++ Found new log: {0}".format(bucket_file['Key']), 2)
                 # Get the log file from S3 and decompress it
