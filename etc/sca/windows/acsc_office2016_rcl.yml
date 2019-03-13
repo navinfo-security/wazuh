@@ -20,6 +20,13 @@ policy:
     - https://www.cisecurity.org/cis-benchmarks/
     - https://acsc.gov.au/publications/protect/Hardening_MS_Office_2016.pdf
 
+requirements:
+  title: "Check that the installed Office is version 2016"
+  description: "Requirements for running the CIS benchmark against Office 2016"
+  condition: "any required"
+  rules:
+     - 'r:HKLM\Software\Microsoft\Office\16.0\Word\InstallRoot::Path;'
+
 checks:
 # ACSC - Attack Surface Reduction
  - id: 10000

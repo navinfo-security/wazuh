@@ -18,6 +18,13 @@ policy:
   references:
     - https://www.cisecurity.org/cis-benchmarks/
 
+requirements:
+  title: "Check Solaris version"
+  description: "Requirements for running the CIS benchmark against Solaris 11"
+  condition: "all required"
+  rules:
+     - 'f:/etc/release -> r:^\s*Oracle\s+Solaris\s+11\p;'
+
 variables:
  $home_dirs: /usr2/home/*,/home/*,/home,/*/home/*,/*/home,/;
 

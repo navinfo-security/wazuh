@@ -20,6 +20,14 @@ policy:
   references:
     - https://www.cisecurity.org/cis-benchmarks/
 
+requirements:
+  title: "Check that password-related files are present on the system"
+  description: "Requirements for running the SCA scan against the password-related policy."
+  condition: "any required"
+  rules:
+    - 'f:/etc/passwd;'
+    - 'f:/etc/shadow;'
+
 checks:
 # 5.3 Configure PAM
  - id: 13000
