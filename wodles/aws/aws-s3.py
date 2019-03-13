@@ -661,7 +661,7 @@ class AWSBucket(WazuhIntegration):
         try:
             time_mark = datetime.strftime(datetime.utcnow(), "%Y%m%d--%I-%M-%S")
             ### copy database before
-            shutil.copy('/var/ossec/wodles/aws/s3_cloudtrail.db', '/var/ossec/wodles/aws/s3_cloudtrail_{}.db'.format(time_mark))
+            shutil.copy('/var/ossec/wodles/aws/s3_cloudtrail.db', '/var/ossec/wodles/aws/s3_cloudtrail_{}_{}.db'.format(aws_region, time_mark))
             bucket_files = self.client.list_objects_v2(**self.build_s3_filter_args(aws_account_id, aws_region))
 
             if 'Contents' not in bucket_files:
