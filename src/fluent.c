@@ -8,6 +8,7 @@
 
 #include <shared.h>
 #include <os_net/os_net.h>
+#include <os_crypto/sha512/sha512_op.h>
 #include <msgpack.h>
 #include <openssl/ssl.h>
 #include <openssl/ssl.h>
@@ -38,7 +39,7 @@ typedef struct wm_fluent_t {
     char * sock_path;
     char * address;
     unsigned short port;
-    char * shared_pass;
+    char * shared_key;
     char * certificate;
     char * user_name;
     char * user_pass;
@@ -56,6 +57,13 @@ typedef struct wm_fluent_helo_t {
     char * auth;
     unsigned int keepalive:1;
 } wm_fluent_helo_t;
+
+typedef struct wm_fluent_pong_t {
+    unsigned int auth_result:1;
+    char * reason;
+    char * server_hostname;
+    char * shared_key_hexdigest;
+} wm_fluent_pong_t;
 
 char * wm_fluent_strdup(const msgpack_object_str * str) {
     char * string;
@@ -197,6 +205,15 @@ void wm_fluent_helo_free(wm_fluent_helo_t * helo) {
     }
 }
 
+void wm_fluent_pong_free(wm_fluent_pong_t * pong) {
+    if (pong) {
+        free(pong->reason);
+        free(pong->server_hostname);
+        free(pong->shared_key_hexdigest);
+        free(pong);
+    }
+}
+
 int wm_fluent_recv(wm_fluent_t * fluent, msgpack_unpacker * unp) {
     int read_b;
 
@@ -211,8 +228,8 @@ int wm_fluent_recv(wm_fluent_t * fluent, msgpack_unpacker * unp) {
     /* Receive data */
 
     read_b = SSL_read(fluent->ssl, msgpack_unpacker_buffer(unp), 4096);
-    if (read_b < 0) {
-        mterror("Connection error with '%s': %s", fluent->address, ERR_reason_error_string(ERR_get_error()));
+    if (read_b <= 0) {
+        merror("Connection error with '%s': %s", fluent->address, ERR_reason_error_string(ERR_get_error()));
         return -1;
     }
 
@@ -255,9 +272,6 @@ wm_fluent_helo_t * wm_fluent_recv_helo(wm_fluent_t * fluent) {
     /* If keepalive is not defined, the default value is true */
     helo->keepalive = 1;
 
-    msgpack_object_print(stdout, result.data);
-    printf("\n");
-
     /* Parse HELO message pack */
 
     expect_type(result.data, MSGPACK_OBJECT_ARRAY, "array");
@@ -268,11 +282,7 @@ wm_fluent_helo_t * wm_fluent_recv_helo(wm_fluent_t * fluent) {
     }
 
     array = result.data.via.array.ptr;
-
     expect_type(array[0], MSGPACK_OBJECT_STR, "string");
-
-    /* Strings are not null-terminated! */
-
     expect_string(array[0], "HELO");
     expect_type(array[1], MSGPACK_OBJECT_MAP, "map");
 
@@ -332,7 +342,6 @@ wm_fluent_helo_t * wm_fluent_recv_helo(wm_fluent_t * fluent) {
     goto end;
 
 error:
-
     wm_fluent_helo_free(helo);
     helo = NULL;
 
@@ -341,8 +350,145 @@ end:
     return helo;
 }
 
+int wm_fluent_send_ping(wm_fluent_t * fluent, const wm_fluent_helo_t * helo) {
+    char salt[16];
+    char hostname[512] = "";
+    os_sha512 shared_key_hexdigest;
+    os_sha512 password;
+    msgpack_sbuffer sbuf;
+    msgpack_packer pk;
+    int retval;
+
+    assert(fluent);
+    assert(helo);
+
+    randombytes(salt, sizeof(salt));
+    gethostname(hostname, sizeof(hostname) - 1);
+
+    /* Compute shared key hex digest */
+
+    {
+        unsigned char md[SHA512_DIGEST_LENGTH];
+        SHA512_CTX ctx;
+        SHA512_Init(&ctx);
+
+        SHA512_Update(&ctx, salt, sizeof(salt));
+        SHA512_Update(&ctx, hostname, strlen(hostname));
+        SHA512_Update(&ctx, helo->nonce, helo->nonce_size);
+        SHA512_Update(&ctx, fluent->shared_key, strlen(fluent->shared_key));
+
+        SHA512_Final(md, &ctx);
+        OS_SHA512_Hex(md, shared_key_hexdigest);
+    }
+
+    if (helo->auth_size > 0) {
+        unsigned char md[SHA512_DIGEST_LENGTH];
+        SHA512_CTX ctx;
+
+        assert(fluent->user_name && fluent->user_pass);
+
+        /* Compute password hex digest */
+
+        SHA512_Init(&ctx);
+        SHA512_Update(&ctx, helo->auth, helo->auth_size);
+        SHA512_Update(&ctx, fluent->user_name, strlen(fluent->user_name));
+        SHA512_Update(&ctx, fluent->user_pass, strlen(fluent->user_pass));
+
+        SHA512_Final(md, &ctx);
+        OS_SHA512_Hex(md, password);
+    }
+
+    /* Pack PING message */
+
+    msgpack_sbuffer_init(&sbuf);
+    msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
+
+    msgpack_pack_array(&pk, 6);
+    msgpack_pack_str(&pk, 4);
+    msgpack_pack_str_body(&pk, "PING", 4);
+    msgpack_pack_str(&pk, strlen(hostname));
+    msgpack_pack_str_body(&pk, hostname, strlen(hostname));
+    msgpack_pack_str(&pk, sizeof(salt));
+    msgpack_pack_str_body(&pk, salt, sizeof(salt));
+    msgpack_pack_str(&pk, OS_SHA512_LEN - 1); /* Remove terminator byte */
+    msgpack_pack_str_body(&pk, shared_key_hexdigest, OS_SHA512_LEN - 1);
+
+    if (helo->auth_size > 0) {
+        msgpack_pack_str(&pk, strlen(fluent->user_name));
+        msgpack_pack_str_body(&pk, fluent->user_name, strlen(fluent->user_name));
+        msgpack_pack_str(&pk, OS_SHA512_LEN - 1); /* Remove terminator byte */
+        msgpack_pack_str_body(&pk, password, OS_SHA512_LEN - 1);
+    } else {
+        /* Insert two empty strings */
+
+        msgpack_pack_str(&pk, 0);
+        msgpack_pack_str_body(&pk, "", 0);
+        msgpack_pack_str(&pk, 0);
+        msgpack_pack_str_body(&pk, "", 0);
+    }
+
+    /* Send PING message */
+
+    retval = SSL_write(fluent->ssl, sbuf.data, sbuf.size) == (ssize_t)sbuf.size ? 0 : -1;
+
+    msgpack_sbuffer_destroy(&sbuf);
+    return retval;
+}
+
+wm_fluent_pong_t * wm_fluent_recv_pong(wm_fluent_t * fluent) {
+    msgpack_unpacker unp;
+    msgpack_unpacked result;
+    wm_fluent_pong_t * pong;
+    msgpack_object * array;
+
+    if (!msgpack_unpacker_init(&unp, 4096)) {
+        merror_exit("Cannot allocate memory for unpacker.");
+    }
+
+    if (wm_fluent_unpack(fluent, &unp, &result)) {
+        return NULL;
+    }
+
+    os_calloc(1, sizeof(wm_fluent_pong_t), pong);
+
+    expect_type(result.data, MSGPACK_OBJECT_ARRAY, "array");
+
+    if (result.data.via.array.size < 5) {
+        mdebug2("Expecting array of size 5");
+        goto error;
+    }
+
+    array = result.data.via.array.ptr;
+    expect_type(array[0], MSGPACK_OBJECT_STR, "string");
+    expect_string(array[0], "PONG");
+
+    expect_type(array[1], MSGPACK_OBJECT_BOOLEAN, "boolean");
+    pong->auth_result = array[1].via.boolean;
+
+    expect_type(array[2], MSGPACK_OBJECT_STR, "string");
+    pong->reason = wm_fluent_strdup(&array[2].via.str);
+
+    expect_type(array[3], MSGPACK_OBJECT_STR, "string");
+    pong->server_hostname = wm_fluent_strdup(&array[3].via.str);
+
+    expect_type(array[4], MSGPACK_OBJECT_STR, "string");
+    pong->shared_key_hexdigest = wm_fluent_strdup(&array[4].via.str);
+
+    goto end;
+
+error:
+    wm_fluent_pong_free(pong);
+    pong = NULL;
+
+end:
+    msgpack_unpacker_destroy(&unp);
+    return pong;
+}
+
 int wm_fluent_handshake(wm_fluent_t * fluent) {
-    wm_fluent_helo_t * helo;
+    wm_fluent_helo_t * helo = NULL;
+    wm_fluent_pong_t * pong = NULL;
+    int retval = -1;
 
     /* Connect to address */
 
@@ -350,7 +496,7 @@ int wm_fluent_handshake(wm_fluent_t * fluent) {
         return -1;
     }
 
-    if (fluent->shared_pass) {
+    if (fluent->shared_key) {
         /* TLS mode */
 
         if (wm_fluent_ssl_connect(fluent) < 0) {
@@ -362,16 +508,44 @@ int wm_fluent_handshake(wm_fluent_t * fluent) {
         /* Fluent protocol handshake */
 
         helo = wm_fluent_recv_helo(fluent);
-
         if (!helo) {
             merror("Cannot receive HELO message from server");
             return -1;
         }
 
-        wm_fluent_helo_free(helo);
+        if (helo->auth_size > 0 && !(fluent->user_name && fluent->user_pass)) {
+            mwarn("Authentication error: the Fluent server requires user name and password.");
+            goto end;
+        }
+
+        if (wm_fluent_send_ping(fluent, helo) < 0) {
+            merror("Cannot send PING message to server");
+            goto end;
+        }
+
+        pong = wm_fluent_recv_pong(fluent);
+        if (!pong) {
+            merror("Cannot receive PONG message from server");
+            goto end;
+        }
+
+        /* Check the authentication result */
+
+        if (!pong->auth_result) {
+            mwarn("Authentication error: the Fluent server rejected the connection: %s", pong->reason ? pong->reason : "");
+            goto end;
+        }
+
+        minfo("Connected to host '%s' (%s:%hu)", pong->server_hostname, fluent->address, fluent->port);
+    } else {
+        minfo("Connected to host %s:%hu", fluent->address, fluent->port);
     }
 
-    return 0;
+    retval = 0;
+end:
+    wm_fluent_helo_free(helo);
+    wm_fluent_pong_free(pong);
+    return retval;
 }
 
 int wm_fluent_send(wm_fluent_t * fluent, const char * str, size_t size) {
@@ -396,7 +570,12 @@ int wm_fluent_send(wm_fluent_t * fluent, const char * str, size_t size) {
     msgpack_pack_str(&pk, 8);
     msgpack_pack_str_body(&pk, "optional", 8);
 
-    retval = send(fluent->client_sock, sbuf.data, sbuf.size, 0) == (ssize_t)sbuf.size ? 0 : -1;
+    if (fluent->shared_key) {
+        assert(fluent->ssl);
+        retval = SSL_write(fluent->ssl, sbuf.data, sbuf.size) == (ssize_t)sbuf.size ? 0 : -1;
+    } else {
+        retval = send(fluent->client_sock, sbuf.data, sbuf.size, 0) == (ssize_t)sbuf.size ? 0 : -1;
+    }
 
     msgpack_sbuffer_destroy(&sbuf);
     return retval;
@@ -411,6 +590,7 @@ int main() {
     signal(SIGPIPE, SIG_IGN);
     nowDebug();
     nowDebug();
+    srandom_init();
 
     mdebug2("Module started");
 
@@ -419,7 +599,7 @@ int main() {
     SSL_library_init();
 
     //wm_fluent_t fluent = { 1, "debug.test", "/root/fluent.sock", "localhost", 24224, NULL, NULL, NULL, NULL, 10, -1, NULL, NULL, NULL };
-    wm_fluent_t fluent = { 1, "debug.test", "/root/fluent.sock", "localhost", 24225, "secret_string", "/root/conf/fluentd.crt", NULL, NULL, 10 , -1, NULL, NULL, NULL };
+    wm_fluent_t fluent = { 1, "debug.test", "/root/fluent.sock", "localhost", 24225, "secret_string", "/root/conf/fluentd.crt", "foo", "bar", 10 , -1, NULL, NULL, NULL };
 
     /* Listen socket */
     server_sock = OS_BindUnixDomain(fluent.sock_path, SOCK_DGRAM, OS_MAXSTR);
@@ -433,7 +613,6 @@ int main() {
         sleep(30);
     }
 
-    minfo("Connected to %s:%hu", fluent.address, fluent.port);
     os_malloc(OS_MAXSTR, buffer);
 
     /* Main loop */
