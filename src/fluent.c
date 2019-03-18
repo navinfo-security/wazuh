@@ -265,7 +265,7 @@ wm_fluent_helo_t * wm_fluent_recv_helo(wm_fluent_t * fluent) {
     }
 
     if (wm_fluent_unpack(fluent, &unp, &result)) {
-        return NULL;
+        goto error;
     }
 
     os_calloc(1, sizeof(wm_fluent_helo_t), helo);
@@ -363,6 +363,7 @@ error:
     helo = NULL;
 
 end:
+    msgpack_unpacked_destroy(&result);
     msgpack_unpacker_destroy(&unp);
     return helo;
 }
@@ -498,6 +499,7 @@ error:
     pong = NULL;
 
 end:
+    msgpack_unpacked_destroy(&result);
     msgpack_unpacker_destroy(&unp);
     return pong;
 }
