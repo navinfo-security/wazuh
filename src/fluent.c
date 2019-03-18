@@ -3,7 +3,7 @@
 #define ARGV0 "fluent"
 
 /*
- * gcc -g -pipe -Wall -Wextra -o fluent -I. -Iheaders -Iexternal/msgpack/include fluent.c -L. -lwazuh -lwazuhext
+ * gcc -g -pipe -Wall -Wextra -o fluent -I. -Iheaders -Iexternal/msgpack/include fluent.c -L. -lwazuh -lwazuhext && ./fluent
  */
 
 #include <shared.h>
@@ -339,6 +339,23 @@ wm_fluent_helo_t * wm_fluent_recv_helo(wm_fluent_t * fluent) {
         }
     }
 
+    /* Check integrity */
+
+    if (helo->nonce_size == 0) {
+        merror("The Fluent server sent a HELO message with empty nonce data.");
+        goto error;
+    }
+
+    if (!helo->nonce) {
+        merror("The Fluent server sent a HELO message with no nonce data.");
+        goto error;
+    }
+
+    if (helo->auth_size > 0 && !helo->auth) {
+        merror("The Fluent server sent a HELO message with no auth data.");
+        goto error;
+    }
+
     goto end;
 
 error:
@@ -513,9 +530,13 @@ int wm_fluent_handshake(wm_fluent_t * fluent) {
             return -1;
         }
 
-        if (helo->auth_size > 0 && !(fluent->user_name && fluent->user_pass)) {
-            mwarn("Authentication error: the Fluent server requires user name and password.");
-            goto end;
+        if (helo->auth_size > 0) {
+            if (!(fluent->user_name && fluent->user_pass)) {
+                mwarn("Authentication error: the Fluent server requires user name and password.");
+                goto end;
+            }
+        } else if (fluent->user_name || fluent->user_pass) {
+            mdebug1("The Fluent server does not require user authentication. Ignoring user name and pass.");
         }
 
         if (wm_fluent_send_ping(fluent, helo) < 0) {
