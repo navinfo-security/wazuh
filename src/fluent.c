@@ -32,6 +32,7 @@
 
 #define expect_type(obj, t, str) if (obj.type != t) { mdebug2("Expecting %s", str); goto error; }
 #define expect_string(obj, s) if (strncmp(obj.via.str.ptr, s, obj.via.str.size)) { mdebug2("Expecting string '%s'", s); goto error; }
+#define filled_string(s) (s && *s)
 
 typedef struct wm_fluent_t {
     unsigned int enabled:1;
@@ -604,6 +605,51 @@ int wm_fluent_send(wm_fluent_t * fluent, const char * str, size_t size) {
     return retval;
 }
 
+int wm_fluent_check_config(wm_fluent_t * fluent) {
+    /* Tag is required */
+
+    if (!filled_string(fluent->tag)) {
+        merror("No tag defined.");
+        return -1;
+    }
+
+    /* Socket path */
+
+    if (!filled_string(fluent->sock_path)) {
+        merror("No sock_path defined.");
+        return -1;
+    }
+
+    if (!filled_string(fluent->address)) {
+        minfo("No client address defined. Using localhost.");
+        free(fluent->address);
+        os_strdup("localhost", fluent->address);
+    }
+
+    /* shared_key implicitly enables SSL */
+
+    if (!filled_string(fluent->shared_key)) {
+        if (fluent->certificate) {
+            minfo("No shared_key defined. SSL is disabled and the certificate option won't apply.");
+        }
+
+        if (filled_string(fluent->user_name)) {
+            mwarn("No shared_key defined. SSL is disabled and the user_name option won't apply.");
+        } else if (filled_string(fluent->user_pass)) {
+            mwarn("No shared_key defined. SSL is disabled and the user_pass option won't apply.");
+        }
+    }
+
+    /* Timeout */
+
+    if (fluent->timeout < 0) {
+        merror("Invalid timeout value (negative)");
+        return -1;
+    }
+
+    return 0;
+}
+
 int main() {
     int server_sock;
     char * buffer;
@@ -622,7 +668,13 @@ int main() {
     SSL_library_init();
 
     //wm_fluent_t fluent = { 1, "debug.test", "/root/fluent.sock", "localhost", 24224, NULL, NULL, NULL, NULL, 10, -1, NULL, NULL, NULL };
-    wm_fluent_t fluent = { 1, "debug.test", "/root/fluent.sock", "localhost", 24225, "secret_string", "/root/conf/fluentd.crt", "foo", "bar", 10 , -1, NULL, NULL, NULL };
+    //wm_fluent_t fluent = { 1, "debug.test", "/root/fluent.sock", "localhost", 24225, "secret_string", "/root/conf/fluentd.crt", "foo", "bar", 10 , -1, NULL, NULL, NULL };
+    wm_fluent_t fluent = { 1, "debug.test", "/root/fluent.sock", NULL, 24225, "secret_string", "/root/conf/fluentd.crt", "foo", "bar", 10 , -1, NULL, NULL, NULL };
+
+    if (wm_fluent_check_config(&fluent) < 0) {
+        merror("Invalid configuration. Closing module.");
+        return EXIT_FAILURE;
+    }
 
     /* Listen socket */
     server_sock = OS_BindUnixDomain(fluent.sock_path, SOCK_DGRAM, OS_MAXSTR);
@@ -655,6 +707,7 @@ int main() {
                 mwarn("Cannot send data to '%s': %s (%d). Reconnecting...", fluent.address, strerror(errno), errno);
 
                 while (wm_fluent_handshake(&fluent) < 0) {
+                    mdebug2("Handshake failed. Waiting 30 seconds.");
                     sleep(30);
                 }
 
