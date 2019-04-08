@@ -70,6 +70,7 @@ int wdb_scan_info_insert (wdb_t * wdb, const char *module) {
     sqlite3_bind_int64(stmt, 6, 0);
     sqlite3_bind_int64(stmt, 7, 0);
     sqlite3_bind_int64(stmt, 8, 0);
+    sqlite3_bind_int64(stmt, 9, 0);
 
     if (sqlite3_step(stmt) == SQLITE_DONE) {
         return 0;

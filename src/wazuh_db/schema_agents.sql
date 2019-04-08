@@ -218,7 +218,8 @@ CREATE TABLE IF NOT EXISTS scan_info (
     end_scan INTEGER,
     fim_first_check INTEGER,
     fim_second_check INTEGER,
-    fim_third_check INTEGER
+    fim_third_check INTEGER,
+    need_restart INTEGER
 );
 
 PRAGMA journal_mode=WAL;

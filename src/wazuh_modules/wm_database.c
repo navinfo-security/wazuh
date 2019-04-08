@@ -14,6 +14,7 @@
 #include "wazuh_db/wdb.h"
 #include "addagent/manage_agents.h" // FILE_SIZE
 #include "external/cJSON/cJSON.h"
+#include "os_net/os_net.h"
 
 #ifndef WIN32
 
@@ -101,6 +102,9 @@ static int wm_fill_rootcheck(sqlite3 *db, const char *path);
  * Returns 0 on success, 1 to ignore and -1 on error.
  */
 static int wm_extract_agent(const char *fname, char *name, char *addr, int *registry);
+
+// Call to cluster to reset FIM databases
+cJSON *send_reset_fim_db(char *worker_name, int agent_id);
 
 
 // Database module context definition
@@ -680,8 +684,10 @@ int wm_sync_agentinfo(int id_agent, const char *path) {
         }
     }
 
+    //send_reset_fim_db(manager_host, id_agent);
 
-    result = wdb_update_agent_version(id_agent, os_name, os_version, os_major, os_minor, os_codename, os_platform, os_build, os, os_arch, version, config_sum, merged_sum, manager_host, node_name);
+    result = wdb_update_agent_version(id_agent, os_name, os_version, os_major, os_minor, os_codename,
+            os_platform, os_build, os, os_arch, version, config_sum, merged_sum, manager_host, node_name);
     mtdebug2(WM_DATABASE_LOGTAG, "wm_sync_agentinfo(%d): %.3f ms.", id_agent, (double)(clock() - clock0) / CLOCKS_PER_SEC * 1000);
 
     free(os_major);
@@ -1527,6 +1533,77 @@ char * wm_inotify_pop() {
     w_mutex_unlock(&mutex_queue);
     mtdebug2(WM_DATABASE_LOGTAG, "Taking '%s' from path table.", path);
     return path;
+}
+
+
+cJSON *send_reset_fim_db(char *worker_name, int agent_id) {
+    char req[OS_SIZE_128 + 1];
+    char *buffer = NULL;
+    int sock = -1;
+	char sockname[PATH_MAX + 1];
+    ssize_t length;
+	length = strlen(req);
+
+    cJSON *cluster_response;
+    snprintf(req, OS_SIZE_128, "reset_fim_db %s %d", worker_name, agent_id);
+
+	if (isChroot()) {
+		strcpy(sockname, CLUSTER_SOCK);
+	} else {
+		strcpy(sockname, DEFAULTDIR CLUSTER_SOCK);
+	}
+
+	if (sock = OS_ConnectUnixDomain(sockname, SOCK_STREAM, OS_MAXSTR), sock < 0) {
+		switch (errno) {
+		case ECONNREFUSED:
+			merror("At getClusterConfig(): Could not connect to socket '%s': %s (%d).", sockname, strerror(errno), errno);
+			break;
+
+		default:
+			merror("At getClusterConfig(): Could not connect to socket '%s': %s (%d).", sockname, strerror(errno), errno);
+		}
+	} else {
+		if (OS_SendSecureTCPCluster(sock, req, "", 0) != 0) {
+			merror("send(): %s", strerror(errno));
+            close(sock);
+            return NULL;
+		}
+
+        os_calloc(OS_MAXSTR,sizeof(char),buffer);
+
+        switch (length = OS_RecvSecureClusterTCP(sock, buffer, OS_MAXSTR), length) {
+        case -1:
+            merror("At wcom_main(): OS_RecvSecureClusterTCP(): %s", strerror(errno));
+            free(buffer);
+            close(sock);
+            return NULL;
+
+        case 0:
+            mdebug1("Empty message from local client.");
+            free(buffer);
+            close(sock);
+            return NULL;
+
+        case OS_MAXLEN:
+            merror("Received message > %i", OS_MAXSTR);
+            free(buffer);
+            close(sock);
+            return NULL;
+
+        default:
+            close(sock);
+        }
+	}
+
+    cluster_response = cJSON_Parse(buffer);
+    if (!cluster_response) {
+        mdebug1("Error parsing JSON event. %s", cJSON_GetErrorPtr());
+        free(buffer);
+        return NULL;
+    }
+
+    free(buffer);
+    return cluster_response;
 }
 
 #endif // INOTIFY_ENABLED

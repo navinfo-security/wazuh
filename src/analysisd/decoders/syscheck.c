@@ -40,17 +40,17 @@ int fim_database_clean (Eventinfo *lf, _sdb *sdb);
 // Clean sdb memory
 void sdb_clean(_sdb *localsdb);
 // Get timestamp for last scan from wazuhdb
-int fim_get_scantime (long *ts, Eventinfo *lf, _sdb *sdb);
+int fim_get_scantime (long *ts, Eventinfo *lf, _sdb *sdb, const char *data);
 
 // Mutexes
-static pthread_mutex_t control_msg_mutex = PTHREAD_MUTEX_INITIALIZER;
+// static pthread_mutex_t control_msg_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 // Initialize the necessary information to process the syscheck information
 int fim_init(void) {
     //Create hash table for agent information
-    fim_agentinfo = OSHash_Create();
-    if (fim_agentinfo == NULL) return 0;
+    //fim_agentinfo = OSHash_Create();
+    //if (fim_agentinfo == NULL) return 0;
     return 1;
 }
 
@@ -218,6 +218,7 @@ int fim_db_search(char *f_name, char *c_sum, char *w_sum, Eventinfo *lf, _sdb *s
     sk_sum_t newsum = { .size = NULL };
     time_t *end_first_scan = NULL;
     time_t end_scan = 0;
+    time_t need_restart = 0;
 
     memset(&oldsum, 0, sizeof(sk_sum_t));
     memset(&newsum, 0, sizeof(sk_sum_t));
@@ -341,20 +342,36 @@ int fim_db_search(char *f_name, char *c_sum, char *w_sum, Eventinfo *lf, _sdb *s
 
             mdebug2("Agent '%s' File %s saved/updated in FIM DDBB", lf->agent_id, f_name);
 
-            if(end_first_scan = (time_t*)OSHash_Get_ex(fim_agentinfo, lf->agent_id), end_first_scan == NULL) {
-                fim_get_scantime(&end_scan, lf, sdb);
+            fim_get_scantime(&need_restart, lf, sdb, "need_restart");
+
+            if (need_restart == 0) {
+                fim_get_scantime(&end_scan, lf, sdb, "end_scan");
                 os_calloc(1, sizeof(time_t), end_first_scan);
                 *end_first_scan = end_scan;
-                int res;
-                if(res = OSHash_Add_ex(fim_agentinfo, lf->agent_id, end_first_scan), res != 2) {
-                    os_free(end_first_scan);
-                    if(res == 0) {
-                        merror("Unable to add scan_info to hash table for agent: %s", lf->agent_id);
-                    }
-                }
+            } else if (need_restart == 2) {
+                minfo("Waiting to restart agent '%s', discarding event for '%s'", lf->agent_id, f_name);
+                // Avoid to send repetitive restart to agent
+                goto exit_ok;
             } else {
-                end_scan = *end_first_scan;
+                minfo("Agent '%s' need send baseline, discarding event for '%s'", lf->agent_id, f_name);
+                // Sending msg to cluster for restart the agent
+                goto exit_ok;
             }
+
+            //if(end_first_scan = (time_t*)OSHash_Get_ex(fim_agentinfo, lf->agent_id), end_first_scan == NULL) {
+            //    fim_get_scantime(&end_scan, lf, sdb);
+            //    os_calloc(1, sizeof(time_t), end_first_scan);
+            //    *end_first_scan = end_scan;
+            //    int res;
+            //    if(res = OSHash_Add_ex(fim_agentinfo, lf->agent_id, end_first_scan), res != 2) {
+            //        os_free(end_first_scan);
+            //        if(res == 0) {
+            //            merror("Unable to add scan_info to hash table for agent: %s", lf->agent_id);
+            //        }
+            //    }
+            //} else {
+            //    end_scan = *end_first_scan;
+            //}
 
             if(lf->event_type == FIM_ADDED) {
                 if(end_scan == 0) {
@@ -867,8 +884,8 @@ int fim_control_msg(char *key, time_t value, Eventinfo *lf, _sdb *sdb) {
     char *response = NULL;
     char *msg = NULL;
     int db_result;
-    int result;
-    time_t *ts_end;
+    //int result;
+    //time_t *ts_end;
 
     os_calloc(OS_SIZE_128, sizeof(char), msg);
 
@@ -912,30 +929,30 @@ int fim_control_msg(char *key, time_t value, Eventinfo *lf, _sdb *sdb) {
         }
 
         // If end first scan store timestamp in a hash table
-        w_mutex_lock(&control_msg_mutex);
-        if(strcmp(key, HC_FIM_DB_EFS) == 0 || strcmp(key, HC_FIM_DB_ES) == 0 ||
-                strcmp(key, HC_SK_DB_COMPLETED) == 0) {
-            if (ts_end = (time_t *) OSHash_Get_ex(fim_agentinfo, lf->agent_id),
-                    !ts_end) {
-                os_calloc(1, sizeof(time_t), ts_end);
-                *ts_end = value + 2;
+        //w_mutex_lock(&control_msg_mutex);
+        //if(strcmp(key, HC_FIM_DB_EFS) == 0 || strcmp(key, HC_FIM_DB_ES) == 0 ||
+        //        strcmp(key, HC_SK_DB_COMPLETED) == 0) {
+        //    if (ts_end = (time_t *) OSHash_Get_ex(fim_agentinfo, lf->agent_id),
+        //            !ts_end) {
+        //        os_calloc(1, sizeof(time_t), ts_end);
+        //        *ts_end = value + 2;
 
-                if (result = OSHash_Add_ex(fim_agentinfo, lf->agent_id, ts_end), result != 2) {
-                    os_free(ts_end);
-                    merror("Unable to add last scan_info to hash table for agent: %s. Error: %d.",
-                            lf->agent_id, result);
-                }
-            }
-            else {
-                *ts_end = value;
-                if (!OSHash_Update_ex(fim_agentinfo, lf->agent_id, ts_end)) {
-                    os_free(ts_end);
-                    merror("Unable to update metadata to hash table for agent: %s",
-                            lf->agent_id);
-                }
-            }
-        }
-        w_mutex_unlock(&control_msg_mutex);
+        //        if (result = OSHash_Add_ex(fim_agentinfo, lf->agent_id, ts_end), result != 2) {
+        //            os_free(ts_end);
+        //            merror("Unable to add last scan_info to hash table for agent: %s. Error: %d.",
+        //                    lf->agent_id, result);
+        //        }
+        //    }
+        //    else {
+        //        *ts_end = value;
+        //        if (!OSHash_Update_ex(fim_agentinfo, lf->agent_id, ts_end)) {
+        //            os_free(ts_end);
+        //            merror("Unable to update metadata to hash table for agent: %s",
+        //                    lf->agent_id);
+        //        }
+        //    }
+        //}
+        //w_mutex_unlock(&control_msg_mutex);
 
         // Start scan 3rd_check=2nd_check 2nd_check=1st_check 1st_check=value
         if (strcmp(key, HC_FIM_DB_SFS) == 0) {
@@ -1037,7 +1054,7 @@ int fim_database_clean (Eventinfo *lf, _sdb *sdb) {
 
 }
 
-int fim_get_scantime (long *ts, Eventinfo *lf, _sdb *sdb) {
+int fim_get_scantime (long *ts, Eventinfo *lf, _sdb *sdb, const char *data) {
     char *wazuhdb_query = NULL;
     char *response = NULL;
     char *output;
@@ -1045,8 +1062,8 @@ int fim_get_scantime (long *ts, Eventinfo *lf, _sdb *sdb) {
 
     os_calloc(OS_SIZE_6144 + 1, sizeof(char), wazuhdb_query);
 
-    snprintf(wazuhdb_query, OS_SIZE_6144, "agent %s syscheck scan_info_get end_scan",
-            lf->agent_id
+    snprintf(wazuhdb_query, OS_SIZE_6144, "agent %s syscheck scan_info_get end_scan %s",
+            lf->agent_id, data
     );
 
     db_result = send_query_wazuhdb(wazuhdb_query, &response, sdb);
