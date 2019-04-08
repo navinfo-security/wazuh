@@ -65,7 +65,8 @@ static const char *SQL_STMT[] = {
     "SELECT end_scan FROM scan_info WHERE module = ?;",
     "SELECT fim_first_check FROM scan_info WHERE module = ?;",
     "SELECT fim_second_check FROM scan_info WHERE module = ?;",
-    "SELECT fim_third_check FROM scan_info WHERE module = ?;"
+    "SELECT fim_third_check FROM scan_info WHERE module = ?;",
+    "SELECT need_restart FROM scan_info WHERE module = ?;"
 };
 
 sqlite3 *wdb_global = NULL;

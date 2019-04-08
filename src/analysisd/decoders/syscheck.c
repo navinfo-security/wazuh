@@ -508,7 +508,7 @@ int send_query_wazuhdb(char *wazuhdb_query, char **output, _sdb *sdb) {
         if (response[0] == 'o' && response[1] == 'k') {
             retval = 0;
         } else {
-            mterror(ARGV0, "FIM decoder: Bad response '%s'.", response);
+            mterror(ARGV0, "FIM decoder: Bad response '%s' query '%s'.", response, wazuhdb_query);
         }
     } else {
         mterror(ARGV0, "FIM decoder: no response from wazuh-db.");
@@ -1062,7 +1062,7 @@ int fim_get_scantime (long *ts, Eventinfo *lf, _sdb *sdb, const char *data) {
 
     os_calloc(OS_SIZE_6144 + 1, sizeof(char), wazuhdb_query);
 
-    snprintf(wazuhdb_query, OS_SIZE_6144, "agent %s syscheck scan_info_get end_scan %s",
+    snprintf(wazuhdb_query, OS_SIZE_6144, "agent %s syscheck scan_info_get %s",
             lf->agent_id, data
     );
 

@@ -86,6 +86,7 @@ typedef enum wdb_stmt {
     WDB_STMT_SCAN_INFO_GET1C,
     WDB_STMT_SCAN_INFO_GET2C,
     WDB_STMT_SCAN_INFO_GET3C,
+    WDB_STMT_SCAN_INFO_GETNR,
     WDB_STMT_SIZE
 } wdb_stmt;
 

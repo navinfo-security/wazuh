@@ -206,6 +206,13 @@ int wdb_scan_info_get(wdb_t * wdb, const char *module, char *field, long *output
         }
         stmt = wdb->stmt[WDB_STMT_SCAN_INFO_GET3C];
     }
+    if(strcmp(field, "need_restart") == 0) {
+        if (wdb_stmt_cache(wdb, WDB_STMT_SCAN_INFO_GETNR) < 0) {
+            merror("DB(%s) Cannot cache statement", wdb->agent_id);
+            return -1;
+        }
+        stmt = wdb->stmt[WDB_STMT_SCAN_INFO_GETNR];
+    }
 
     sqlite3_bind_text(stmt, 1, module, -1, NULL);
 
