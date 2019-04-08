@@ -354,6 +354,7 @@ int fim_db_search(char *f_name, char *c_sum, char *w_sum, Eventinfo *lf, _sdb *s
                 goto exit_ok;
             } else {
                 minfo("Agent '%s' need send baseline, discarding event for '%s'", lf->agent_id, f_name);
+                fim_control_msg("need_restart", (time_t)2, lf, sdb);
                 // Sending msg to cluster for restart the agent
                 goto exit_ok;
             }
@@ -891,28 +892,30 @@ int fim_control_msg(char *key, time_t value, Eventinfo *lf, _sdb *sdb) {
 
     // If we don't have a valid syscheck message, it may be a scan control message
     if(strcmp(key, HC_FIM_DB_SFS) == 0) {
-        snprintf(msg, OS_SIZE_128, "first_start");
+        snprintf(msg, OS_SIZE_128, "first_start %ld", (long int)value);
     }
     if(strcmp(key, HC_FIM_DB_EFS) == 0) {
-        snprintf(msg, OS_SIZE_128, "first_end");
+        snprintf(msg, OS_SIZE_128, "first_end %ld", (long int)value);
     }
     if(strcmp(key, HC_FIM_DB_SS) == 0) {
-        snprintf(msg, OS_SIZE_128, "start_scan");
+        snprintf(msg, OS_SIZE_128, "start_scan %ld", (long int)value);
     }
     if(strcmp(key, HC_FIM_DB_ES) == 0) {
-        snprintf(msg, OS_SIZE_128, "end_scan");
+        snprintf(msg, OS_SIZE_128, "end_scan %ld", (long int)value);
     }
     if(strcmp(key, HC_SK_DB_COMPLETED) == 0) {
-        snprintf(msg, OS_SIZE_128, "end_scan");
+        snprintf(msg, OS_SIZE_128, "end_scan %ld", (long int)value);
+    }
+    if(strcmp(key, "need_restart") == 0) {
+        snprintf(msg, OS_SIZE_128, "need_restart %ld", (long int)value);
     }
 
     if (msg) {
         os_calloc(OS_SIZE_6144 + 1, sizeof(char), wazuhdb_query);
 
-        snprintf(wazuhdb_query, OS_SIZE_6144, "agent %s syscheck scan_info_update %s %ld",
+        snprintf(wazuhdb_query, OS_SIZE_6144, "agent %s syscheck scan_info_update %s",
                 lf->agent_id,
-                msg,
-                (long int)value
+                msg
         );
 
         db_result = send_query_wazuhdb(wazuhdb_query, &response, sdb);
