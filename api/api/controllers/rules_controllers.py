@@ -250,3 +250,41 @@ def get_rules_id(pretty=False, wait_for_complete=False, offset=0, limit=None, so
     data = loop.run_until_complete(dapi.distribute_function())
 
     return data, 200
+
+
+@exception_handler
+def put_rule_name(pretty=False, wait_for_complete=False, offset=0, limit=None, sort=None,
+              search=None, file=None, new_name=None):
+    """
+    :param pretty: Show results in human-readable format
+    :type pretty: bool
+    :param wait_for_complete: Disable timeout response
+    :type wait_for_complete: bool
+    :param offset: First element to return in the collection
+    :type offset: int
+    :param limit: Maximum number of elements to return
+    :type limit: int
+    :param sort: Sorts the collection by a field or fields (separated by comma). Use +/- at the beginning to list in ascending or descending order.
+    :type sort: str
+    :param search: Looks for elements with the specified string
+    :type search: str
+    :param file: Filters by filename.
+    :type file: str
+    :param new_name: This is the new name for file.
+    :type new_name: str
+    """
+
+    f_kwargs = {'offset': offset, 'limit': limit, 'sort': sort,
+                'search': search, 'file': file, 'new_name': new_name}
+
+    dapi = DistributedAPI(f=Rule.change_name,
+                          f_kwargs=remove_nones_to_dict(f_kwargs),
+                          request_type='local_any',
+                          is_async=False,
+                          wait_for_complete=wait_for_complete,
+                          pretty=pretty,
+                          logger=logger
+                          )
+    data = loop.run_until_complete(dapi.distribute_function())
+
+    return data, 200

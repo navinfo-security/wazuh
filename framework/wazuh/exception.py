@@ -70,6 +70,12 @@ class WazuhException(Exception):
         1205: {'message': 'Requirement not valid. Valid ones are pci and gdpr',
                'remediation': 'Please indicate one of the following values: pci or gdpr'
                },
+        1206: {'message': 'Parameter new_name empty or wrong',
+               'remediation': 'Please insert a valid name in the parameter \'new_name\''
+               },
+        1207: {'message': 'Rule file not found',
+               'remediation': 'The name of the rules \'file\' file has not been found, check the name and try again.'
+               },
 
         # Stats: 1300 - 1399
         1307: 'Invalid parameters',

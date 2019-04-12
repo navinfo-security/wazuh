@@ -446,3 +446,43 @@ class Rule:
             raise WazuhInternalError(1201, "{0}. Error: {1}".format(rule_file, str(e)))
 
         return rules
+
+    @staticmethod
+    def change_name(file=None, new_name=None, offset=0, limit=common.database_limit, sort=None, search=None):
+        """
+        Renames a file of rules.
+
+        :param file: Filters by file of the rule.
+        :param offset: First item to return.
+        :param limit: Maximum number of items to return.
+        :param sort: Sorts the items. Format: {"fields":["field1","field2"],"order":"asc|desc"}.
+        :param search: Looks for items with the specified string.
+        :return: Dictionary: {'items': array of items, 'totalItems': Number of items (without applying the limit)}
+        """
+
+        extension = 'xml'
+
+        if not new_name or new_name.split('.')[-1] != extension:
+            raise WazuhError(1206)
+
+        rules_files = Rule.get_rules_files(file=file, limit=None)['items']
+
+        if len(rules_files) == 0:
+            raise WazuhError(1207)
+
+        for rule_file in Rule.get_rules_files(file=file, limit=None)['items']:
+            old_name_rule = None
+            new_name_rule = None
+            user_rules_path = os.path.join(common.ossec_path, 'etc/rules/')
+
+            if file in os.listdir(user_rules_path):
+                old_name_rule = os.path.join(user_rules_path, rule_file['file'])
+                new_name_rule = os.path.join(user_rules_path, new_name)
+
+            if old_name_rule and new_name_rule:
+                os.rename(old_name_rule, new_name_rule)
+                file = new_name
+                rule_file['file'] = file
+
+        return Rule.get_rules_files(file=file, limit=None)['items'][0]
+

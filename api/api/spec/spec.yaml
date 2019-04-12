@@ -2092,6 +2092,13 @@ components:
       schema:
         type: string
         format: alphanumeric
+    new_name:
+      in: query
+      name: new_name
+      description: Filename.
+      schema:
+        type: string
+        format: alphanumeric
     format:
       in: query
       name: format
@@ -7425,6 +7432,68 @@ paths:
                       -
                       gdpr:
                       - IV_35.7.d
+                      details:
+                        if_sid: "510"
+                        match: "^Windows Malware"
+        default:
+          $ref: '#/components/responses/ResponseError'
+
+    put:
+      tags:
+        - rules
+      summary: Changes the name of the rule.
+      description: It is given a search name and a new name for the mentioned file.
+      operationId: api.controllers.rules_controllers.put_rule_name
+      parameters:
+        - $ref: '#/components/parameters/pretty'
+        - $ref: '#/components/parameters/wait_for_complete'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/sort'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/file'
+        - $ref: '#/components/parameters/new_name'
+      responses:
+        '200':
+          description: Confirmation message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                data:
+                  totalItems: 2
+                  items:
+                    - file: 0016-wazuh_rules_changed.xml
+                      path: ruleset/rules
+                      id: 203
+                      level: 9
+                      description: Agent event queue is full. Events may be lost.
+                      status: enabled
+                      groups:
+                        - agent_flooding
+                        - wazuh
+                      pci:
+                        -
+                      gdpr:
+                        - IV_35.7.d
+                      details:
+                        if_sid: "201"
+                        level: "full"
+                    - file: 0015-ossec_rules_changed.xml
+                      path: ruleset/rules
+                      id: 513
+                      level: 9
+                      description: Windows malware detected.
+                      status: enabled
+                      groups:
+                        - rootcheck
+                        - gpg13_4.2
+                        - ossec
+                      pci:
+                        -
+                      gdpr:
+                        - IV_35.7.d
                       details:
                         if_sid: "510"
                         match: "^Windows Malware"
