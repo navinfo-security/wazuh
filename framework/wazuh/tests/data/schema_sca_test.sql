@@ -8,14 +8,38 @@
 
 CREATE TABLE sca_policy (name TEXT, file TEXT, id TEXT, description TEXT, `references` TEXT, hash_file TEXT);
 
-CREATE TABLE sca_scan_info (id INTEGER PRIMARY KEY, start_scan INTEGER, end_scan INTEGER,
-                            policy_id TEXT REFERENCES sca_policy (id), pass INTEGER, fail INTEGER, score INTEGER,
-                            hash TEXT);
+CREATE TABLE IF NOT EXISTS sca_scan_info (
+   id INTEGER PRIMARY KEY,
+   start_scan INTEGER,
+   end_scan INTEGER,
+   policy_id TEXT REFERENCES sca_policy (id),
+   pass INTEGER,
+   fail INTEGER,
+   invalid INTEGER,
+   total_checks INTEGER,
+   score INTEGER,
+   hash TEXT
+);
 
-CREATE TABLE sca_check (scan_id INTEGER REFERENCES sca_scan_info (id), id INTEGER PRIMARY KEY,
-                        policy_id TEXT REFERENCES sca_policy (id), title TEXT, description TEXT, rationale TEXT,
-                        remediation TEXT, file TEXT, process TEXT, directory TEXT, registry TEXT, `references` TEXT,
-                        result TEXT NOT NULL);
+
+CREATE TABLE IF NOT EXISTS sca_check (
+   scan_id INTEGER REFERENCES sca_scan_info (id),
+   id INTEGER PRIMARY KEY,
+   policy_id TEXT REFERENCES sca_policy (id),
+   title TEXT,
+   description TEXT,
+   rationale TEXT,
+   remediation TEXT,
+   file TEXT,
+   process TEXT,
+   directory TEXT,
+   registry TEXT,
+   command TEXT,
+   `references` TEXT,
+   result TEXT,
+   `status` TEXT,
+   reason TEXT
+);
 CREATE INDEX policy_id_index ON sca_check (policy_id);
 
 CREATE TABLE sca_check_compliance (id_check INTEGER REFERENCES sca_check (id), `key` TEXT, `value` TEXT,
