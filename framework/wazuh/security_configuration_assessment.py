@@ -44,9 +44,10 @@ fields_translation_sca_check = {'policy_id': 'policy_id',
                                 'result': 'result',
                                 'status': '`status`',
                                 'reason': 'reason'}
-fields_translation_sca_check_compliance = {'compliance.key': '`key`',
-                                           'compliance.value': '`value`'}
-fields_translation_sca_check_rule = {'rules.type': '`type`', 'rules.rule': 'rule'}
+
+fields_translation_sca_check_compliance = {'compliance.key': 'key',
+                                           'compliance.value': 'value'}
+fields_translation_sca_check_rule = {'rules.type': 'type', 'rules.rule': 'rule'}
 
 default_query_sca = 'SELECT {0} FROM sca_policy sca INNER JOIN sca_scan_info si ON sca.id=si.policy_id'
 default_query_sca_check = 'SELECT {0} FROM sca_check a LEFT JOIN sca_check_compliance b ON a.id=b.id_check LEFT JOIN sca_check_rules c ON a.id=c.id_check'
@@ -183,7 +184,7 @@ def get_sca_checks(policy_id, agent_id=None, q="", offset=0, limit=common.databa
     groups = groupby(checks, key=itemgetter('id'))
     result = []
     select_fields = full_select['fields'] if select is None else select['fields']
-    select_fields = set([fields_translation_sca_check[field] if field != 'compliance' else 'compliance'
+    select_fields = set([field if field != 'compliance' else 'compliance'
                          for field in select_fields if field in fields_translation_sca_check])
     # Rearrange check and compliance fields
     for _, group in groups:
