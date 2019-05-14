@@ -4,16 +4,19 @@
 # Created by Wazuh, Inc. <info@wazuh.com>.
 # This program is a free software; you can redistribute it and/or modify it under the terms of GPLv2
 
-from wazuh.exception import WazuhException
-from wazuh.utils import WazuhDBQuery, WazuhDBQueryDistinct
-from wazuh.agent import Agent
-from wazuh.database import Connection
-from wazuh.ossec_queue import OssecQueue
-from wazuh import common
 from glob import glob
 from os import remove, path
 
-fields = {'status': 'status', 'event': 'log', 'oldDay': 'date_first', 'readDay': 'date_last', 'pci':'pci_dss', 'cis': 'cis'}
+from wazuh import common
+from wazuh.agent import Agent
+from wazuh.database import Connection
+from wazuh.exception import WazuhInternalError, WazuhError
+from wazuh.ossec_queue import OssecQueue
+from wazuh.utils import WazuhDBQuery, WazuhDBQueryDistinct
+
+fields = {'status': 'status', 'event': 'log', 'oldDay': 'date_first',
+          'readDay': 'date_last', 'pci': 'pci_dss', 'cis': 'cis'}
+
 
 class WazuhDBQueryRootcheck(WazuhDBQuery):
 
@@ -21,12 +24,12 @@ class WazuhDBQueryRootcheck(WazuhDBQuery):
         Agent(agent_id).get_basic_information()  # check if the agent exists
         db_path = glob('{0}/{1}-*.db'.format(common.database_path_agents, agent_id))
         if not db_path:
-            raise WazuhException(1600)
+            raise WazuhInternalError(1600, extra_message=agent_id)
 
         WazuhDBQuery.__init__(self, offset=offset, limit=limit, table='pm_event', sort=sort, search=search, select=select,
                               fields=fields, default_sort_field=default_sort_field, default_sort_order='DESC', filters=filters,
                               query=query, db_path=db_path[0], min_select_fields=set(), count=count, get_data=get_data,
-                              date_fields={'oldDay','readDate'})
+                              date_fields={'oldDay', 'readDate'})
 
     def _parse_filters(self):
         WazuhDBQuery._parse_filters(self)
@@ -39,7 +42,6 @@ class WazuhDBQueryRootcheck(WazuhDBQuery):
             first_status['separator'] = 'AND' if first_status['separator'] == '' else first_status['separator']
             self.query_filters.insert(0, statuses[0])
             self.query_filters[-1]['separator'] = ''
-
 
     def _filter_status(self, filter_status):
         partial = """SELECT {0} AS status, date_first, date_last, log, pci_dss, cis FROM pm_event AS t
@@ -55,15 +57,15 @@ class WazuhDBQueryRootcheck(WazuhDBQuery):
             self.query = "SELECT {0} FROM (" + partial.format("'solved'", '<=') + \
                     ") WHERE log NOT IN ('Starting rootcheck scan.', 'Ending rootcheck scan.', 'Starting syscheck scan.', 'Ending syscheck scan.'"
         else:
-            raise WazuhException(1603, filter_status['value'])
-
+            raise WazuhError(1602, extra_message=filter_status['value'])
 
     @staticmethod
     def _pass_filter(db_filter):
         return False
 
 
-class WazuhDBQueryRootcheckDistinct(WazuhDBQueryDistinct, WazuhDBQueryRootcheck): pass
+class WazuhDBQueryRootcheckDistinct(WazuhDBQueryDistinct, WazuhDBQueryRootcheck):
+    pass
 
 
 def run(agent_id=None, all_agents=False):
@@ -76,15 +78,13 @@ def run(agent_id=None, all_agents=False):
     """
 
     if agent_id == "000" or all_agents:
-        try:
-            SYSCHECK_RESTART = "{0}/var/run/.syscheck_run".format(common.ossec_path)
 
-            fp = open(SYSCHECK_RESTART, 'w')
-            fp.write('{0}\n'.format(SYSCHECK_RESTART))
-            fp.close()
-            ret_msg = "Restarting Syscheck/Rootcheck locally"
-        except:
-            raise WazuhException(1601, "locally")
+        SYSCHECK_RESTART = "{0}/var/run/.syscheck_run".format(common.ossec_path)
+
+        fp = open(SYSCHECK_RESTART, 'w')
+        fp.write('{0}\n'.format(SYSCHECK_RESTART))
+        fp.close()
+        ret_msg = "Restarting Syscheck/Rootcheck locally"
 
         if all_agents:
             oq = OssecQueue(common.ARQUEUE)
@@ -99,7 +99,7 @@ def run(agent_id=None, all_agents=False):
             agent_status = "N/A"
 
         if agent_status.lower() != 'active':
-            raise WazuhException(1605, '{0} - {1}'.format(agent_id, agent_status))
+            raise WazuhInternalError(1601, extra_message='{0} - {1}'.format(agent_id, agent_status))
 
         oq = OssecQueue(common.ARQUEUE)
         ret_msg = oq.send_msg_to_agent(OssecQueue.HC_SK_RESTART, agent_id)
@@ -125,19 +125,15 @@ def clear(agent_id=None, all_agents=False):
         db_agents = glob('{0}/{1}-*.db'.format(common.database_path_agents, agent_id))
 
     if not db_agents:
-        raise WazuhException(1600)
+        raise WazuhInternalError(1600, extra_message=agent_id)
 
     for db_agent in db_agents:
         conn = Connection(db_agent)
         conn.begin()
         try:
             conn.execute('DELETE FROM pm_event')
-        except WazuhException as e:
+        except Exception as e:
             raise e
-        except Exception as exception:
-            conn.commit()
-            conn.vacuum()
-            raise WazuhException(1654, exception)
         else:
             conn.commit()
             conn.vacuum()
@@ -195,7 +191,8 @@ def _get_requirement(requirement, agent_id=None, offset=0, limit=common.database
     :return: Dictionary: {'items': array of items, 'totalItems': Number of items (without applying the limit)}
     """
     db_query = WazuhDBQueryRootcheckDistinct(offset=offset, limit=limit, sort=sort, search=search, filters=filters,
-                                            select=[requirement], agent_id=agent_id, fields={requirement:fields[requirement]},
+                                             select=[requirement], agent_id=agent_id,
+                                             fields={requirement:fields[requirement]},
                                              default_sort_field=fields[requirement], count=True, get_data=True, query=q)
     return db_query.run()
 
@@ -239,7 +236,7 @@ def last_scan(agent_id):
     # Connection
     db_agent = glob('{0}/{1}-*.db'.format(common.database_path_agents, agent_id))
     if not db_agent:
-        raise WazuhException(1600)
+        raise WazuhInternalError(1600, extra_message=agent_id)
     else:
         db_agent = db_agent[0]
 
