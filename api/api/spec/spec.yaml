@@ -1059,11 +1059,11 @@ components:
           - solved
         readDay:
           type: string
-          format: date-time
+          format: date-time_or_empty
           description: Lastest scan date.
         oldDay:
           type: string
-          format: date-time
+          format: date-time_or_empty
           description: Previous scan date.
         pci:
           type: string
