@@ -20,16 +20,17 @@ fields = {'status': 'status', 'event': 'log', 'oldDay': 'date_first',
 
 class WazuhDBQueryRootcheck(WazuhDBQuery):
 
-    def __init__(self, agent_id, offset, limit, sort, search, select, query, count, get_data, default_sort_field='date_last', filters={}, fields=fields):
+    def __init__(self, agent_id, offset, limit, sort, search, select, query, count, get_data,
+                 default_sort_field='date_last', filters={}, fields=fields):
         Agent(agent_id).get_basic_information()  # check if the agent exists
         db_path = glob('{0}/{1}-*.db'.format(common.database_path_agents, agent_id))
         if not db_path:
             raise WazuhInternalError(1600, extra_message=agent_id)
 
-        WazuhDBQuery.__init__(self, offset=offset, limit=limit, table='pm_event', sort=sort, search=search, select=select,
-                              fields=fields, default_sort_field=default_sort_field, default_sort_order='DESC', filters=filters,
-                              query=query, db_path=db_path[0], min_select_fields=set(), count=count, get_data=get_data,
-                              date_fields={'oldDay', 'readDate'})
+        WazuhDBQuery.__init__(self, offset=offset, limit=limit, table='pm_event', sort=sort, search=search,
+                              select=select, fields=fields, default_sort_field=default_sort_field,
+                              default_sort_order='DESC', filters=filters, query=query, db_path=db_path[0],
+                              min_select_fields=set(), count=count, get_data=get_data, date_fields={'oldDay', 'readDate'})
 
     def _parse_filters(self):
         WazuhDBQuery._parse_filters(self)
@@ -45,7 +46,8 @@ class WazuhDBQueryRootcheck(WazuhDBQuery):
 
     def _filter_status(self, filter_status):
         partial = """SELECT {0} AS status, date_first, date_last, log, pci_dss, cis FROM pm_event AS t
-                WHERE date_last {1} (SELECT datetime(date_last, '-86400 seconds') FROM pm_event WHERE log = 'Ending rootcheck scan.')"""
+                WHERE date_last {1} (SELECT datetime(date_last, '-86400 seconds') FROM pm_event 
+                WHERE log = 'Ending rootcheck scan.')"""
 
         if filter_status['value'] == 'all':
             self.query = "SELECT {0} FROM (" + partial.format("'outstanding'", '>') + ' UNION ' + partial.format("'solved'",'<=') + \
@@ -146,7 +148,9 @@ def clear(agent_id=None, all_agents=False):
             rootcheck_files = ['{0}/queue/rootcheck/rootcheck'.format(common.ossec_path)]
         else:
             agent_info = Agent(agent_id).get_basic_information()
-            rootcheck_files = glob('{0}/queue/rootcheck/({1}) {2}->rootcheck'.format(common.ossec_path, agent_info['name'], agent_info['ip']))
+            rootcheck_files = glob('{0}/queue/rootcheck/({1}) {2}->rootcheck'.format(common.ossec_path,
+                                                                                     agent_info['name'],
+                                                                                     agent_info['ip']))
 
     for rootcheck_file in rootcheck_files:
         if path.exists(rootcheck_file):
@@ -168,6 +172,7 @@ def print_db(agent_id=None, q="", offset=0, limit=common.database_limit, sort=No
     :param search: Looks for items with the specified string.
     :return: Dictionary: {'items': array of items, 'totalItems': Number of items (without applying the limit)}
     """
+
     select = ["status", "oldDay", "readDay", "event", "pci", "cis"] if select is None else select
     if 'status' not in q and 'status' not in filters:
         q = 'status=all' + ('' if not q else ';'+q)
@@ -177,7 +182,8 @@ def print_db(agent_id=None, q="", offset=0, limit=common.database_limit, sort=No
     return db_query.run()
 
 
-def _get_requirement(requirement, agent_id=None, offset=0, limit=common.database_limit, sort=None, search=None, q="", filters={}):
+def _get_requirement(requirement, agent_id=None, offset=0, limit=common.database_limit, sort=None, search=None,
+                     q="", filters={}):
     """
     Get all requirements used in the rootcheck of the agent
 
