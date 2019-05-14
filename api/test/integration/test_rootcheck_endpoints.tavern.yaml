@@ -1,0 +1,332 @@
+---
+test_name: GET /rootcheck/{agent_id}
+
+includes:
+  - !include common.yaml
+
+stages:
+    # Authentication stage
+  - type: ref
+    id: login_get_token
+
+    # GET /rootcheck/000
+  - name: Try to get rootcheck scan results for agent 000
+    request: &get_rootcheck_agent
+      method: GET
+      url: "{protocol:s}://{host:s}:{port:d}/rootcheck/000"
+      headers:
+        Authorization: "Bearer {test_login_token}"
+    response:
+      status_code: 200
+      body:
+        # We get totalItems number of arrays in items, using !anything to check items key is in the response
+        data:
+          items: !anything
+          totalItems: !anyint
+
+    # GET /rootcheck/000?limit=1&sort=wrongparam
+  - name: Try to get rootcheck scan results for agent 000 using an invalid sort parameter
+    request:
+      <<: *get_rootcheck_agent
+      params:
+        limit: 1
+        sort: wrongparam
+    response:
+      status_code: 500
+      body:
+        code: 1000
+
+    # GET /rootcheck/000?limit=1&select=wrongparam
+  - name: Try to get rootcheck scan results for agent 000 using an invalid select parameter
+    request:
+      <<: *get_rootcheck_agent
+      params:
+        limit: 1
+        select: wrongparam
+    response:
+      status_code: 500
+      body:
+        code: 1000
+
+---
+# Another GET /rootcheck/{agent_id} test to parametrize values for sort and select parameters
+test_name: GET /rootcheck/{agent_id}
+
+marks:
+  - parametrize:
+      key: field
+      vals:
+        - status
+        - readDay
+        - oldDay
+        - pci
+        - cis
+        - event
+
+stages:
+    # GET /rootcheck/000?limit=1&sort={field}
+  - name: Try to get rootcheck scan results for agent 000 with a sorted field answer
+    request:
+      <<: *get_rootcheck_agent
+      params:
+        limit: 1
+        sort: "{field}"
+    response:
+      status_code: 200
+      body:
+        data:
+          items: !anything
+          totalItems: !anyint
+
+---
+test_name: GET /rootcheck/{agent_id}/last_scan
+
+stages:
+    # GET /rootcheck/000/last_scan
+  - name: Try to get when the last scan for agent 000 started and ended
+
+    request:
+      method: GET
+      url: "{protocol:s}://{host:s}:{port:d}/rootcheck/000/last_scan"
+      headers:
+        Authorization: "Bearer {test_login_token}"
+
+    response:
+      status_code: 200
+      body:
+        data:
+          start: !anything
+          end: !anything
+
+
+---
+test_name: GET /rootcheck/{agent_id}
+
+includes:
+  - !include common.yaml
+
+stages:
+    # Authentication stage
+  - type: ref
+    id: login_get_token
+
+    # GET /rootcheck/002
+  - name: Try to get rootcheck scan results for agent 002
+    request: &get_rootcheck_agent_002
+      method: GET
+      url: "{protocol:s}://{host:s}:{port:d}/rootcheck/002"
+      headers:
+        Authorization: "Bearer {test_login_token}"
+    response:
+      status_code: 200
+      body:
+        # We get totalItems number of arrays in items, using !anything to check items key is in the response
+        data:
+          items: !anything
+          totalItems: !anyint
+
+    # GET /rootcheck/002?limit=1&sort=wrongparam
+  - name: Try to get rootcheck scan results for agent 002 using an invalid sort parameter
+    request:
+      <<: *get_rootcheck_agent_002
+      params:
+        limit: 1
+        sort: wrongparam
+    response:
+      status_code: 500
+      body:
+        code: 1000
+
+    # GET /rootcheck/002?limit=1&select=wrongparam
+  - name: Try to get rootcheck scan results for agent 002 using an invalid select parameter
+    request:
+      <<: *get_rootcheck_agent_002
+      params:
+        limit: 1
+        select: wrongparam
+    response:
+      status_code: 500
+      body:
+        code: 1000
+
+---
+# Another GET /rootcheck/{agent_id} test to parametrize values for sort and select parameters
+test_name: GET /rootcheck/{agent_id}
+
+marks:
+  - parametrize:
+      key: field
+      vals:
+        - status
+        - readDay
+        - oldDay
+        - pci
+        - cis
+        - event
+
+stages:
+    # GET /rootcheck/002?limit=1&sort={field}
+  - name: Try to get rootcheck scan results for agent 002 with a sorted field answer
+    request:
+      <<: *get_rootcheck_agent_002
+      params:
+        limit: 1
+        sort: "{field}"
+    response:
+      status_code: 200
+      body:
+        data:
+          items: !anything
+          totalItems: !anyint
+
+---
+test_name: GET /rootcheck/{agent_id}/last_scan
+
+stages:
+    # GET /rootcheck/002/last_scan
+  - name: Try to get when the last scan for agent 002 started and ended
+
+    request:
+      method: GET
+      url: "{protocol:s}://{host:s}:{port:d}/rootcheck/002/last_scan"
+      headers:
+        Authorization: "Bearer {test_login_token}"
+
+    response:
+      status_code: 200
+      body:
+        data:
+          start: !anything
+          end: !anything
+
+---
+test_name: DELETE /rootcheck/{agent_id}
+
+stages:
+    # DELETE /rootcheck/000
+  - name: Try to delete rootcheck scans in agent 000
+
+    request:
+      method: DELETE
+      url: "{protocol:s}://{host:s}:{port:d}/rootcheck/000"
+      headers:
+        Authorization: "Bearer {test_login_token}"
+
+    response:
+      status_code: 200
+      body:
+        message: "Rootcheck database deleted"
+
+    # GET /rootcheck/000/
+  - name: Try to check the answer is empty after deleting the scans for agent 000
+
+    request:
+      method: GET
+      url: "{protocol:s}://{host:s}:{port:d}/rootcheck/000"
+      headers:
+        Authorization: "Bearer {test_login_token}"
+
+    response:
+      status_code: 200
+      body:
+        data:
+          totalItems: 0
+
+    # DELETE /rootcheck/002
+  - name: Try to delete rootcheck scans in agent 002
+
+    request:
+      method: DELETE
+      url: "{protocol:s}://{host:s}:{port:d}/rootcheck/002"
+      headers:
+        Authorization: "Bearer {test_login_token}"
+
+    response:
+      status_code: 200
+      body:
+        message: "Rootcheck database deleted"
+
+    # GET /rootcheck/002/
+  - name: Try to check the answer is empty after deleting the scans for agent 002
+
+    request:
+      method: GET
+      url: "{protocol:s}://{host:s}:{port:d}/rootcheck/002"
+      headers:
+        Authorization: "Bearer {test_login_token}"
+
+    response:
+      status_code: 200
+      body:
+        data:
+          totalItems: 0
+
+---
+test_name: DELETE /rootcheck
+
+stages:
+    # DELETE /rootcheck
+  - name: Try to delete rootcheck scans in all agents
+
+    request:
+      method: DELETE
+      url: "{protocol:s}://{host:s}:{port:d}/rootcheck"
+      headers:
+        Authorization: "Bearer {test_login_token}"
+
+    response:
+      status_code: 200
+      body:
+        message: "Rootcheck database deleted"
+
+
+---
+test_name: PUT /rootcheck/{agent_id}
+
+stages:
+    # PUT /rootcheck/000
+  - name: Try to run a rootcheck scan in agent 000
+
+    request:
+      method: PUT
+      url: "{protocol:s}://{host:s}:{port:d}/rootcheck/000"
+      headers:
+        Authorization: "Bearer {test_login_token}"
+
+    response:
+      status_code: 200
+      body:
+        message: "Restarting Syscheck/Rootcheck locally"
+
+    # PUT /rootcheck/002
+  - name: Try to run a rootcheck scan in agent 002
+
+    request:
+      method: PUT
+      url: "{protocol:s}://{host:s}:{port:d}/rootcheck/002"
+      headers:
+        Authorization: "Bearer {test_login_token}"
+
+    response:
+      status_code: 200
+      body:
+        message: "Restarting Syscheck/Rootcheck on agent"
+
+---
+test_name: PUT /rootcheck
+
+stages:
+    # PUT /rootcheck
+  - name: Try to run a rootcheck scan in all agents
+
+    request:
+      method: PUT
+      url: "{protocol:s}://{host:s}:{port:d}/rootcheck"
+      headers:
+        Authorization: "Bearer {test_login_token}"
+
+    response:
+      status_code: 200
+      body:
+        message: "Restarting Syscheck/Rootcheck on all agents"
+
