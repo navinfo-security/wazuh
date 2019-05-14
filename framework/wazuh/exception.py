@@ -141,7 +141,9 @@ class WazuhException(Exception):
                               'https://documentation.wazuh.com/current/user-manual/agents/agent-connection.html'
                               'to obtain more information on registering and connecting agents'
                },
-        1603: 'Invalid status. Valid statuses are: all, solved and outstanding',
+        1602: {'message': 'Invalid status',
+               'remediation': 'Please, use a valid status. Valid statuses are: all, outstanding and solved'
+               },
         1605: 'Impossible to run policy monitoring scan due to agent is not active',
         1650: 'Active response - Command not specified',
         1651: 'Active response - Agent is not active',
