@@ -33,7 +33,7 @@ def test_syscheck_run_all():
 
 @patch('wazuh.syscheck.Agent.get_basic_information', side_effect=get_random_status)
 def test_syscheck_run_status(mocked_status):
-    with pytest.raises(WazuhException, match='.* 1604 .*'):
+    with pytest.raises(WazuhException, match='.* 1601 .*'):
         run(agent_id='001')
 
 
