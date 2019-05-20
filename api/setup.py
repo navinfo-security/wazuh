@@ -18,12 +18,15 @@ VERSION = "3.9.0"
 
 REQUIRES = ["connexion[swagger-ui]==2.2.0",
             "Flask-Cors==3.0.7",
+            "Flask-Caching==1.7.0",
             "Flask==1.0.2",
             "python_dateutil==2.6.0",
             "PyYAML==3.13",
             "python-jose[cryptography]==3.0.1",
             "setuptools>=21.0.0",
-            "sqlalchemy==1.3.0"
+            "sqlalchemy==1.3.0",
+            "uWSGI==2.0.18",
+            "defusedxml>=0.6.0"
             ]
 
 setup(

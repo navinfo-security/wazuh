@@ -7,6 +7,7 @@
 * `error` field has been removed. Now error status is shown in HTTP status code (400 for client error and 500 for server error)
 * `data` is never showing a human readable message. To be consistent, it will only contain an object or list of objects. In case
 a human readable message is shown, the new field `message` will be used instead.
+* Changed search negation from `!` to `-`.
 
 ## Active Response
 ### /active-response/:agent_id
@@ -98,8 +99,11 @@ a human readable message is shown, the new field `message` will be used instead.
 * In response, `data` key is now moved to new `message` key
 
 ## Cache
-### DELETE /cache (Clear group cache)
-* Changed path to **/cache/:group_id** because this path is used in other endpoint.
+### DELETE /cache 
+### GET /cache 
+### DELETE /cache{group} (Clear group cache)
+### GET /cache/config 
+* All cache endpoints have been removed
 
 ### GET /lists
 * Parameter **status** renamed to **list_status**
@@ -129,6 +133,21 @@ a human readable message is shown, the new field `message` will be used instead.
 ### GET /cluster/{node_id}/configuration/validation
 * Now errors are shown in a different schema with a HTTP status 400. See spec for more details.
 
+## Decoders
+### GET /decoders
+* In response, `regex` key is now an array
+
+### GET /decoders/{decoders_name}
+* In response, `regex` key is now an array
+
+### GET /decoders/files
+* Parameter **download** removed
+
+### GET /decoders/files/{file_id}/download
+* This endpoint provides the functionality of GET /decoders/files with the old removed **download** param 
+
+### GET /decoders/parents
+* In response, `regex` key is now an array
 
 ## Experimental
 ### General
@@ -182,6 +201,11 @@ a human readable message is shown, the new field `message` will be used instead.
 ### DELETE/rootcheck/:agent_id
 * In response, `data` key is now moved to new `message` key
 
+### GET/rules/files
+* Parameter **download** removed
+
+### GET/rules/files/:file/download
+* This endpoint provides the functionality of GET /rules/files with the old removed **download** param 
 
 ## Syscheck
 ### PUT/syscheck
@@ -199,3 +223,7 @@ a human readable message is shown, the new field `message` will be used instead.
 
 ### /syscollector/:agent_id/netiface
 * Added **agent_id** parameter.
+
+## Version
+### GET /version 
+* Removed endpoint

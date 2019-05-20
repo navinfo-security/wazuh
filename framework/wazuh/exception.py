@@ -6,6 +6,9 @@
 from copy import deepcopy
 
 
+GENERIC_ERROR_MSG = "Wazuh Internal Error. See log for more detail"
+
+
 class WazuhException(Exception):
     """
     Wazuh Exception object.
@@ -30,10 +33,13 @@ class WazuhException(Exception):
         1014: 'Error communicating with socket',
         1015: 'Error agent version is null. Was the agent ever connected?',
         1016: 'Error moving file',
+        1017: 'Wazuh is restarting',
+        1018: 'Wazuh is stopped. Start Wazuh before using the API.',
+        1019: 'There is a failed process. Review that before using the API.',
 
         # Configuration: 1100 - 1199
         1100: 'Error checking configuration',
-        1101: 'Error getting configuration',
+        1101: 'Requested component does not exist',
         1102: 'Invalid section',
         1103: 'Invalid field in section',
         1104: 'Invalid type',
@@ -48,13 +54,16 @@ class WazuhException(Exception):
         1113: "XML syntax error",
         1114: "Wazuh syntax error",
         1115: "Error executing verify-agent-conf",
+        1116: "Requested component configuration does not exist",
+        1117: "Unable to connect with component. The component might be disabled.",
+        1118: "Could not request component configuration",
 
         # Rule: 1200 - 1299
         1200: {'message': 'Error reading rules from `WAZUH_HOME/etc/ossec.conf`',
                'remediation': 'Please, visit [official documentation](https://documentation.wazuh.com/3.x/user-manual/reference/ossec-conf/index.html)'
                               ' to get more information about how to configure the rules'
                },
-        1201: {'message': 'Error reading rule files `WAZUH_HOME/etc/ossec.conf`',
+        1201: {'message': 'Error reading rule files',
                'remediation': 'Please, visit [official documentation](https://documentation.wazuh.com/3.x/user-manual/reference/ossec-conf/index.html)'
                               ' to get more information about how to configure the rules'
                },
@@ -70,11 +79,11 @@ class WazuhException(Exception):
         1205: {'message': 'Requirement not valid. Valid ones are pci and gdpr',
                'remediation': 'Please indicate one of the following values: pci or gdpr'
                },
-        1206: {'message': 'Parameter new_name empty or wrong',
-               'remediation': 'Please insert a valid name in the parameter \'new_name\''
+        1206: {'message': 'Duplicated rule ID',
+               'remediation': 'Please check your configuration, two or more rules have the same ID, visit [official documentation]https://documentation.wazuh.com/3.x/user-manual/ruleset/custom.html'
                },
-        1207: {'message': 'Rule file not found',
-               'remediation': 'The name of the rules \'file\' file has not been found, check the name and try again.'
+        1207: {'message': 'Error reading rule files, wrong permissions',
+               'remediation': 'Please, check your permissions over the file'
                },
 
         # Stats: 1300 - 1399
@@ -86,7 +95,9 @@ class WazuhException(Exception):
         1400: 'Invalid offset',
         1401: 'Invalid limit',
         1402: 'Invalid order. Order must be \'asc\' or \'desc\'',
-        1403: 'Sort field invalid',  # Also, in DB
+        1403: {'message': 'Not a valid sort field ',
+               'remediation': 'Please, use only allowed sort fields'
+               },
         1404: 'A field must be specified to order the data',
         1405: 'Specified limit exceeds maximum allowed (1000)',
         1406: '0 is not a valid limit',
@@ -96,10 +107,27 @@ class WazuhException(Exception):
         1410: 'Selecting more than one field in distinct mode',
         1411: 'Timeframe is not valid',
         1412: 'Date filter not valid. Valid formats are timeframe or YYYY-MM-DD HH:mm:ss',
+        1413: {'message': 'Error reading rules file'},
+        1414: {'message': 'Error reading rules file',
+               'remediation': 'Please, make sure you have read permissions on the file'
+               },
+        1415: {'message': 'Rules file not found',
+               'remediation': 'Please, use GET /rules/files to list all available rules'
+               },
 
         # Decoders: 1500 - 1599
-        1500: 'Error reading decoders from ossec.conf',
-        1501: 'Error reading decoder files',
+        1500: {'message': 'Error reading decoders from ossec.conf',
+               'remediation': 'Please, visit https://documentation.wazuh.com/current/user-manual/ruleset/custom.html'
+                              'to get more information on adding or modifying existing decoders'
+               },
+        1501: {'message': 'Error reading decoders file'
+               },
+        1502: {'message': 'Error reading decoders file',
+               'remediation': 'Please, make sure you have read permissions on the file'
+               },
+        1503: {'message': 'Decoders file not found',
+               'remediation': 'Please, use GET /decoders/files to list all available decoders'
+               },
 
         # Syscheck/Rootcheck/AR: 1600 - 1699
         1600: 'There is no database for selected agent',  # Also, agent
@@ -107,11 +135,12 @@ class WazuhException(Exception):
         1603: 'Invalid status. Valid statuses are: all, solved and outstanding',
         1604: 'Impossible to run FIM scan due to agent is not active',
         1605: 'Impossible to run policy monitoring scan due to agent is not active',
-        1650: 'Active response - Bad arguments',
+        1650: 'Active response - Command not specified',
         1651: 'Active response - Agent is not active',
         1652: 'Active response - Unable to run command',
-        1653: 'Active response - Agent not available',
+        1653: 'Active response - Agent ID not specified',
         1654: 'Unable to clear rootcheck database',
+        1655: 'Active response - Command not available',
 
         # Agents: 1700 - 1799
         1700: 'Bad arguments. Accepted arguments: [id] or [name and ip]',
@@ -138,17 +167,21 @@ class WazuhException(Exception):
         1721: 'Remote upgrade is not available for this agent OS version',
         1722: 'Incorrect format for group_id. Characters supported  a-z, A-Z, 0-9, ., _ and -. Max length is 255',
         1723: 'Hash algorithm not available',
-        1724: 'Not a valid select field',
+        1724: {'message': 'Not a valid select field',
+               'remediation': 'Use a valid field'},
         1725: 'Error registering a new agent',
         1726: 'Ossec authd is not running',
         1727: 'Error listing group files',
-        1728: 'Invalid node type',
+        1728: {'message': 'Invalid node type',
+               'remediation': 'Valid types are "master" and "worker"'},
         1729: 'Agent status not valid. Valid statuses are Active, Disconnected, Pending and Never Connected.',
-        1730: 'Node does not exist',
+        1730: {'message': 'Node does not exist',
+               'remediation': 'Make sure the name is correct and that the node is up. You can check it using '
+                              '[`cluster_control -l`](https://documentation.wazuh.com/current/user-manual/reference/tools/cluster_control.html#get-connected-nodes)'},
         1731: 'Agent is not eligible for removal',
         1732: 'No agents selected',
         1733: 'Bad formatted version. Version must follow this pattern: vX.Y.Z .',
-        1734: 'Error unsetting agent group',
+        1734: 'Agent does not belong to the specified group',
         1735: 'Agent version is not compatible with this feature',
         1736: 'Error getting all groups',
         1737: 'Maximum number of groups per multigroup is 256',
@@ -159,6 +192,10 @@ class WazuhException(Exception):
         1742: 'Error running XML syntax validator',
         1743: 'Error running Wazuh syntax validator',
         1744: 'Invalid chunk size',
+        1745: "Agent only belongs to 'default' and it cannot be unset from this group.",
+        1746: "Could not parse current client.keys file",
+        1747: "Could not remove agent group assigment from database",
+        1748: "Could not remove agent files",
 
         # CDB List: 1800 - 1899
         1800: 'Bad format in CDB list {path}',
@@ -178,7 +215,7 @@ class WazuhException(Exception):
         2000: 'No such database file',
         2001: 'Incompatible version of SQLite',
         2002: 'Maximum attempts exceeded for sqlite3 execute',
-        2003: 'Error in database request',
+        2003: 'Error in wazuhdb request',
         2004: 'Database query not valid',
         2005: 'Could not connect to wdb socket',
         2006: 'Received JSON from Wazuh DB is not correctly formatted',
@@ -210,7 +247,31 @@ class WazuhException(Exception):
         3020: 'Timeout sending request',
         3021: 'Timeout executing API request',
         3022: 'Unknown node ID',
-        3023: 'Worker node is not connected to master'
+        3023: {'message': 'Worker node is not connected to master',
+               'remediation': 'Check the cluster.log located at WAZUH_HOME/logs/cluster.log file to see if there are '
+                              'connection errors. Restart the `wazuh-manager` service.'},
+        3024: "Length of command exceeds limit defined in wazuh.cluster.common.Handler.cmd_len.",
+        3025: {'message': "Could not decrypt message",
+               'remediation': "Check the cluster key is correct in the worker's "
+                              "[ossec.conf](https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/cluster.html#key)"
+                              " is the same that the master's."},
+        3026: "Error sending request: Memory error. Request chunk size divided by 2.",
+        3027: "Unknown received task name",
+        3028: {'message': "Worker node ID already exists",
+               'remediation': "Change one of the two [worker names](https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/cluster.html#node-name)"
+                              " and restart the `wazuh-manager` service."},
+        3029: {"message": "Connected worker with same name as the master",
+               "remediation": "Change the [worker name](https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/cluster.html#node-name)"
+                              " and restart the `wazuh-manager` service in the node"},
+        3030: {'message': 'Worker does not belong to the same cluster',
+               'remediation': "Change the [cluster name](https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/cluster.html#name)"
+                              " in the worker configuration to match the master's and restart the `wazuh-manager` service"},
+        3031: {'message': "Worker and master versions are not the same",
+               'remediation': "[Update](https://documentation.wazuh.com/current/installation-guide/upgrading/index.html)"
+                              " both master and worker to the same version."},
+        3032: "Could not forward DAPI request. Connection not available.",
+        3033: "Payload length exceeds limit defined in wazuh.cluster.common.Handler.request_chunk.",
+        3034: "Error sending file. File not found."
 
         # > 9000: Authd
     }
@@ -315,5 +376,12 @@ class WazuhError(WazuhException):
     """
     This type of exception is raised as a controlled response to a bad request from user
     that cannot be performed properly
+    """
+    pass
+
+
+class WazuhClusterError(WazuhException):
+    """
+    This type of exception is raised inside the cluster.
     """
     pass

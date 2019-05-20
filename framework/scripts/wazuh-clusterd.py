@@ -8,7 +8,6 @@ import asyncio
 import argparse
 import os
 import sys
-import time
 from wazuh.cluster import cluster, __version__, __author__, __ossec_name__, __licence__, master, local_server, worker
 from wazuh import common, configuration, pyDaemonModule, Wazuh
 
@@ -67,6 +66,8 @@ async def worker_main(args, cluster_config, cluster_items, logger):
 # Main
 #
 if __name__ == '__main__':
+    my_wazuh = Wazuh(get_init=True)
+
     parser = argparse.ArgumentParser()
     ####################################################################################################################
     # Dev options - Silenced in the help message.
@@ -94,8 +95,6 @@ if __name__ == '__main__':
     parser.add_argument('-c', help="Configuration file to use", type=str, metavar='config', dest='config_file',
                         default=common.ossec_conf)
     args = parser.parse_args()
-
-    my_wazuh = Wazuh(get_init=True)
 
     if args.version:
         print_version()
@@ -146,3 +145,5 @@ if __name__ == '__main__':
         asyncio.run(main_function(args, cluster_configuration, cluster_items, main_logger))
     except KeyboardInterrupt:
         main_logger.info("SIGINT received. Bye!")
+    except Exception as e:
+        main_logger.error(f"Unhandled exception: {e}")

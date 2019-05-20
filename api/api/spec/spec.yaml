@@ -7,10 +7,11 @@ info:
     \ the Wazuh infrastructure via the Wazuh Kibana app. Use the API to easily perform\
     \ everyday actions like adding an agent, restarting the manager(s) or agent(s)\
     \ or looking up syscheck details.\n"
-  version: 4.0.0
-  title: "Wazuh API"
+  version: '4.0.0'
+  x-revision: 4000
+  title: 'Wazuh API'
   license:
-    name: GPL 2.0
+    name: 'GPL 2.0'
     url: 'https://github.com/wazuh/wazuh/blob/master/LICENSE'
 
 components:
@@ -44,6 +45,7 @@ components:
 
     ApiError:
       type: object
+      nullable: true
       required:
         - type
         - title
@@ -125,6 +127,34 @@ components:
           format: int32
           minimum: 1
           description: Number of items that couldn't do the requested operation. Only returned when it's higher than 0.
+
+    BasicInfo:
+      type: object
+      properties:
+        title:
+          type: string
+          description: API title name.
+        api_version:
+          type: string
+          description: API version installed in the node.
+        revision:
+          type: integer
+          format: int32
+        license_name:
+          type: string
+          description: API license name.
+        license_url:
+          type: string
+          description: API license url.
+        hostname:
+          type: string
+          description: Server hostname.
+        timestamp:
+          type: string
+
+    GroupId:
+      type: string
+      format: alphanumeric
 
     ## Agents models
     ExtraAgentFields:
@@ -312,47 +342,6 @@ components:
         config:
           type: object
           description: Group configuration. The fields on this object depend on the actual group configuration.
-
-    ## Cache models
-    GroupCache:
-      type: object
-      required:
-      - all
-      - group
-      properties:
-        all:
-          type: array
-          items:
-            type: string
-        group:
-          type: object
-          properties:
-            agents:
-              type: array
-              items:
-                type: string
-
-    GroupId:
-      type: string
-      format: alphanumeric
-
-    CacheConfig:
-      type: object
-      properties:
-        debug:
-          type: boolean
-        defaultDuration:
-          type: integer
-        enabled:
-          type: boolean
-        appendKey:
-          type: array
-          items:
-            type: string
-        jsonp:
-          type: boolean
-        redisClient:
-          type: boolean
 
     ## CisCat models
     CiscatResults:
@@ -1315,20 +1304,27 @@ components:
           properties:
             program_name:
               type: string
+              nullable: true
             parent:
               type: string
             prematch:
               type: string
             regex:
-              type: string
+              type: array
+              items:
+                type: string
             order:
               type: string
+            accumulate:
+              type: boolean
+              nullable: true
 
     DecoderFile:
       type: object
       required:
       - file
       - status
+      - path
       properties:
         file:
           type: string
@@ -1336,6 +1332,10 @@ components:
         status:
           type: string
           description: Whether the decoders defined in that file are used by Wazuh or not.
+        path:
+          type: string
+          format: ruleset_path
+          description: Decoder file path.
 
     # Syscollector models
     SyscollectorHardware:
@@ -2045,10 +2045,11 @@ components:
       schema:
         type: string
         format: path
-    download:
-      in: query
-      name: download
-      description: Downloads the specified file.
+    downloadFile:
+      in: path
+      name: file
+      required: True
+      description: File name to download.
       schema:
         type: string
         format: alphanumeric
@@ -2110,14 +2111,6 @@ components:
           enum:
           - json
           - xml
-    group_cache:
-      in: path
-      name: group
-      description: Cache group.
-      required: true
-      schema:
-        type: string
-        format: alphanumeric
     group_id:
       in: path
       name: group_id
@@ -2310,6 +2303,13 @@ components:
       schema:
         type: string
         format: alphanumeric
+    rulesetPath:
+      in: query
+      name: path
+      description: Filters by path.
+      schema:
+        type: string
+        format: ruleset_path
     score:
       in: query
       name: score
@@ -2346,7 +2346,7 @@ components:
     statusAgentParam:
       in: query
       name: agent_status
-      description: Filters by agent status. Use commas to enter multiple statuses.
+      description: Filters by agent status.
       schema:
         type: array
         items:
@@ -2359,16 +2359,14 @@ components:
         minItems: 1
     statusRLDParam:
       in: query
-      name: list_status
+      name: status
       description: Filters by list status. Use commas to enter multiple statuses.
       schema:
-        type: array
-        items:
-          type: string
-          enum:
-          - enabled
-          - disabled
-          - all
+        type: string
+        enum:
+        - enabled
+        - disabled
+        - all
         minItems: 1
     title:
       in: query
@@ -2582,6 +2580,7 @@ components:
       schema:
         type: integer
         format: int32
+        minimum: 1
     rootcheck_status:
       in: query
       name: status
@@ -3028,8 +3027,6 @@ tags:
     description: 'Agents Active Response'
   - name: agents
     description: 'Agents management related operations'
-  - name: cache
-    description: 'API cache management'
   - name: ciscat
     description: 'Retrieve information from CIS-CAT scans.'
   - name: cluster
@@ -3059,6 +3056,30 @@ security:
    - jwt: []
 
 paths:
+  /:
+    get:
+      summary: 'Root-endpoint info'
+      description: 'Returns various basic information about the API'
+      operationId: api.controllers.default_controller.default_info
+      responses:
+        '200':
+          description: 'API default info'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BasicInfo'
+              example:
+                title: "Wazuh API"
+                api_version: "v4.0.0"
+                revision: 4000
+                license_name: "GPL 2.0"
+                license_url: "https://github.com/wazuh/wazuh/blob/master/LICENSE"
+                hostname: "wazuh"
+                timestamp: "2019-04-02T08:08:11+0000"
+ 
   /active-response/{agent_id}:
     put:
       tags:
@@ -4744,129 +4765,6 @@ paths:
                   totalItems: 1
                   items:
                     - ubuntu
-        default:
-          $ref: '#/components/responses/ResponseError'
-
-  /cache/:
-    delete:
-      tags:
-        - cache
-      summary: 'Clear entire cache'
-      description: 'Clears entire cache'
-      operationId: api.controllers.cache_controller.delete_cache
-      parameters:
-        - $ref: '#/components/parameters/pretty'
-        - $ref: '#/components/parameters/wait_for_complete'
-      responses:
-        '200':
-          description: 'Cache delete'
-          content:
-            application/json:
-              schema:
-                allOf:
-                - $ref: '#/components/schemas/ApiResponse'
-                - type: object
-                  properties:
-                    data:
-                      $ref: '#/components/schemas/GroupCache'
-              example:
-                data:
-                  all:
-                    -
-                  groups:
-    get:
-      tags:
-        - cache
-      summary: 'Get cache index'
-      description: 'Returns current cache index.'
-      operationId: api.controllers.cache_controller.get_cache
-      parameters:
-        - $ref: '#/components/parameters/pretty'
-        - $ref: '#/components/parameters/wait_for_complete'
-      responses:
-        '200':
-          description: 'Cache index'
-          content:
-            application/json:
-              schema:
-                allOf:
-                - $ref: '#/components/schemas/ApiResponse'
-                - type: object
-                  properties:
-                    data:
-                      $ref: '#/components/schemas/GroupCache'
-              example:
-                data:
-                  all:
-                    -
-                  groups:
-        default:
-          $ref: '#/components/responses/ResponseError'
-
-  /cache/{group}:
-    delete:
-      tags:
-        - cache
-      summary: 'Clear group cache'
-      description: 'Clears cache of the specified group.'
-      operationId: api.controllers.cache_controller.delete_cache_group
-      parameters:
-        - $ref: '#/components/parameters/pretty'
-        - $ref: '#/components/parameters/wait_for_complete'
-        - $ref: '#/components/parameters/group_cache'
-      responses:
-        '200':
-          description: 'Cache group delete'
-          content:
-            application/json:
-              schema:
-                allOf:
-                - $ref: '#/components/schemas/ApiResponse'
-                - type: object
-                  properties:
-                    data:
-                      $ref: '#/components/schemas/GroupCache'
-              example:
-                data:
-                  all:
-                    - /agents/stats/distinct?pretty&fields=os.platform
-                  groups:
-                    agents:
-                      - /agents/stats/distinct?pretty&fields=os.platform
-        default:
-          $ref: '#/components/responses/ResponseError'
-
-  /cache/config:
-    get:
-      tags:
-        - cache
-      summary: 'Return cache configuration.'
-      description: 'Returns cache configuration.'
-      operationId: api.controllers.cache_controller.get_cache_config
-      parameters:
-        - $ref: '#/components/parameters/pretty'
-        - $ref: '#/components/parameters/wait_for_complete'
-      responses:
-        '200':
-          description: 'Cache index'
-          content:
-            application/json:
-              schema:
-                allOf:
-                - $ref: '#/components/schemas/ApiResponse'
-                - type: object
-                  properties:
-                    data:
-                      $ref: '#/components/schemas/CacheConfig'
-              example:
-                data:
-                  debug: false
-                  defaultDuration: 750
-                  enabled: false
-                  appendKey:
-                    -
-                  jsonp: false
-                  redisClient: false
         default:
           $ref: '#/components/responses/ResponseError'
 
@@ -7364,7 +7262,7 @@ paths:
       - rules
       summary: Get information about all Wazuh rules.
       description: Returns a list containing information about each rule such as file where it's defined, description, rule group, status, etc.
-      operationId: api.controllers.rules_controllers.get_rules
+      operationId: api.controllers.rules_controller.get_rules
       parameters:
         - $ref: '#/components/parameters/pretty'
         - $ref: '#/components/parameters/wait_for_complete'
@@ -7372,11 +7270,11 @@ paths:
         - $ref: '#/components/parameters/limit'
         - $ref: '#/components/parameters/sort'
         - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/statusRLDParam'
         - $ref: '#/components/parameters/group'
         - $ref: '#/components/parameters/level'
         - $ref: '#/components/parameters/file'
-        - $ref: '#/components/parameters/pathFilter'
-        - $ref: '#/components/parameters/statusRLDParam'
+        - $ref: '#/components/parameters/rulesetPath'
         - $ref: '#/components/parameters/pci'
         - $ref: '#/components/parameters/gdpr'
       responses:
@@ -7506,7 +7404,7 @@ paths:
       - rules
       summary: Filters rules by ID.
       description: Filters results of /rules endpoint filtering by ID.
-      operationId: api.controllers.rules_controllers.get_rules_id
+      operationId: api.controllers.rules_controller.get_rules_id
       parameters:
         - $ref: '#/components/parameters/pretty'
         - $ref: '#/components/parameters/wait_for_complete'
@@ -7563,7 +7461,7 @@ paths:
       - rules
       summary: Get all rule groups names.
       description: Returns a list containing all rule groups names.
-      operationId: api.controllers.rules_controllers.get_rules_groups
+      operationId: api.controllers.rules_controller.get_rules_groups
       parameters:
         - $ref: '#/components/parameters/pretty'
         - $ref: '#/components/parameters/wait_for_complete'
@@ -7607,7 +7505,7 @@ paths:
       - rules
       summary: Get all PCI requirements.
       description: Returns all PCI requirements names defined in the Wazuh ruleset.
-      operationId: api.controllers.rules_controllers.get_rules_pci
+      operationId: api.controllers.rules_controller.get_rules_pci
       parameters:
         - $ref: '#/components/parameters/pretty'
         - $ref: '#/components/parameters/wait_for_complete'
@@ -7651,7 +7549,7 @@ paths:
       - rules
       summary: Get all GDPR requirements.
       description: Returns all PCI requirements names defined in the Wazuh ruleset.
-      operationId: api.controllers.rules_controllers.get_rules_gdpr
+      operationId: api.controllers.rules_controller.get_rules_gdpr
       parameters:
         - $ref: '#/components/parameters/pretty'
         - $ref: '#/components/parameters/wait_for_complete'
@@ -7695,7 +7593,7 @@ paths:
       - rules
       summary: Get all files which defines rules.
       description: Returns a list containing all files used to define rules and their status.
-      operationId: api.controllers.rules_controllers.get_rules_files
+      operationId: api.controllers.rules_controller.get_rules_files
       parameters:
         - $ref: '#/components/parameters/pretty'
         - $ref: '#/components/parameters/wait_for_complete'
@@ -7706,7 +7604,6 @@ paths:
         - $ref: '#/components/parameters/pathFilter'
         - $ref: '#/components/parameters/file'
         - $ref: '#/components/parameters/statusRLDParam'
-        - $ref: '#/components/parameters/download'
       responses:
         '200':
           description: 'SCA database elements'
@@ -7742,6 +7639,27 @@ paths:
                     - file: 0020-syslog_rules.xml
                       path: ruleset/rules
                       status: enabled
+        default:
+          $ref: '#/components/responses/ResponseError'
+
+  /rules/files/{file}/download:
+    get:
+      tags:
+        - rules
+      summary: Download an specified rule file.
+      description: Download an specified rule file.
+      operationId: api.controllers.rules_controller.get_download_file
+      parameters:
+        - $ref: '#/components/parameters/pretty'
+        - $ref: '#/components/parameters/wait_for_complete'
+        - $ref: '#/components/parameters/downloadFile'
+      responses:
+        '200':
+          description: Rule contents.
+          content:
+            application/xml:
+              schema:
+                type: string
         default:
           $ref: '#/components/responses/ResponseError'
 
@@ -8078,7 +7996,7 @@ paths:
         - $ref: '#/components/parameters/sort'
         - $ref: '#/components/parameters/search'
         - $ref: '#/components/parameters/file'
-        - $ref: '#/components/parameters/pathFilter'
+        - $ref: '#/components/parameters/rulesetPath'
         - $ref: '#/components/parameters/statusRLDParam'
 
       responses:
@@ -8117,7 +8035,8 @@ paths:
                     details:
                       parent: wazuh
                       prematch: "^Agent buffer:"
-                      regex: "^ '(\\S+)'."
+                      regex:
+                        - "^ '(\\S+)'."
                       order: level
         default:
           $ref: '#/components/responses/ResponseError'
@@ -8196,9 +8115,8 @@ paths:
         - $ref: '#/components/parameters/sort'
         - $ref: '#/components/parameters/search'
         - $ref: '#/components/parameters/file'
-        - $ref: '#/components/parameters/pathFilter'
+        - $ref: '#/components/parameters/rulesetPath'
         - $ref: '#/components/parameters/statusRLDParam'
-        - $ref: '#/components/parameters/download'
       responses:
         '200':
           description: 'List of decoders files'
@@ -8224,25 +8142,37 @@ paths:
                   items:
                   - file: 0185-openldap_decoders.xml
                     status: enabled
+                    path: /var/ossec/ruleset/decoders
                   - file: 0220-postfix_decoders.xml
                     status: enabled
+                    path: /var/ossec/ruleset/decoders
                   - file: 0400-identity_guard_decoders.xml
                     status: enabled
+                    path: /var/ossec/ruleset/decoders
                   - file: 0190-openvpn_decoders.xml
                     status: enabled
-                  - file: 0060-cisco-estreamer_decoders.xml
-                    status: enabled
-                  - file: 0335-telnet_decoders.xml
-                    status: enabled
-                  - file: 0035-asterisk_decoders.xml
-                    status: enabled
-                  - file: 0275-sendmail_decoders.xml
-                    status: enabled
-                  - file: 0345-unbound_decoders.xml
                     path: /var/ossec/ruleset/decoders
-                    status: enabled
-                  - file: 0345-unbound_decoders.xml
-                    status: enabled
+        default:
+          $ref: '#/components/responses/ResponseError'
+
+  /decoders/files/{file}/download:
+    get:
+      tags:
+      - decoders
+      summary: Download an specified decoder file.
+      description: Download an specified decoder file.
+      operationId: api.controllers.decoders_controller.get_download_file
+      parameters:
+        - $ref: '#/components/parameters/pretty'
+        - $ref: '#/components/parameters/wait_for_complete'
+        - $ref: '#/components/parameters/downloadFile'
+      responses:
+        '200':
+          description: Decoder contents.
+          content:
+            application/xml:
+              schema:
+                type: string
         default:
           $ref: '#/components/responses/ResponseError'
 
@@ -8295,7 +8225,8 @@ paths:
                     status: enabled
                     details:
                       prematch: "^azure_tag: azure-storage. "
-                      regex: "^azure_storage_tag: (\\S+)"
+                      regex:
+                        - "^azure_storage_tag: (\\S+)"
                       order: tag
         default:
           $ref: '#/components/responses/ResponseError'

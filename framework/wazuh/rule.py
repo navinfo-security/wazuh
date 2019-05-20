@@ -156,7 +156,7 @@ class Rule:
         # Rules configuration
         ruleset_conf = configuration.get_ossec_conf(section='ruleset')
         if not ruleset_conf:
-            raise WazuhInternalError(1200)
+            raise WazuhError(1200)
 
         tmp_data = []
         tags = ['rule_include', 'rule_exclude']
@@ -277,8 +277,8 @@ class Rule:
                         rules.remove(r)
                         continue
                 elif not (int(levels[0]) <= r.level <= int(levels[1])):
-                        rules.remove(r)
-                        continue
+                    rules.remove(r)
+                    continue
 
         if search:
             rules = search_array(rules, search['value'], search['negation'])
@@ -332,7 +332,7 @@ class Rule:
         :return: Dictionary: {'items': array of items, 'totalItems': Number of items (without applying the limit)}
         """
         if requirement != 'pci' and requirement != 'gdpr':
-            raise WazuhError(1205, requirement)
+            raise WazuhError(1205, extra_message=requirement)
 
         req = list({req for rule in Rule.get_rules(limit=None)['items'] for req in rule.to_dict()[requirement]})
 
@@ -382,10 +382,10 @@ class Rule:
 
             root = load_wazuh_xml(os.path.join(common.ossec_path, rule_path, rule_file))
 
-            for xml_group in root.getchildren():
+            for xml_group in list(root):
                 if xml_group.tag.lower() == "group":
                     general_groups = xml_group.attrib['name'].split(',')
-                    for xml_rule in xml_group.getchildren():
+                    for xml_rule in list(xml_group):
                         # New rule
                         if xml_rule.tag.lower() == "rule":
                             groups = []
@@ -400,10 +400,10 @@ class Rule:
                                 if k != 'id' and k != 'level':
                                     rule.details[k] = xml_rule.attrib[k]
 
-                            for xml_rule_tags in xml_rule.getchildren():
+                            for xml_rule_tags in list(xml_rule):
                                 tag = xml_rule_tags.tag.lower()
                                 value = xml_rule_tags.text
-                                if value == None:
+                                if value is None:
                                     value = ''
                                 if tag == "group":
                                     groups.extend(value.split(","))
@@ -442,10 +442,40 @@ class Rule:
                             rule.set_gdpr(gdpr_groups)
 
                             rules.append(rule)
-        except Exception as e:
-            raise WazuhInternalError(1201, "{0}. Error: {1}".format(rule_file, str(e)))
+        except OSError as e:
+            if e.errno == 2:
+                raise WazuhError(1201)
+            elif e.errno == 13:
+                raise WazuhError(1207)
+            else:
+                raise e
 
         return rules
+
+    @staticmethod
+    def get_file(filename=None):
+        """
+        Reads content of specified file
+        :param filename: File name to read content from
+        :return: File contents
+        """
+
+        data = Rule.get_rules_files(file=filename)
+        files = data['items']
+
+        if len(files) > 0:
+            rules_path = files[0]['path']
+            try:
+                full_path = os.path.join(common.ossec_path, rules_path, filename)
+                with open(full_path) as f:
+                    file_content = f.read()
+                return file_content
+            except OSError:
+                raise WazuhError(1414, extra_message=os.path.join('WAZUH_HOME', rules_path, filename))
+            except Exception:
+                raise WazuhInternalError(1413, extra_message=os.path.join('WAZUH_HOME', rules_path, filename))
+        else:
+            raise WazuhError(1415)
 
     @staticmethod
     def change_name(file=None, new_name=None, offset=0, limit=common.database_limit, sort=None, search=None):
