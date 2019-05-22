@@ -62,27 +62,41 @@ int OS_MD5_SHA1_SHA256_File(const char *fname, const char *prefilter_cmd, os_md5
     SHA256_Init(&sha256_ctx);
 
     /* Update for each one */
-    while ((n = fread(buf, 1, OS_BUFFER_SIZE, fp)) > 0) {
-
-        if (max_size > 0) {
-            read = read + n;
-            if (read >= max_size) {     // Maximum filesize error
-                mwarn("'%s' filesize is larger than the maximum allowed (%d MB). File skipped.", fname, (int)max_size/1048576); // max_size is in bytes
-                if (prefilter_cmd == NULL) {
-                    fclose(fp);
-                } else {
-                    pclose(fp);
+#ifndef WIN32
+    struct timeval timeout;
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0;
+    fd_set read_fds;
+    FD_ZERO(&read_fds);
+    FD_SET(fileno(fp), &read_fds);
+    if (select(fileno(fp)+1, &read_fds, NULL, NULL, &timeout) == 1) {
+#endif
+        while ((n = fread(buf, 1, OS_BUFFER_SIZE, fp)) > 0) {
+            if (max_size > 0) {
+                read = read + n;
+                if (read >= max_size) {     // Maximum filesize error
+                    mwarn("'%s' filesize is larger than the maximum allowed (%d MB). File skipped.", fname, (int)max_size/1048576); // max_size is in bytes
+                    if (prefilter_cmd == NULL) {
+                        fclose(fp);
+                    } else {
+                        pclose(fp);
+                    }
+                    return (-1);
                 }
-                return (-1);
             }
+
+            buf[n] = '\0';
+
+            SHA1_Update(&sha1_ctx, buf, n);
+            SHA256_Update(&sha256_ctx, buf, n);
+            MD5_Update(&md5_ctx, buf, (unsigned)n);
         }
-
-        buf[n] = '\0';
-
-        SHA1_Update(&sha1_ctx, buf, n);
-        SHA256_Update(&sha256_ctx, buf, n);
-        MD5_Update(&md5_ctx, buf, (unsigned)n);
+#ifndef WIN32
+    } else {
+        mwarn("Timeout when scanning file '%s'. File skipped.", fname);
+        return (-1);
     }
+#endif
 
     SHA1_Final(&(sha1_digest[0]), &sha1_ctx);
     SHA256_Final(&(sha256_digest[0]), &sha256_ctx);
