@@ -647,6 +647,7 @@ int read_dir(const char *dir_name, const char *link, int dir_position, whodata_e
 {
     char *f_name;
     short is_nfs;
+    short skip_this_fs;
     DIR *dp;
     struct dirent *entry;
     int opts;
@@ -694,6 +695,13 @@ int read_dir(const char *dir_name, const char *link, int dir_position, whodata_e
     if (dir_size = strlen(dir_name), dir_size > PATH_MAX) {
         free(f_name);
         return (-1);
+    }
+
+    // Check if we should skip this file system
+    skip_this_fs = skipFS(dir_name);
+    if(skip_this_fs != 0) {
+        free(f_name);
+        return (is_nfs);
     }
 
     /* Open the directory given */
