@@ -211,7 +211,6 @@ static int read_file(const char *file_name, const char *linked_file, int dir_pos
         esc_linked_file = escape_syscheck_field((char *) linked_file);
     }
 
-
 #ifdef WIN32
     /* Win32 does not have lstat */
     if (stat(file_name, &statbuf) < 0)
@@ -702,7 +701,7 @@ int read_dir(const char *dir_name, const char *link, int dir_position, whodata_e
     dp = opendir(dir_name);
 
     // Check if we should skip this file system
-    if(dp && (syscheck.skip_sys || syscheck.skip_sys || syscheck.skip_proc)) {
+    if(dp && !syscheck.check_all_fs) {
         skip_this_fs = skipFS(dir_name);
         if(skip_this_fs != 0) {
             // Error will be -1, and 1 means skipped

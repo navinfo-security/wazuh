@@ -42,7 +42,5 @@
     <nodiff>/etc/ssl/private.key</nodiff>
 
     <skip_nfs>yes</skip_nfs>
-    <skip_sys>yes</skip_sys>
-    <skip_dev>yes</skip_dev>
-    <skip_proc>yes</skip_proc>
+    <check_all_fs>no</check_all_fs>
   </syscheck>
