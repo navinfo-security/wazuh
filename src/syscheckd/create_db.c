@@ -697,15 +697,20 @@ int read_dir(const char *dir_name, const char *link, int dir_position, whodata_e
         return (-1);
     }
 
-    // Check if we should skip this file system
-    skip_this_fs = skipFS(dir_name);
-    if(skip_this_fs != 0) {
-        free(f_name);
-        return (is_nfs);
-    }
 
     /* Open the directory given */
     dp = opendir(dir_name);
+
+    // Check if we should skip this file system
+    if(dp && (syscheck.skip_sys || syscheck.skip_sys || syscheck.skip_proc)) {
+        skip_this_fs = skipFS(dir_name);
+        if(skip_this_fs != 0) {
+            // Error will be -1, and 1 means skipped
+            free(f_name);
+            closedir(dp);
+            return (skip_this_fs);
+        }
+    }
 
     /* Should we check for NFS? */
     if (syscheck.skip_nfs && dp) {
