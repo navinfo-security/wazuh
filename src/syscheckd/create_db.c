@@ -294,7 +294,8 @@ static int read_file(const char *file_name, const char *linked_file, int dir_pos
         os_sha256 sf256_sum = {'\0'};
 
         /* Generate checksums */
-        if ((opts & CHECK_MD5SUM) || (opts & CHECK_SHA1SUM) || (opts & CHECK_SHA256SUM)) {
+        if (((opts & CHECK_MD5SUM) || (opts & CHECK_SHA1SUM) || (opts & CHECK_SHA256SUM)) &&
+             statbuf.st_size > 0 && (size_t)statbuf.st_size < syscheck.file_max_size) {
             /* If it is a link, check if dest is valid */
 #ifndef WIN32
             if (S_ISLNK(statbuf.st_mode)) {
