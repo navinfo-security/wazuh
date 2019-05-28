@@ -537,7 +537,14 @@ int c_read_file(const char *file_name, const char *linked_file, const char *olds
     if (mtime == 0){
         *str_mtime = '\0';
     } else {
-        sprintf(str_mtime, "%ld", (long)statbuf.st_mtime);
+        struct statfs stfs;
+        // Only get mtime if file isn't in a procfs filesystem
+        if (!statfs(file_name, &stfs) && skip_file_systems[PROCFS_INDEX].f_type != stfs.f_type) {
+            sprintf(str_mtime, "%ld", (long)statbuf.st_mtime);
+        } else {
+            *str_mtime = '\0';
+            mdebug2("Ignoring 'mtime' attribute for '%s' because is under a PROCFS filesystem.", file_name);
+        }
     }
 
     if (inode == 0){

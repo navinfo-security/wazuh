@@ -63,6 +63,7 @@
 #define FILE_EXECUTE                            0x00000020
 #define FILE_READ_ATTRIBUTES                    0x00000080
 #define FILE_WRITE_ATTRIBUTES                   0x00000100
+#define PROCFS_INDEX                            4
 
 #else
 
