@@ -197,7 +197,8 @@ ifdef DEBUGAD
 endif
 
 ifdef DEBUG
-	OSSEC_CFLAGS+=-g
+	OSSEC_CFLAGS+=-g -fsanitize=address
+        OSSEC_LDFLAGS+=-g -fsanitize=address
 else
 	OSSEC_CFLAGS+=-DNDEBUG
 	OFLAGS+=-O2

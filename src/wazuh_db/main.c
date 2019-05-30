@@ -137,10 +137,6 @@ int main(int argc, char ** argv) {
 
         // Change root
 
-        if (Privsep_Chroot(DEFAULTDIR) < 0) {
-            merror_exit(CHROOT_ERROR, DEFAULTDIR, errno, strerror(errno));
-        }
-
         if (Privsep_SetUser(uid) < 0) {
             merror_exit(SETUID_ERROR, USER, errno, strerror(errno));
         }
@@ -227,7 +223,7 @@ void * run_dealer(__attribute__((unused)) void * args) {
     fd_set fdset;
     struct timeval timeout;
 
-    if (sock = OS_BindUnixDomain(WDB_LOCAL_SOCK, SOCK_STREAM, OS_MAXSTR), sock < 0) {
+    if (sock = OS_BindUnixDomain(DEFAULTDIR WDB_LOCAL_SOCK, SOCK_STREAM, OS_MAXSTR), sock < 0) {
         merror_exit("Unable to bind to socket '%s': '%s'. Closing local server.",
                 WDB_LOCAL_SOCK, strerror(errno));
     }

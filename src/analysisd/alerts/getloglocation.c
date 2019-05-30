@@ -73,22 +73,22 @@ int OS_GetLogLocation(int day,int year,char *mon)
      */
 
     /* For the events */
-    _eflog = openlog(_eflog, __elogfile, EVENTS, year, mon, "archive", day, "log", EVENTS_DAILY, &__ecounter, FALSE);
+    _eflog = openlog (_eflog, __elogfile, EVENTS, year, mon, "archive", day, "log", DEFAULTDIR EVENTS_DAILY, &__ecounter, FALSE);
 
     /* For the events in JSON */
     if (Config.logall_json) {
-        _ejflog = openlog(_ejflog, __ejlogfile, EVENTS, year, mon, "archive", day, "json", EVENTSJSON_DAILY, &__ejcounter, FALSE);
+        _ejflog = openlog(_ejflog, __ejlogfile, EVENTS, year, mon, "archive", day, "json", DEFAULTDIR EVENTSJSON_DAILY, &__ejcounter, FALSE);
     }
 
     /* For the alerts logs */
-    _aflog = openlog(_aflog, __alogfile, ALERTS, year, mon, "alerts", day, "log", ALERTS_DAILY, &__acounter, FALSE);
+    _aflog = openlog(_aflog, __alogfile, ALERTS, year, mon, "alerts", day, "log", DEFAULTDIR ALERTS_DAILY, &__acounter, FALSE);
 
     if (Config.jsonout_output) {
-        _jflog = openlog(_jflog, __jlogfile, ALERTS, year, mon, "alerts", day, "json", ALERTSJSON_DAILY, &__jcounter, FALSE);
+        _jflog = openlog(_jflog, __jlogfile, ALERTS, year, mon, "alerts", day, "json", DEFAULTDIR ALERTSJSON_DAILY, &__jcounter, FALSE);
     }
 
     /* For the firewall events */
-    _fflog = openlog(_fflog, __flogfile, FWLOGS, year, mon, "firewall", day, "log", FWLOGS_DAILY, &__fcounter, FALSE);
+    _fflog = openlog(_fflog, __flogfile, FWLOGS, year, mon, "firewall", day, "log", DEFAULTDIR FWLOGS_DAILY, &__fcounter, FALSE);
 
     /* Setting the new day */
     __crt_day = day;
@@ -110,13 +110,13 @@ FILE * openlog(FILE * fp, char * path, const char * logdir, int year, const char
         fclose(fp);
     }
 
-    snprintf(path, OS_FLSIZE + 1, "%s/%d/", logdir, year);
+    snprintf(path, OS_FLSIZE + 1, DEFAULTDIR "%s/%d/", logdir, year);
 
     if (IsDir(path) == -1 && mkdir(path, 0770)) {
         merror_exit(MKDIR_ERROR, path, errno, strerror(errno));
     }
 
-    snprintf(path, OS_FLSIZE + 1, "%s/%d/%s", logdir, year, month);
+    snprintf(path, OS_FLSIZE + 1, DEFAULTDIR "%s/%d/%s", logdir, year, month);
 
     if (IsDir(path) == -1 && mkdir(path, 0770)) {
         merror_exit(MKDIR_ERROR, path, errno, strerror(errno));
@@ -125,12 +125,12 @@ FILE * openlog(FILE * fp, char * path, const char * logdir, int year, const char
     // Create the logfile name
 
     if (rotate) {
-        snprintf(path, OS_FLSIZE + 1, "%s/%d/%s/ossec-%s-%02d-%.3d.%s", logdir, year, month, tag, day, ++(*counter), ext);
+        snprintf(path, OS_FLSIZE + 1, DEFAULTDIR "%s/%d/%s/ossec-%s-%02d-%.3d.%s", logdir, year, month, tag, day, ++(*counter), ext);
     } else {
-        snprintf(path, OS_FLSIZE + 1, "%s/%d/%s/ossec-%s-%02d.%s", logdir, year, month, tag, day, ext);
+        snprintf(path, OS_FLSIZE + 1, DEFAULTDIR "%s/%d/%s/ossec-%s-%02d.%s", logdir, year, month, tag, day, ext);
 
         // While this file is bigger than maximum or there is a next file
-        for (*counter = 0; snprintf(next, OS_FLSIZE + 1, "%s/%d/%s/ossec-%s-%02d-%.3d.%s", logdir, year, month, tag, day, *counter + 1, ext), !IsFile(next) || (Config.max_output_size && FileSize(path) > Config.max_output_size); (*counter)++) {
+        for (*counter = 0; snprintf(next, OS_FLSIZE + 1, DEFAULTDIR "%s/%d/%s/ossec-%s-%02d-%.3d.%s", logdir, year, month, tag, day, *counter + 1, ext), !IsFile(next) || (Config.max_output_size && FileSize(path) > Config.max_output_size); (*counter)++) {
             strncpy(path, next, OS_FLSIZE);
             path[OS_FLSIZE] = '\0';
         }
@@ -155,23 +155,23 @@ void OS_RotateLogs(int day,int year,char *mon) {
     if (Config.rotate_interval && c_time - __crt_rsec > Config.rotate_interval) {
         // If timespan exceeded the rotation time and the file isn't empty
         if (_eflog && ftell(_eflog) > 0) {
-            _eflog = openlog(_eflog, __elogfile, EVENTS, year, mon, "archive", day, "log", EVENTS_DAILY, &__ecounter, TRUE);
+            _eflog = openlog(_eflog, __elogfile, EVENTS, year, mon, "archive", day, "log", DEFAULTDIR EVENTS_DAILY, &__ecounter, TRUE);
         }
 
         if (_ejflog && ftell(_ejflog) > 0) {
-            _ejflog = openlog(_ejflog, __ejlogfile, EVENTS, year, mon, "archive", day, "json", EVENTSJSON_DAILY, &__ejcounter, TRUE);
+            _ejflog = openlog(_ejflog, __ejlogfile, EVENTS, year, mon, "archive", day, "json", DEFAULTDIR EVENTSJSON_DAILY, &__ejcounter, TRUE);
         }
 
         if (_aflog && ftell(_aflog) > 0) {
-            _aflog = openlog(_aflog, __alogfile, ALERTS, year, mon, "alerts", day, "log", ALERTS_DAILY, &__acounter, TRUE);
+            _aflog = openlog(_aflog, __alogfile, ALERTS, year, mon, "alerts", day, "log", DEFAULTDIR ALERTS_DAILY, &__acounter, TRUE);
         }
 
         if (_jflog && ftell(_jflog) > 0) {
-            _jflog = openlog(_jflog, __jlogfile, ALERTS, year, mon, "alerts", day, "json", ALERTSJSON_DAILY, &__jcounter, TRUE);
+            _jflog = openlog(_jflog, __jlogfile, ALERTS, year, mon, "alerts", day, "json", DEFAULTDIR ALERTSJSON_DAILY, &__jcounter, TRUE);
         }
 
         if (_fflog && ftell(_fflog) > 0) {
-            _fflog = openlog(_fflog, __flogfile, FWLOGS, year, mon, "firewall", day, "log", FWLOGS_DAILY, &__fcounter, TRUE);
+            _fflog = openlog(_fflog, __flogfile, FWLOGS, year, mon, "firewall", day, "log", DEFAULTDIR FWLOGS_DAILY, &__fcounter, TRUE);
         }
 
         __crt_rsec = c_time;
@@ -179,27 +179,27 @@ void OS_RotateLogs(int day,int year,char *mon) {
         // Or if timespan from last rotation is enough and the file is too big
 
         if (_eflog && ftell(_eflog) > Config.max_output_size) {
-            _eflog = openlog(_eflog, __elogfile, EVENTS, year, mon, "archive", day, "log", EVENTS_DAILY, &__ecounter, TRUE);
+            _eflog = openlog(_eflog, __elogfile, EVENTS, year, mon, "archive", day, "log", DEFAULTDIR EVENTS_DAILY, &__ecounter, TRUE);
             __crt_rsec = c_time;
         }
 
         if (_ejflog && ftell(_ejflog) > Config.max_output_size) {
-            _ejflog = openlog(_ejflog, __ejlogfile, EVENTS, year, mon, "archive", day, "json", EVENTSJSON_DAILY, &__ejcounter, TRUE);
+            _ejflog = openlog(_ejflog, __ejlogfile, EVENTS, year, mon, "archive", day, "json", DEFAULTDIR EVENTSJSON_DAILY, &__ejcounter, TRUE);
             __crt_rsec = c_time;
         }
 
         if (_aflog && ftell(_aflog) > Config.max_output_size) {
-            _aflog = openlog(_aflog, __alogfile, ALERTS, year, mon, "alerts", day, "log", ALERTS_DAILY, &__acounter, TRUE);
+            _aflog = openlog(_aflog, __alogfile, ALERTS, year, mon, "alerts", day, "log", DEFAULTDIR ALERTS_DAILY, &__acounter, TRUE);
             __crt_rsec = c_time;
         }
 
         if (_jflog && ftell(_jflog) > Config.max_output_size) {
-            _jflog = openlog(_jflog, __jlogfile, ALERTS, year, mon, "alerts", day, "json", ALERTSJSON_DAILY, &__jcounter, TRUE);
+            _jflog = openlog(_jflog, __jlogfile, ALERTS, year, mon, "alerts", day, "json", DEFAULTDIR ALERTSJSON_DAILY, &__jcounter, TRUE);
             __crt_rsec = c_time;
         }
 
         if (_fflog && ftell(_fflog) > Config.max_output_size) {
-            _fflog = openlog(_fflog, __flogfile, FWLOGS, year, mon, "firewall", day, "log", FWLOGS_DAILY, &__fcounter, TRUE);
+            _fflog = openlog(_fflog, __flogfile, FWLOGS, year, mon, "firewall", day, "log", DEFAULTDIR FWLOGS_DAILY, &__fcounter, TRUE);
             __crt_rsec = c_time;
         }
     }

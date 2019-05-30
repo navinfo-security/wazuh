@@ -78,31 +78,31 @@ int FTS_Init(int threads)
     }
 
     /* Create fts list */
-    fp_list = fopen(FTS_QUEUE, "r+");
+    fp_list = fopen(DEFAULTDIR FTS_QUEUE, "r+");
     if (!fp_list) {
         /* Create the file if we cant open it */
-        fp_list = fopen(FTS_QUEUE, "w+");
+        fp_list = fopen(DEFAULTDIR FTS_QUEUE, "w+");
         if (fp_list) {
             fclose(fp_list);
         }
 
-        if (chmod(FTS_QUEUE, 0640) == -1) {
-            merror(CHMOD_ERROR, FTS_QUEUE, errno, strerror(errno));
+        if (chmod(DEFAULTDIR FTS_QUEUE, 0640) == -1) {
+            merror(CHMOD_ERROR, DEFAULTDIR FTS_QUEUE, errno, strerror(errno));
             return 0;
         }
 
         uid_t uid = Privsep_GetUser(USER);
         gid_t gid = Privsep_GetGroup(GROUPGLOBAL);
         if (uid != (uid_t) - 1 && gid != (gid_t) - 1) {
-            if (chown(FTS_QUEUE, uid, gid) == -1) {
-                merror(CHOWN_ERROR, FTS_QUEUE, errno, strerror(errno));
+            if (chown(DEFAULTDIR FTS_QUEUE, uid, gid) == -1) {
+                merror(CHOWN_ERROR, DEFAULTDIR FTS_QUEUE, errno, strerror(errno));
                 return (0);
             }
         }
 
-        fp_list = fopen(FTS_QUEUE, "r+");
+        fp_list = fopen(DEFAULTDIR FTS_QUEUE, "r+");
         if (!fp_list) {
-            merror(FOPEN_ERROR, FTS_QUEUE, errno, strerror(errno));
+            merror(FOPEN_ERROR, DEFAULTDIR FTS_QUEUE, errno, strerror(errno));
             return (0);
         }
     }
@@ -123,44 +123,44 @@ int FTS_Init(int threads)
             free(tmp_s);
             merror(LIST_ADD_ERROR);
         }
-        
+
         /* Reset pointer addresses before using strdup() again */
         /* The hash will keep the needed memory references */
         tmp_s = NULL;
     }
 
     /* Create ignore list */
-    *fp_ignore = fopen(IG_QUEUE, "r+");
+    *fp_ignore = fopen(DEFAULTDIR IG_QUEUE, "r+");
     if (!*fp_ignore) {
         /* Create the file if we cannot open it */
-        *fp_ignore = fopen(IG_QUEUE, "w+");
+        *fp_ignore = fopen(DEFAULTDIR IG_QUEUE, "w+");
         if (*fp_ignore) {
             fclose(*fp_ignore);
         }
 
-        if (chmod(IG_QUEUE, 0640) == -1) {
-            merror(CHMOD_ERROR, IG_QUEUE, errno, strerror(errno));
+        if (chmod(DEFAULTDIR IG_QUEUE, 0640) == -1) {
+            merror(CHMOD_ERROR, DEFAULTDIR IG_QUEUE, errno, strerror(errno));
             return (0);
         }
 
         uid_t uid = Privsep_GetUser(USER);
         gid_t gid = Privsep_GetGroup(GROUPGLOBAL);
         if (uid != (uid_t) - 1 && gid != (gid_t) - 1) {
-            if (chown(IG_QUEUE, uid, gid) == -1) {
-                merror(CHOWN_ERROR, IG_QUEUE, errno, strerror(errno));
+            if (chown(DEFAULTDIR IG_QUEUE, uid, gid) == -1) {
+                merror(CHOWN_ERROR, DEFAULTDIR IG_QUEUE, errno, strerror(errno));
                 return (0);
             }
         }
 
-        *fp_ignore = fopen(IG_QUEUE, "r+");
+        *fp_ignore = fopen(DEFAULTDIR IG_QUEUE, "r+");
         if (!*fp_ignore) {
-            merror(FOPEN_ERROR, IG_QUEUE, errno, strerror(errno));
+            merror(FOPEN_ERROR, DEFAULTDIR IG_QUEUE, errno, strerror(errno));
             return (0);
         }
     }
 
     for (i = 1; i < threads; i++) {
-        fp_ignore[i] = fopen(IG_QUEUE, "r+");
+        fp_ignore[i] = fopen(DEFAULTDIR IG_QUEUE, "r+");
     }
 
     mdebug1("FTSInit completed.");
@@ -335,14 +335,14 @@ char * FTS(Eventinfo *lf)
         }
 
         fts_node = NULL;
-        
+
         os_strdup(_line, line_for_list);
         if (!line_for_list) {
             merror(MEM_ERROR, errno, strerror(errno));
             free(_line);
             return NULL;
         }
-        
+
         fts_node = OSList_AddData(fts_list, line_for_list);
         if (!fts_node) {
             free(line_for_list);

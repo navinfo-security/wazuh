@@ -146,7 +146,7 @@ https://www.gnu.org/licenses/gpl.html\n"
 #define SOCK_ATTEMPTS   10
 
 // Database socket
-#define WDB_LOCAL_SOCK "/queue/db/wdb"
+#define WDB_LOCAL_SOCK DEFAULTDIR "/queue/db/wdb"
 #ifndef WIN32
 #define WDB_LOCAL_SOCK_PATH DEFAULTDIR WDB_LOCAL_SOCK
 #endif
