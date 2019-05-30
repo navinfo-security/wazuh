@@ -55,6 +55,9 @@ int DecodeSyscollector(Eventinfo *lf,int *socket)
     cJSON *json_type;
     char *msg_type = NULL;
 
+    printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
+    printf("-- SYS input: %.32s\n", lf->log);
+
     lf->decoder_info = sysc_decoder;
 
     // Check location
@@ -149,6 +152,8 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
     char id[OS_SIZE_1024];
     int i;
 
+    printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
+
     os_calloc(OS_SIZE_6144, sizeof(char), msg);
 
     if (iface = cJSON_GetObjectItem(logJSON, "iface"), iface) {
@@ -169,6 +174,8 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
         cJSON * rx_dropped = cJSON_GetObjectItem(iface, "rx_dropped");
         cJSON * mtu = cJSON_GetObjectItem(iface, "MTU");
 
+        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
+
         snprintf(msg, OS_SIZE_6144 - 1, "agent %s netinfo save", lf->agent_id);
 
         if (scan_id) {
@@ -177,12 +184,14 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
         } else {
             wm_strcat(&msg, "NULL", ' ');
         }
+        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
         if (scan_time) {
             wm_strcat(&msg, scan_time->valuestring, '|');
         } else {
             wm_strcat(&msg, "NULL", '|');
         }
+        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
         if (name) {
             wm_strcat(&msg, name->valuestring, '|');
@@ -190,6 +199,7 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
         } else {
             wm_strcat(&msg, "NULL", '|');
         }
+        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
         if (adapter) {
             wm_strcat(&msg, adapter->valuestring, '|');
@@ -197,6 +207,7 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
         } else {
             wm_strcat(&msg, "NULL", '|');
         }
+        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
         if (type) {
             wm_strcat(&msg, type->valuestring, '|');
@@ -204,6 +215,7 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
         } else {
             wm_strcat(&msg, "NULL", '|');
         }
+        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
         if (state) {
             wm_strcat(&msg, state->valuestring, '|');
@@ -220,6 +232,7 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
         } else {
             wm_strcat(&msg, "NULL", '|');
         }
+        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
         if (mac) {
             wm_strcat(&msg, mac->valuestring, '|');
@@ -227,33 +240,45 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
         } else {
             wm_strcat(&msg, "NULL", '|');
         }
+        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
         if (tx_packets) {
-            char txpack[OS_SIZE_512];
-            snprintf(txpack, OS_SIZE_512 - 1, "%d", tx_packets->valueint);
+            char txpack[256];
+            printf("-- tx_packets = %d\n", tx_packets->valueint);
+            snprintf(txpack, 256 - 1, "%d", tx_packets->valueint);
+            printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
             fillData(lf,"netinfo.iface.tx_packets",txpack);
+            printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
             wm_strcat(&msg, txpack, '|');
         } else {
             wm_strcat(&msg, "NULL", '|');
+            printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
         }
 
         if (rx_packets) {
-            char rxpack[OS_SIZE_512];
-            snprintf(rxpack, OS_SIZE_512 - 1, "%d", rx_packets->valueint);
+            char rxpack[256];
+            snprintf(rxpack, 256 - 1, "%d", rx_packets->valueint);
+            printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
             fillData(lf,"netinfo.iface.rx_packets",rxpack);
+            printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
             wm_strcat(&msg, rxpack, '|');
         } else {
             wm_strcat(&msg, "NULL", '|');
+            printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
         }
+        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
         if (tx_bytes) {
             char txbytes[OS_SIZE_512];
             snprintf(txbytes, OS_SIZE_512 - 1, "%d", tx_bytes->valueint);
+            printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
             fillData(lf,"netinfo.iface.tx_bytes",txbytes);
+            printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
             wm_strcat(&msg, txbytes, '|');
         } else {
             wm_strcat(&msg, "NULL", '|');
         }
+        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
         if (rx_bytes) {
             char rxbytes[OS_SIZE_512];
@@ -272,6 +297,7 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
         } else {
             wm_strcat(&msg, "NULL", '|');
         }
+        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
         if (rx_errors) {
             char rxerrors[OS_SIZE_512];
@@ -281,6 +307,7 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
         } else {
             wm_strcat(&msg, "NULL", '|');
         }
+        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
         if (tx_dropped) {
             char txdropped[OS_SIZE_512];
@@ -299,11 +326,13 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
         } else {
             wm_strcat(&msg, "NULL", '|');
         }
+        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
         if (sc_send_db(msg,socket) < 0) {
             return -1;
         } else {
             cJSON * ip;
+            printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
             if (ip = cJSON_GetObjectItem(iface, "IPv4"), ip) {
 
@@ -329,6 +358,8 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
                     wm_strcat(&msg, "NULL", '|');
                 }
 
+                printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
+
                 // Information about an IPv4 interface
                 wm_strcat(&msg, "0", '|');
 
@@ -346,6 +377,8 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
                     wm_strcat(&msg, "NULL", '|');
                 }
 
+                printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
+
                 if (metric) {
                     char _metric[OS_SIZE_128];
                     snprintf(_metric, OS_SIZE_128 - 1, "%d", metric->valueint);
@@ -358,6 +391,8 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
                 if (sc_send_db(msg,socket) < 0) {
                     return -1;
                 }
+
+                printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
                 // Save addresses information into 'sys_netaddr' table
 
@@ -375,6 +410,8 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
                         } else {
                             wm_strcat(&msg, "NULL", ' ');
                         }
+
+                        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
                         if (name) {
                             wm_strcat(&msg, name->valuestring, '|');
@@ -403,6 +440,8 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
                             wm_strcat(&msg, "NULL", '|');
                         }
 
+                        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
+
                         if (cJSON_GetArrayItem(broadcast,i) != NULL) {
                             wm_strcat(&msg, cJSON_GetArrayItem(broadcast,i)->valuestring, '|');
                             if(i == 0){
@@ -413,6 +452,8 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
                         } else {
                             wm_strcat(&msg, "NULL", '|');
                         }
+
+                        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
                         if (sc_send_db(msg,socket) < 0) {
                             if (ip4_address) {
@@ -428,6 +469,8 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
                         }
                     }
 
+                    printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
+
                     char *array_buffer = NULL;
                     if (ip4_address) {
                         csv_list_to_json_str_array(ip4_address, &array_buffer);
@@ -435,12 +478,16 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
                         os_free(array_buffer);
                         free(ip4_address);
                     }
+
+                    printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
                     if(ip4_netmask) {
                         csv_list_to_json_str_array(ip4_netmask, &array_buffer);
                         fillData(lf,"netinfo.iface.ipv4.netmask", array_buffer);
                         os_free(array_buffer);
                         free(ip4_netmask);
                     }
+
+                    printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
                     if(ip4_broadcast) {
                         csv_list_to_json_str_array(ip4_broadcast, &array_buffer);
                         fillData(lf,"netinfo.iface.ipv4.broadcast", array_buffer);
@@ -449,6 +496,8 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
                     }
                 }
             }
+
+            printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
             if (ip = cJSON_GetObjectItem(iface, "IPv6"), ip) {
                 cJSON * address = cJSON_GetObjectItem(ip, "address");
@@ -467,11 +516,15 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
                     wm_strcat(&msg, "NULL", ' ');
                 }
 
+                printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
+
                 if (name) {
                     wm_strcat(&msg, name->valuestring, '|');
                 } else {
                     wm_strcat(&msg, "NULL", '|');
                 }
+
+                printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
                 // Information about an IPv6 interface
                 wm_strcat(&msg, "1", '|');
@@ -490,6 +543,8 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
                     wm_strcat(&msg, "NULL", '|');
                 }
 
+                printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
+
                 if (metric) {
                     char _metric[OS_SIZE_128];
                     snprintf(_metric, OS_SIZE_128 - 1, "%d", metric->valueint);
@@ -498,6 +553,8 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
                 } else {
                     wm_strcat(&msg, "NULL", '|');
                 }
+
+                printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
                 if (sc_send_db(msg,socket) < 0) {
                     return -1;
@@ -518,11 +575,15 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
                             wm_strcat(&msg, "NULL", ' ');
                         }
 
+                        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
+
                         if (name) {
                             wm_strcat(&msg, name->valuestring, '|');
                         } else {
                             wm_strcat(&msg, "NULL", '|');
                         }
+
+                        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
                         // Information about an IPv6 address
                         wm_strcat(&msg, "1", '|');
@@ -556,6 +617,8 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
                             wm_strcat(&msg, "NULL", '|');
                         }
 
+                        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
+
                         if (sc_send_db(msg,socket) < 0) {
                             if (ip6_address) {
                                 free(ip6_address);
@@ -563,11 +626,15 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
                             if(ip6_netmask) {
                                 free(ip6_netmask);
                             }
+
+                            printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
                             if(ip6_broadcast) {
                                 free(ip6_broadcast);
                             }
                             return -1;
                         }
+
+                        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
                     }
 
                     char *array_buffer = NULL;
@@ -577,12 +644,16 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
                         os_free(array_buffer);
                         free(ip6_address);
                     }
+
+                    printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
                     if(ip6_netmask) {
                         csv_list_to_json_str_array(ip6_netmask, &array_buffer);
                         fillData(lf,"netinfo.iface.ipv6.netmask", array_buffer);
                         os_free(array_buffer);
                         free(ip6_netmask);
                     }
+
+                    printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
                     if(ip6_broadcast) {
                         csv_list_to_json_str_array(ip6_broadcast, &array_buffer);
                         fillData(lf,"netinfo.iface.ipv6.broadcast", array_buffer);
@@ -592,6 +663,8 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
 
                 }
             }
+
+            printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
         }
     } else {
         // Looking for 'end' message.
@@ -602,6 +675,8 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
         if (!msg_type) {
             merror("Invalid message. Type not found.");
             free(msg);
+
+            printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
             return -1;
         } else if (strcmp(msg_type, "network_end") == 0) {
 
@@ -609,14 +684,20 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
             snprintf(msg, OS_SIZE_6144 - 1, "agent %s netinfo del %d", lf->agent_id, scan_id->valueint);
 
             if (sc_send_db(msg,socket) < 0) {
+
+                printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
                 return -1;
             }
         } else {
             merror("at decode_netinfo(): unknown type found.");
             free(msg);
+
+            printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
             return -1;
         }
     }
+
+    printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
     return 0;
 }
@@ -624,6 +705,7 @@ int decode_netinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
 int decode_osinfo( Eventinfo *lf, cJSON * logJSON,int *socket) {
 
     cJSON * inventory;
+    printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
     if (inventory = cJSON_GetObjectItem(logJSON, "inventory"), inventory) {
         cJSON * scan_id = cJSON_GetObjectItem(logJSON, "ID");
@@ -758,6 +840,7 @@ int decode_port( Eventinfo *lf, cJSON * logJSON,int *socket) {
 
     char * msg = NULL;
     cJSON * scan_id;
+    printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
     if (scan_id = cJSON_GetObjectItem(logJSON, "ID"), !scan_id) {
         return -1;
@@ -934,6 +1017,7 @@ int decode_port( Eventinfo *lf, cJSON * logJSON,int *socket) {
 int decode_hardware( Eventinfo *lf, cJSON * logJSON,int *socket) {
 
     cJSON * inventory;
+    printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
     if (inventory = cJSON_GetObjectItem(logJSON, "inventory"), inventory) {
         cJSON * scan_id = cJSON_GetObjectItem(logJSON, "ID");
@@ -1038,6 +1122,7 @@ int decode_package( Eventinfo *lf,cJSON * logJSON,int *socket) {
     char * msg = NULL;
     cJSON * package;
     cJSON * scan_id;
+    printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
     if (scan_id = cJSON_GetObjectItem(logJSON, "ID"), !scan_id) {
         return -1;
@@ -1221,6 +1306,7 @@ int decode_process(Eventinfo *lf, cJSON * logJSON,int *socket) {
     int i;
     char * msg = NULL;
     cJSON * scan_id;
+    printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
     if (scan_id = cJSON_GetObjectItem(logJSON, "ID"), !scan_id) {
         return -1;
@@ -1568,6 +1654,7 @@ int sc_send_db(char *msg, int *sock) {
     int size = strlen(msg);
     int retval = -1;
     int attempts;
+    printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
     // Connect to socket if disconnected
     if (*sock < 0) {

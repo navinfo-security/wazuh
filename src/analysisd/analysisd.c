@@ -368,7 +368,6 @@ int main_analysisd(int argc, char **argv)
         merror_exit(USER_ERROR, user, group);
     }
 
-    printf("-- 371\n");
 
     /* Found user */
     mdebug1(FOUND_USER);
@@ -391,7 +390,6 @@ int main_analysisd(int argc, char **argv)
         mwarn("All alert formats are disabled. Mail reporting, Syslog client and Integrator won't work properly.");
     }
 
-    printf("-- 394\n");
 
 #ifdef LIBGEOIP_ENABLED
     Config.geoip_jsonout = getDefine_Int("analysisd", "geoip_jsonout", 0, 1);
@@ -473,7 +471,6 @@ int main_analysisd(int argc, char **argv)
     }
 #endif
 
-    printf("-- 476\n");
 
     /* Set the group */
     if (Privsep_SetGroup(gid) < 0) {
@@ -495,40 +492,31 @@ int main_analysisd(int argc, char **argv)
      * completion of all rules and lists.
      */
 
-    printf("-- %d\n", __LINE__);
-    {
         {
-            printf("-- %d\n", __LINE__);
-            /* Initialize the decoders list */
+        {
+                        /* Initialize the decoders list */
             OS_CreateOSDecoderList();
-            printf("-- %d\n", __LINE__);
 
             /* If we haven't specified a decoders directory, load default */
             if (!Config.decoders) {
                 /* Legacy loading */
                 /* Read default decoders */
-                printf("-- %d\n", __LINE__);
-                Read_Rules(NULL, &Config, NULL);
+                                Read_Rules(NULL, &Config, NULL);
             }
 
-            printf("-- %d\n", __LINE__);
 
             /* New loaded based on file loaded (in ossec.conf or default) */
             {
                 char **decodersfiles;
                 decodersfiles = Config.decoders;
                 while ( decodersfiles && *decodersfiles) {
-                    printf("-- %d\n", __LINE__);
-                    if (!test_config) {
+                                        if (!test_config) {
                         mdebug1("Reading decoder file %s.", *decodersfiles);
                     }
-                    printf("-- %d\n", __LINE__);
-                    if (!ReadDecodeXML(*decodersfiles)) {
-                        printf("-- %d\n", __LINE__);
-                        merror_exit(CONFIG_ERROR, *decodersfiles);
+                                        if (!ReadDecodeXML(*decodersfiles)) {
+                                                merror_exit(CONFIG_ERROR, *decodersfiles);
                     }
-                    printf("-- %d\n", __LINE__);
-                    free(*decodersfiles);
+                                        free(*decodersfiles);
                     decodersfiles++;
                 }
             }
@@ -537,7 +525,6 @@ int main_analysisd(int argc, char **argv)
             SetDecodeXML();
         }
 
-        printf("-- %d\n", __LINE__);
 
         {
             /* Load Lists */
@@ -562,7 +549,6 @@ int main_analysisd(int argc, char **argv)
             }
         }
 
-        printf("-- %d\n", __LINE__);
 
         {
             /* Load Rules */
@@ -603,7 +589,6 @@ int main_analysisd(int argc, char **argv)
         }
     }
 
-    printf("-- 593\n");
 
     /* Fix the levels/accuracy */
     {
@@ -1571,6 +1556,8 @@ void * ad_input_main(void * args) {
         if (recv = OS_RecvUnix(m_queue, OS_MAXSTR, buffer),recv) {
             buffer[recv] = '\0';
             msg = buffer;
+            printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
+            printf("-- input(%d): <%.32s>\n", (int)recv, buffer);
 
             /* Get the time we received the event */
             gettime(&c_timespec);
@@ -1584,8 +1571,9 @@ void * ad_input_main(void * args) {
             s_events_received++;
 
             if (msg[0] == SYSCHECK_MQ) {
-
+                printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
                 os_strdup(buffer, copy);
+                printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
                 if(queue_full(decode_queue_syscheck_input)){
                     if(!reported_syscheck){
                         reported_syscheck = 1;
@@ -1639,7 +1627,9 @@ void * ad_input_main(void * args) {
                 /* Increment number of events received */
                 hourly_events++;
             } else if(msg[0] == SCA_MQ){
+                printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
                 os_strdup(buffer, copy);
+                printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
                 if(queue_full(decode_queue_sca_input)){
                     if(!reported_sca){
@@ -1650,8 +1640,9 @@ void * ad_input_main(void * args) {
                     free(copy);
                     continue;
                 }
-
+                printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
                 result = queue_push_ex(decode_queue_sca_input,copy);
+                printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
                 if(result < 0){
                     if(!reported_sca){
@@ -2027,6 +2018,8 @@ void * w_decode_sca_thread(__attribute__((unused)) void * args){
 
     while(1){
 
+        printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
+
         /* Receive message from queue */
         if (msg = queue_pop_ex(decode_queue_sca_input), msg) {
 
@@ -2047,6 +2040,8 @@ void * w_decode_sca_thread(__attribute__((unused)) void * args){
 
             /* Msg cleaned */
             DEBUG_MSG("%s: DEBUG: Msg cleanup: %s ", ARGV0, lf->log);
+
+            printf("--  %s:%d at %s\n", __FILE__, __LINE__, __func__);
 
             if (!DecodeSCA(lf,&socket)) {
                 /* We don't process rootcheck events further */
