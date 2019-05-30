@@ -67,7 +67,7 @@ wlabel_t* labels_find(const Eventinfo *lf) {
         *end = '\0';
     }
 
-    if (snprintf(path, PATH_MAX, AGENTINFO_DIR "/%s-%s", hostname, ip) >= PATH_MAX) {
+    if (snprintf(path, PATH_MAX, DEFAULTDIR AGENTINFO_DIR "/%s-%s", hostname, ip) >= PATH_MAX) {
         merror("at labels_find(): path too long.");
         return NULL;
     }

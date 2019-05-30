@@ -368,6 +368,8 @@ int main_analysisd(int argc, char **argv)
         merror_exit(USER_ERROR, user, group);
     }
 
+    printf("-- 371\n");
+
     /* Found user */
     mdebug1(FOUND_USER);
 
@@ -389,6 +391,7 @@ int main_analysisd(int argc, char **argv)
         mwarn("All alert formats are disabled. Mail reporting, Syslog client and Integrator won't work properly.");
     }
 
+    printf("-- 394\n");
 
 #ifdef LIBGEOIP_ENABLED
     Config.geoip_jsonout = getDefine_Int("analysisd", "geoip_jsonout", 0, 1);
@@ -434,6 +437,7 @@ int main_analysisd(int argc, char **argv)
         }
     }
 
+
     /* Check the CPU INFO */
     /* If we have the threads set to 0 on internal_options.conf, then */
     /* we assign them automatically based on the number of cores */
@@ -469,16 +473,12 @@ int main_analysisd(int argc, char **argv)
     }
 #endif
 
+    printf("-- 476\n");
+
     /* Set the group */
     if (Privsep_SetGroup(gid) < 0) {
         merror_exit(SETGID_ERROR, group, errno, strerror(errno));
     }
-
-    /* Chroot */
-    if (Privsep_Chroot(dir) < 0) {
-        merror_exit(CHROOT_ERROR, dir, errno, strerror(errno));
-    }
-    nowChroot();
 
     Config.decoder_order_size = (size_t)getDefine_Int("analysisd", "decoder_order_size", MIN_ORDER_SIZE, MAX_DECODER_ORDER_SIZE);
 
@@ -494,30 +494,40 @@ int main_analysisd(int argc, char **argv)
      * are created with blank database structs, and need to be filled in after
      * completion of all rules and lists.
      */
+
+    printf("-- %d\n", __LINE__);
     {
         {
+            printf("-- %d\n", __LINE__);
             /* Initialize the decoders list */
             OS_CreateOSDecoderList();
+            printf("-- %d\n", __LINE__);
 
             /* If we haven't specified a decoders directory, load default */
             if (!Config.decoders) {
                 /* Legacy loading */
                 /* Read default decoders */
+                printf("-- %d\n", __LINE__);
                 Read_Rules(NULL, &Config, NULL);
             }
+
+            printf("-- %d\n", __LINE__);
 
             /* New loaded based on file loaded (in ossec.conf or default) */
             {
                 char **decodersfiles;
                 decodersfiles = Config.decoders;
                 while ( decodersfiles && *decodersfiles) {
+                    printf("-- %d\n", __LINE__);
                     if (!test_config) {
                         mdebug1("Reading decoder file %s.", *decodersfiles);
                     }
+                    printf("-- %d\n", __LINE__);
                     if (!ReadDecodeXML(*decodersfiles)) {
+                        printf("-- %d\n", __LINE__);
                         merror_exit(CONFIG_ERROR, *decodersfiles);
                     }
-
+                    printf("-- %d\n", __LINE__);
                     free(*decodersfiles);
                     decodersfiles++;
                 }
@@ -526,6 +536,9 @@ int main_analysisd(int argc, char **argv)
             /* Load decoders */
             SetDecodeXML();
         }
+
+        printf("-- %d\n", __LINE__);
+
         {
             /* Load Lists */
             /* Initialize the lists of list struct */
@@ -548,6 +561,8 @@ int main_analysisd(int argc, char **argv)
                 Config.lists = NULL;
             }
         }
+
+        printf("-- %d\n", __LINE__);
 
         {
             /* Load Rules */
@@ -587,6 +602,8 @@ int main_analysisd(int argc, char **argv)
             OS_ListLoadRules();
         }
     }
+
+    printf("-- 593\n");
 
     /* Fix the levels/accuracy */
     {
@@ -652,7 +669,7 @@ int main_analysisd(int argc, char **argv)
     }
 
     /* Set the queue */
-    if ((m_queue = StartMQ(DEFAULTQUEUE, READ)) < 0) {
+    if ((m_queue = StartMQ(DEFAULTDIR DEFAULTQUEUE, READ)) < 0) {
         merror_exit(QUEUE_ERROR, DEFAULTQUEUE, strerror(errno));
     }
 
