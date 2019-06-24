@@ -90,7 +90,8 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
             (pieces[6] == ' ') &&
             (pieces[9] == ':') &&
             (pieces[12] == ':') &&
-            (pieces[15] == ' ') && (lf->log += 16)
+            (pieces[15] == ' ') &&
+            (lf->log += 16)
         )
         ||
 	(
@@ -116,8 +117,15 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
                 ((pieces[22] == ':') &&
                  (pieces[25] == ' ') && (lf->log += 26)) ||
 
+
+
                 ((pieces[19] == '.') &&
                  (pieces[29] == ':') && (lf->log += 33))  ||
+
+                ((pieces[19] == '.') &&
+                    (pieces[23] == '+' || pieces[23] == '-') &&
+                    (pieces[28] == ' ') &&
+                    (lf->log += 29)) ||
 
                 ((pieces[19] == '.') && (lf->log += 32))
             )
@@ -390,6 +398,25 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
               (pieces[20] == ' ') &&
               (pieces[25] == ']') ) {
         lf->log += 27;
+        lf->dec_timestamp = lf->full_log + loglen + 1;
+        lf->log[-2] = '\0';
+    }
+
+    
+    /*
+     * Check for new apache log format: [Fri Sep 09 10:42:29.902022 2011] [core:error]
+    */
+    else if ( (loglen > 34) &&
+              (pieces[0] == '[') &&
+              (pieces[4] == ' ') &&
+              (pieces[8] == ' ') &&
+              (pieces[11] == ' ') &&
+              (pieces[14] == ':') &&
+              (pieces[17] == ':') &&
+              (pieces[20] == '.') &&
+              (pieces[27] == ' ') &&
+              (pieces[32] == ']') ){
+        lf->log += 34;
         lf->dec_timestamp = lf->full_log + loglen + 1;
         lf->log[-2] = '\0';
     }
