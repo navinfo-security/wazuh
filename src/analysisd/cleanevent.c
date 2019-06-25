@@ -79,9 +79,12 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
     /* Check for the syslog date format
      * ( ex: Dec 29 10:00:01
      *   or  2015 Dec 29 10:00:01
+     *   or  Jun  5 08:48:47 2019
      *   or  2007-06-14T15:48:55-04:00 for syslog-ng isodate
      *   or  2009-05-22T09:36:46.214994-07:00 for rsyslog )
      *   or  2015-04-16 21:51:02,805 (proftpd 1.3.5)
+     *   or  2003-10-11T22:14:15.003Z
+     *   or  1985-04-12T23:20:50.52Z
      */
     if (
         (
@@ -94,17 +97,28 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
             (lf->log += 16)
         )
         ||
-	(
-	    (loglen > 24) &&
-	    (pieces[4] == '-') &&
-	    (pieces[7] == '-') &&
-	    (pieces[10] == ' ') &&
-	    (pieces[13] == ':') &&
-	    (pieces[16] == ':') &&
-	    (pieces[19] == ',') &&
-	    (lf->log += 23)
-	)
-	||
+        (
+            (loglen > 21) &&
+            (pieces[3] == ' ') &&
+            (pieces[6] == ' ') &&
+            (pieces[9] == ':') &&
+            (pieces[12] == ':') &&
+            (pieces[15] == ' ') &&
+            (pieces[20] == ' ') &&
+            (lf->log += 16)
+        )
+        ||
+        (
+            (loglen > 24) &&
+            (pieces[4] == '-') &&
+            (pieces[7] == '-') &&
+            (pieces[10] == ' ') &&
+            (pieces[13] == ':') &&
+            (pieces[16] == ':') &&
+            (pieces[19] == ',') &&
+            (lf->log += 23)
+        )
+        ||
         (
             (loglen > 33) &&
             (pieces[4] == '-') &&
@@ -117,17 +131,14 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
                 ((pieces[22] == ':') &&
                  (pieces[25] == ' ') && (lf->log += 26)) ||
 
-
-
                 ((pieces[19] == '.') &&
                  (pieces[29] == ':') && (lf->log += 33))  ||
 
                 ((pieces[19] == '.') &&
-                    (pieces[23] == '+' || pieces[23] == '-') &&
-                    (pieces[28] == ' ') &&
-                    (lf->log += 29)) ||
+                 (pieces[23] == 'Z') && (lf->log += 32)) ||
 
-                ((pieces[19] == '.') && (lf->log += 32))
+                ((pieces[19] == '.') &&
+                 (pieces[22] == 'Z') && (lf->log += 32))
             )
         )
      ||
@@ -245,6 +256,8 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
                     }
                     pieces = NULL;
                     lf->program_name = NULL;
+                    lf->log = lf->full_log;
+                    lf->hostname = NULL;
                 }
             }
             /* AIX syslog */
@@ -297,16 +310,22 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
                     } else {
                         pieces = NULL;
                         lf->program_name = NULL;
+                        lf->log = lf->full_log;
+                        lf->hostname = NULL;
                     }
                 }
                 /* Invalid AIX */
                 else {
                     pieces = NULL;
                     lf->program_name = NULL;
+                    lf->log = lf->full_log;
+                    lf->hostname = NULL;
                 }
             } else {
                 pieces = NULL;
                 lf->program_name = NULL;
+                lf->log = lf->full_log;
+                lf->hostname = NULL;
             }
         }
 
@@ -435,12 +454,14 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
              (pieces[10] == '.') &&
              (pieces[13] == '.') &&
              (pieces[16] == ' ') &&
-             (pieces[19] == ':')) {
+             (pieces[19] == ':') &&
+             (pieces[22] == ':') &&
+             (pieces[25] == ' ') &&
+             (pieces[29] == ']')){
         /* Do not read more than 1 message entry -> log tampering */
         short unsigned int done_message = 0;
 
-        /* Remove the date */
-        lf->log += 25;
+        lf->log += 30;
 
         /* Get the desired values */
         pieces = strchr(lf->log, '[');
