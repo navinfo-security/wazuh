@@ -135,10 +135,10 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
                  (pieces[29] == ':') && (lf->log += 33))  ||
 
                 ((pieces[19] == '.') &&
-                 (pieces[23] == 'Z') && (lf->log += 32)) ||
+                 (pieces[23] == 'Z') && (lf->log += 25)) ||
 
                 ((pieces[19] == '.') &&
-                 (pieces[22] == 'Z') && (lf->log += 32))
+                 (pieces[22] == 'Z') && (lf->log += 24))
             )
         )
      ||
