@@ -256,8 +256,6 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
                     }
                     pieces = NULL;
                     lf->program_name = NULL;
-                    lf->log = lf->full_log;
-                    lf->hostname = NULL;
                 }
             }
             /* AIX syslog */
@@ -310,22 +308,16 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
                     } else {
                         pieces = NULL;
                         lf->program_name = NULL;
-                        lf->log = lf->full_log;
-                        lf->hostname = NULL;
                     }
                 }
                 /* Invalid AIX */
                 else {
                     pieces = NULL;
                     lf->program_name = NULL;
-                    lf->log = lf->full_log;
-                    lf->hostname = NULL;
                 }
             } else {
                 pieces = NULL;
                 lf->program_name = NULL;
-                lf->log = lf->full_log;
-                lf->hostname = NULL;
             }
         }
 
