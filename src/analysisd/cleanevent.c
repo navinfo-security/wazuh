@@ -95,6 +95,10 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
             (pieces[12] == ':') &&
             (pieces[15] == ' ') &&
             (pieces[20] == ' ') &&
+            (isdigit(pieces[16])) &&
+            (isdigit(pieces[17])) &&
+            (isdigit(pieces[18])) &&
+            (isdigit(pieces[19])) &&
             (lf->log += 21)
         )
         ||
