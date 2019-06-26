@@ -88,16 +88,6 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
      */
     if (
         (
-            (loglen > 17) &&
-            (pieces[3] == ' ') &&
-            (pieces[6] == ' ') &&
-            (pieces[9] == ':') &&
-            (pieces[12] == ':') &&
-            (pieces[15] == ' ') &&
-            (lf->log += 16)
-        )
-        ||
-        (
             (loglen > 21) &&
             (pieces[3] == ' ') &&
             (pieces[6] == ' ') &&
@@ -105,6 +95,16 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
             (pieces[12] == ':') &&
             (pieces[15] == ' ') &&
             (pieces[20] == ' ') &&
+            (lf->log += 21)
+        )
+        ||
+        (
+            (loglen > 17) &&
+            (pieces[3] == ' ') &&
+            (pieces[6] == ' ') &&
+            (pieces[9] == ':') &&
+            (pieces[12] == ':') &&
+            (pieces[15] == ' ') &&
             (lf->log += 16)
         )
         ||
@@ -256,8 +256,6 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
                     }
                     pieces = NULL;
                     lf->program_name = NULL;
-                    lf->log = lf->full_log;
-                    lf->hostname = NULL;
                 }
             }
             /* AIX syslog */
@@ -310,22 +308,16 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
                     } else {
                         pieces = NULL;
                         lf->program_name = NULL;
-                        lf->log = lf->full_log;
-                        lf->hostname = NULL;
                     }
                 }
                 /* Invalid AIX */
                 else {
                     pieces = NULL;
                     lf->program_name = NULL;
-                    lf->log = lf->full_log;
-                    lf->hostname = NULL;
                 }
             } else {
                 pieces = NULL;
                 lf->program_name = NULL;
-                lf->log = lf->full_log;
-                lf->hostname = NULL;
             }
         }
 
