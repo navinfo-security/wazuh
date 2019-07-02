@@ -444,7 +444,7 @@ help: failtarget
 	@echo "   make USE_ZEROMQ=0            Build with zeromq support"
 	@echo "   make USE_PRELUDE=0           Build with prelude support"
 	@echo "   make USE_INOTIFY=0           Build with inotify support"
-	@echo "   make BIG_ENDIAN=0            Build with big endian support"
+	@echo "   make USE_BIG_ENDIAN=yes      Build with big endian support"
 	@echo "   make USE_SELINUX=0           Build with SELinux policies"
 	@echo "   make USE_AUDIT=1             Build with audit service support"
 	@echo "   make USE_FRAMEWORK_LIB=0     Use external SQLite library for the framework"
