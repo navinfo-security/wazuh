@@ -289,6 +289,8 @@ int main_analysisd(int argc, char **argv)
     hourly_firewall = 0;
     sys_debug_level = getDefine_Int("analysisd", "debug", 0, 2);
 
+    chdir(DEFAULTDIR);
+
 #ifdef LIBGEOIP_ENABLED
     geoipdb = NULL;
 #endif
@@ -368,8 +370,6 @@ int main_analysisd(int argc, char **argv)
         merror_exit(USER_ERROR, user, group);
     }
 
-    printf("-- 371\n");
-
     /* Found user */
     mdebug1(FOUND_USER);
 
@@ -391,7 +391,6 @@ int main_analysisd(int argc, char **argv)
         mwarn("All alert formats are disabled. Mail reporting, Syslog client and Integrator won't work properly.");
     }
 
-    printf("-- 394\n");
 
 #ifdef LIBGEOIP_ENABLED
     Config.geoip_jsonout = getDefine_Int("analysisd", "geoip_jsonout", 0, 1);
@@ -473,7 +472,6 @@ int main_analysisd(int argc, char **argv)
     }
 #endif
 
-    printf("-- 476\n");
 
     /* Set the group */
     if (Privsep_SetGroup(gid) < 0) {
@@ -495,40 +493,31 @@ int main_analysisd(int argc, char **argv)
      * completion of all rules and lists.
      */
 
-    printf("-- %d\n", __LINE__);
-    {
         {
-            printf("-- %d\n", __LINE__);
-            /* Initialize the decoders list */
+        {
+                        /* Initialize the decoders list */
             OS_CreateOSDecoderList();
-            printf("-- %d\n", __LINE__);
 
             /* If we haven't specified a decoders directory, load default */
             if (!Config.decoders) {
                 /* Legacy loading */
                 /* Read default decoders */
-                printf("-- %d\n", __LINE__);
-                Read_Rules(NULL, &Config, NULL);
+                                Read_Rules(NULL, &Config, NULL);
             }
 
-            printf("-- %d\n", __LINE__);
 
             /* New loaded based on file loaded (in ossec.conf or default) */
             {
                 char **decodersfiles;
                 decodersfiles = Config.decoders;
                 while ( decodersfiles && *decodersfiles) {
-                    printf("-- %d\n", __LINE__);
-                    if (!test_config) {
+                                        if (!test_config) {
                         mdebug1("Reading decoder file %s.", *decodersfiles);
                     }
-                    printf("-- %d\n", __LINE__);
-                    if (!ReadDecodeXML(*decodersfiles)) {
-                        printf("-- %d\n", __LINE__);
-                        merror_exit(CONFIG_ERROR, *decodersfiles);
+                                        if (!ReadDecodeXML(*decodersfiles)) {
+                                                merror_exit(CONFIG_ERROR, *decodersfiles);
                     }
-                    printf("-- %d\n", __LINE__);
-                    free(*decodersfiles);
+                                        free(*decodersfiles);
                     decodersfiles++;
                 }
             }
@@ -537,7 +526,6 @@ int main_analysisd(int argc, char **argv)
             SetDecodeXML();
         }
 
-        printf("-- %d\n", __LINE__);
 
         {
             /* Load Lists */
@@ -562,7 +550,6 @@ int main_analysisd(int argc, char **argv)
             }
         }
 
-        printf("-- %d\n", __LINE__);
 
         {
             /* Load Rules */
@@ -603,7 +590,6 @@ int main_analysisd(int argc, char **argv)
         }
     }
 
-    printf("-- 593\n");
 
     /* Fix the levels/accuracy */
     {
