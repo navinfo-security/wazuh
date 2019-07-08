@@ -1622,30 +1622,6 @@ void * ad_input_main(void * args) {
                 /* Increment number of events received */
                 hourly_events++;
             } else if(msg[0] == SCA_MQ){
-                os_strdup(buffer, copy);
-
-                if(queue_full(decode_queue_sca_input)){
-                    if(!reported_sca){
-                        reported_sca = 1;
-                        mwarn("Security Configuration Assessment decoder queue is full.");
-                    }
-                    w_inc_dropped_events();
-                    free(copy);
-                    continue;
-                }
-
-                result = queue_push_ex(decode_queue_sca_input,copy);
-
-                if(result < 0){
-                    if(!reported_sca){
-                        reported_sca = 1;
-                        mwarn("Security Configuration Assessment json decoder queue is full.");
-                    }
-                    w_inc_dropped_events();
-                    free(copy);
-                    continue;
-                }
-
                 /* Increment number of events received */
                 hourly_events++;
             } else if(msg[0] == SYSCOLLECTOR_MQ){
