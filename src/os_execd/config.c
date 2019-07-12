@@ -329,7 +329,7 @@ cJSON *getClusterConfig(void) {
     const char *jsonErrPtr;
     cluster_config_cJSON = cJSON_ParseWithOpts(buffer, &jsonErrPtr, 0);
     if (!cluster_config_cJSON) {
-        mdebug1("Error parsing JSON event. %s", cJSON_GetErrorPtr());
+        mdebug1("Error parsing JSON event. %s", buffer);
         free(buffer);
         return NULL;
     }

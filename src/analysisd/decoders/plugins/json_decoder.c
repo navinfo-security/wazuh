@@ -389,7 +389,7 @@ void *JSON_Decoder_Exec(Eventinfo *lf, __attribute__((unused)) regex_matching *d
     const char *jsonErrPtr;
     logJSON = cJSON_ParseWithOpts(input, &jsonErrPtr, 0);
     if (!logJSON)
-        mdebug2("Malformed JSON string '%s', near '%.20s'", input, cJSON_GetErrorPtr());
+        mdebug2("Malformed JSON string '%s'", input);
     else
     {
         readJSON (logJSON, NULL, lf);
