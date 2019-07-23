@@ -88,7 +88,7 @@ int SendMSG(int queue, const char *message, const char *locmsg, char loc)
     if ((__mq_rcode = OS_SendUnix(queue, tmpstr, 0)) < 0) {
         /* Error on the socket */
         if (__mq_rcode == OS_SOCKTERR) {
-            merror("socketerr (not available).");
+            //merror("socketerr (not available).");
             close(queue);
             return (-1);
         }

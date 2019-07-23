@@ -47,6 +47,8 @@ static void _push_request(const char *request,const char *type);
 static int key_request_connect();
 static int key_request_reconnect();
 
+static __thread time_t atime;
+
 /* Handle secure connections */
 void HandleSecure()
 {
@@ -405,15 +407,20 @@ static void HandleSecureMessage(char *buffer, int recv_b, struct sockaddr_in *pe
     /* If we can't send the message, try to connect to the
      * socket again. If it not exit.
      */
-    if (SendMSG(logr.m_queue, tmp_msg, srcmsg,
-                SECURE_MQ) < 0) {
-        merror(QUEUE_ERROR, DEFAULTQUEUE, strerror(errno));
-
-        if ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
-            merror_exit(QUEUE_FATAL, DEFAULTQUEUE);
+    time_t ctime;
+    ctime = time(NULL);
+    if (ctime > atime) {
+        if (SendMSG(logr.m_queue, tmp_msg, srcmsg,
+                    SECURE_MQ) < 0) {
+            //mwarn(QUEUE_ERROR, DEFAULTQUEUE, strerror(errno));
+            mwarn("Unable to access to %s. Retry in 30 seconds.", DEFAULTQUEUE);
+            atime = ctime + 30;
+            if ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
+                //mwarn(QUEUE_FATAL, DEFAULTQUEUE);
+            }
+        } else {
+            rem_inc_evt();
         }
-    } else {
-        rem_inc_evt();
     }
 }
 
