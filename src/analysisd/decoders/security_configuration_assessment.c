@@ -1760,8 +1760,6 @@ int pm_send_db(char *msg, char *response, int *sock)
     assert(response);
 
     ssize_t length;
-    fd_set fdset;
-    struct timeval timeout = {0, 1000};
     int size = strlen(msg);
     int retval = -1;
     int attempts;
@@ -1828,16 +1826,6 @@ int pm_send_db(char *msg, char *response, int *sock)
             merror("at OS_SendSecureTCP(): %s (%d)", strerror(errno), errno);
             goto end;
         }
-    }
-
-    // Wait for socket
-    FD_ZERO(&fdset);
-    FD_SET(*sock, &fdset);
-
-    if (select(*sock + 1, &fdset, NULL, NULL, &timeout) < 0)
-    {
-        merror("at select(): %s (%d)", strerror(errno), errno);
-        goto end;
     }
 
     // Receive response from socket
