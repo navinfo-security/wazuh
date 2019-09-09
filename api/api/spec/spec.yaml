@@ -330,7 +330,7 @@ components:
       enum:
       - active
       - pending
-      - neverconnected
+      - never connected
       - disconnected
       description: Agent status. It is calculated based on the last keep alive and the Wazuh version.
 

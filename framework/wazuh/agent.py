@@ -249,11 +249,11 @@ class Agent:
         """Calculates state based on last keep alive
         """
         if not last_keep_alive:
-            return "neverconnected"
+            return "never connected"
         else:
             last_date = datetime.utcfromtimestamp(last_keep_alive)
             difference = (today - last_date).total_seconds()
-            return "Disconnected" if difference > common.limit_seconds else ("Pending" if pending else "Active")
+            return "disconnected" if difference > common.limit_seconds else ("pending" if pending else "active")
 
 
     def _load_info_from_DB(self, select=None):
