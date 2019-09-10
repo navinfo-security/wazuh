@@ -891,7 +891,7 @@ class Agent:
         """
         # list with agent IDs to restart. Contains key-value pairs.
         agent_list = Agent.get_agent_group(group_id=group_id,
-                                           select={'fields': ['id']}).get('items')
+                                           select=['id']).get('items')
         # format agent_list as a list with strings of agent IDs
         agent_list = [elem.get('id') for elem in agent_list]
 

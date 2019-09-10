@@ -4961,6 +4961,47 @@ paths:
         default:
           $ref: '#/components/responses/ResponseError'
 
+  /agents/groups/{group_id}/restart:
+    put:
+      tags:
+        - agents
+      summary: 'Restart agents which belong to a group'
+      operationId: api.controllers.agents_controller.restart_agents_by_group
+      parameters:
+        - $ref: '#/components/parameters/pretty'
+        - $ref: '#/components/parameters/wait_for_complete'
+        - $ref: '#/components/parameters/group_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                ids:
+                  description: Array of agent ID's.
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/AgentID'
+      responses:
+        '200':
+          description: Agents restarted
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/ApiResponse'
+                - type: object
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/ItemAffected'
+                example:
+                  message: All selected agents were restarted
+                  data:
+                    affected_agents:
+                    - '002'
+                    - '004'
+        default:
+          $ref: '#/components/responses/ResponseError'
+
   /agents/insert:
     post:
       tags:

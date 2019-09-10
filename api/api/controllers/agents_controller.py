@@ -1167,6 +1167,28 @@ def restart_list_agents(pretty=False, wait_for_complete=False):
 
 
 @exception_handler
+def restart_agents_by_group(pretty=True, wait_for_complete=False, group_id=''):
+    """Restart agents by group ID.
+​
+    :param wait_for_complete: Disable timeout response
+    :return: CommonResponse
+    """
+    f_kwargs = {'group_id': group_id}
+
+    dapi = DistributedAPI(f=Agent.restart_agents_by_group,
+                          f_kwargs=remove_nones_to_dict(f_kwargs),
+                          request_type='distributed_master',
+                          is_async=False,
+                          wait_for_complete=wait_for_complete,
+                          pretty=pretty,
+                          logger=logger
+                          )
+    data = raise_if_exc(loop.run_until_complete(dapi.distribute_function()))
+
+    return data, 200
+
+
+@exception_handler
 def get_agent_fields(pretty=False, wait_for_complete=False, offset=0, limit=None, select=None, sort=None, search=None,
                      fields=None, q=''):
     """Get distinct fields in agents.
