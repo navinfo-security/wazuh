@@ -25,9 +25,7 @@ logger = logging.getLogger('wazuh')
 
 @exception_handler
 def delete_agents(pretty=False, wait_for_complete=False, list_agents=None, purge=False, status='all', older_than="7d"):
-    """Delete agents
-
-    Deletes all agents or a list of them with optional criteria based on the status or time of the last connection.
+    """Delete all agents or a list of them with optional criteria based on the status or time of the last connection.
 
     :param pretty: Show results in human-readable format
     :param wait_for_complete: Disable timeout response
@@ -36,7 +34,7 @@ def delete_agents(pretty=False, wait_for_complete=False, list_agents=None, purge
     :param status: Filters by agent status. Use commas to enter multiple statuses.
     :param older_than: Filters out disconnected agents for longer than specified. Time in seconds, ‘[n_days]d’,
     ‘[n_hours]h’, ‘[n_minutes]m’ or ‘[n_seconds]s’. For never_connected agents, uses the register date.
-    :return: AgentAllItemsAffected
+    :return: AllItemsResponseAgentIDs
     """
     f_kwargs = {'agent_list': list_agents,
                 'purge': purge,
@@ -59,12 +57,10 @@ def delete_agents(pretty=False, wait_for_complete=False, list_agents=None, purge
 
 
 @exception_handler
-def get_agents(pretty=False, wait_for_complete=False, list_agents=None, offset=None, limit=None, select=None, sort=None,
-               search=None, status=None, q=None, older_than=None, manager=None, version=None, group=None,
+def get_agents(pretty=False, wait_for_complete=False, list_agents=None, offset=0, limit=database_limit, select=None,
+               sort=None, search=None, status=None, q=None, older_than=None, manager=None, version=None, group=None,
                node_name=None, name=None, ip=None):
-    """Get agents
-
-    Returns information about all agents or a list of them
+    """Get information about all agents or a list of them
 
     :param pretty: Show results in human-readable format
     :param wait_for_complete: Disable timeout response
@@ -85,7 +81,7 @@ def get_agents(pretty=False, wait_for_complete=False, list_agents=None, offset=N
     :param node_name: Filters by node name.
     :param name: Filters by agent name.
     :param ip: Filters by agent IP
-    :return: AllAgents
+    :return: AllItemsResponseAgents
     """
     f_kwargs = {'agent_list': list_agents,
                 'offset': offset,
@@ -126,38 +122,12 @@ def get_agents(pretty=False, wait_for_complete=False, list_agents=None, offset=N
 
 
 @exception_handler
-def restart_agents(pretty=False, wait_for_complete=False, list_agents='*'):
-    """ Restarts all agents
-
-    :param pretty: Show results in human-readable format
-    :param wait_for_complete: Disable timeout response
-    :param list_agents: List of agent's IDs.
-    :return: CommonResponse
-    """
-    f_kwargs = {'agent_list': list_agents}
-
-    dapi = DistributedAPI(f=agent.restart_agents,
-                          f_kwargs=remove_nones_to_dict(f_kwargs),
-                          request_type='distributed_master',
-                          is_async=False,
-                          wait_for_complete=wait_for_complete,
-                          pretty=pretty,
-                          rbac_permissions=get_permissions(connexion.request.headers['Authorization']),
-                          broadcasting=list_agents == '*',
-                          logger=logger
-                          )
-    data = raise_if_exc(loop.run_until_complete(dapi.distribute_function()))
-
-    return data, 200
-
-
-@exception_handler
 def add_agent(pretty=False, wait_for_complete=False):
-    """Add a new agent into the cluster.
+    """Add a new Wazuh agent.
 
     :param pretty: Show results in human-readable format
     :param wait_for_complete: Disable timeout response
-    :return: AgentIdKeyData
+    :return: AgentIdKey
     """
     # Get body parameters
     if connexion.request.is_json:
@@ -191,6 +161,32 @@ def add_agent(pretty=False, wait_for_complete=False):
     response = Data(data)
 
     return response, 200
+
+
+@exception_handler
+def restart_agents(pretty=False, wait_for_complete=False, list_agents='*'):
+    """ Restarts all agents
+
+    :param pretty: Show results in human-readable format
+    :param wait_for_complete: Disable timeout response
+    :param list_agents: List of agent's IDs.
+    :return: CommonResponse
+    """
+    f_kwargs = {'agent_list': list_agents}
+
+    dapi = DistributedAPI(f=agent.restart_agents,
+                          f_kwargs=remove_nones_to_dict(f_kwargs),
+                          request_type='distributed_master',
+                          is_async=False,
+                          wait_for_complete=wait_for_complete,
+                          pretty=pretty,
+                          rbac_permissions=get_permissions(connexion.request.headers['Authorization']),
+                          broadcasting=list_agents == '*',
+                          logger=logger
+                          )
+    data = raise_if_exc(loop.run_until_complete(dapi.distribute_function()))
+
+    return data, 200
 
 
 @exception_handler
@@ -269,7 +265,7 @@ def get_agent_config(pretty=False, wait_for_complete=False, agent_id=None, compo
                 'config': kwargs.get('configuration', None)
                 }
 
-    dapi = DistributedAPI(f=agent.get_agents_config,
+    dapi = DistributedAPI(f=agent.get_agent_config,
                           f_kwargs=remove_nones_to_dict(f_kwargs),
                           request_type='distributed_master',
                           is_async=False,
@@ -285,19 +281,21 @@ def get_agent_config(pretty=False, wait_for_complete=False, agent_id=None, compo
 
 
 @exception_handler
-def delete_agent_all_groups(agent_id, pretty=False, wait_for_complete=False):
-    """Removes agent from all groups.
+def delete_single_agent_multiple_groups(agent_id, list_groups=None, pretty=False, wait_for_complete=False):
+    """'Remove the agent from all groups or a list of them.
 
-    Removes the agent from all groups. The agent will automatically revert to the "default" group.
+    The agent will automatically revert to the "default" group if it is removed from all its assigned groups.
 
     :param pretty: Show results in human-readable format
     :param wait_for_complete: Disable timeout response
     :param agent_id: Agent ID. All posible values since 000 onwards.
+    :param list_groups: Array of group's IDs.
     :return: CommonResponse
     """
-    f_kwargs = {'agent_list': [agent_id]}
+    f_kwargs = {'agent_list': [agent_id],
+                'group_list': list_groups}
 
-    dapi = DistributedAPI(f=agent.remove_agents_from_all_groups,
+    dapi = DistributedAPI(f=agent.remove_agent_from_groups,
                           f_kwargs=remove_nones_to_dict(f_kwargs),
                           request_type='local_master',
                           is_async=False,
@@ -341,7 +339,7 @@ def get_sync_agent(agent_id, pretty=False, wait_for_complete=False):
 
 
 @exception_handler
-def delete_agent_single_group(agent_id, group_id, pretty=False, wait_for_complete=False):
+def delete_single_agent_single_group(agent_id, group_id, pretty=False, wait_for_complete=False):
     """Remove agent from a single group.
 
     Removes an agent from a group. If the agent has multigroups, it will preserve all previous groups except the last
@@ -354,9 +352,9 @@ def delete_agent_single_group(agent_id, group_id, pretty=False, wait_for_complet
     :return: CommonResponse
     """
     f_kwargs = {'agent_list': [agent_id],
-                'group_id': group_id}
+                'group_list': [group_id]}
 
-    dapi = DistributedAPI(f=agent.remove_agents_from_group,
+    dapi = DistributedAPI(f=agent.remove_agent_from_group,
                           f_kwargs=remove_nones_to_dict(f_kwargs),
                           request_type='local_master',
                           is_async=False,
@@ -576,10 +574,10 @@ def delete_multiple_agent_single_group(group_id, list_agents=None, pretty=False,
     :param list_agents: Array of agent's IDs.
     :param pretty: Show results in human-readable format
     :param wait_for_complete: Disable timeout response
-    :return: AgentItemsAffected
+    :return: AllItemsResponseAgentIDs
     """
     f_kwargs = {'agent_list': list_agents,
-                'group_id': group_id}
+                'group_list': [group_id]}
 
     dapi = DistributedAPI(f=agent.remove_agents_from_group,
                           f_kwargs=remove_nones_to_dict(f_kwargs),
@@ -605,10 +603,10 @@ def put_multiple_agent_single_group(group_id, list_agents=None, pretty=False, wa
     :param pretty: Show results in human-readable format
     :param wait_for_complete: Disable timeout response
     :param force_single_group: Forces the agent to belong to a single group
-    :return: AgentItemsAffected
+    :return: AllItemsResponseAgentIDs
     """
     f_kwargs = {'agent_list': list_agents,
-                'group_id': group_id,
+                'group_list': [group_id],
                 'replace': force_single_group}
 
     dapi = DistributedAPI(f=agent.assign_agents_to_group,
@@ -632,7 +630,7 @@ def delete_groups(list_groups=None, pretty=False, wait_for_complete=False):
     :param pretty: Show results in human-readable format
     :param wait_for_complete: Disable timeout response
     :param list_groups: Array of group's IDs.
-    :return: AgentGroupDeleted
+    :return: AllItemsResponseGroupIDs + AgentGroupDeleted
     """
     f_kwargs = {'group_list': list_groups}
 
@@ -651,24 +649,26 @@ def delete_groups(list_groups=None, pretty=False, wait_for_complete=False):
 
 
 @exception_handler
-def get_list_group(pretty=False, wait_for_complete=False, offset=0, limit=None, sort=None, search=None):
-    """Get all groups.
+def get_list_group(pretty=False, wait_for_complete=False, list_groups=None, offset=0, limit=None, sort=None, search=None):
+    """Get groups.
 
     Returns a list containing basic information about each agent group such as number of agents belonging to the group
     and the checksums of the configuration and shared files.
 
     :param pretty: Show results in human-readable format
     :param wait_for_complete: Disable timeout response
+    :param list_groups: Array of group's IDs.
     :param offset: First element to return in the collection
     :param limit: Maximum number of elements to return
     :param sort: Sorts the collection by a field or fields (separated by comma). Use +/- at the beginning to list in
     ascending or descending order.
     :param search: Looks for elements with the specified string
-    :return: Data
+    :return: AllItemsResponseGroups
     """
     hash_ = connexion.request.args.get('hash', 'md5')  # Select algorithm to generate the returned checksums.
     f_kwargs = {'offset': offset,
                 'limit': limit,
+                'group_list': list_groups,
                 'sort_by': parse_api_param(sort, 'sort')['fields'] if sort is not None else ['name'],
                 'sort_ascending': True if sort is None or parse_api_param(sort, 'sort')['order'] == 'asc' else False,
                 'search_text': parse_api_param(search, 'search')['value'] if search is not None else None,
@@ -686,16 +686,13 @@ def get_list_group(pretty=False, wait_for_complete=False, offset=0, limit=None, 
                           rbac_permissions=get_permissions(connexion.request.headers['Authorization'])
                           )
     data = raise_if_exc(loop.run_until_complete(dapi.distribute_function()))
-    response = Data(data)
 
-    return response, 200
+    return data, 200
 
 
 @exception_handler
 def delete_single_group(group_id, pretty=False, wait_for_complete=False):
-    """Delete group.
-
-    Deletes a group. Agents that were assigned only to the deleted group will automatically revert to the default group.
+    """Deletes a group. Agents that were assigned only to the deleted group will automatically revert to the default group.
 
     :param pretty: Show results in human-readable format
     :param wait_for_complete: Disable timeout response
@@ -721,9 +718,7 @@ def delete_single_group(group_id, pretty=False, wait_for_complete=False):
 @exception_handler
 def get_agents_in_group(group_id, pretty=False, wait_for_complete=False, offset=0, limit=database_limit, select=None,
                         sort=None, search=None, status=None, q=None):
-    """Get agents in a group.
-
-    Returns the list of agents that belongs to the specified group.
+    """Get the list of agents that belongs to the specified group.
 
     :param pretty: Show results in human-readable format
     :param wait_for_complete: Disable timeout response
@@ -736,8 +731,7 @@ def get_agents_in_group(group_id, pretty=False, wait_for_complete=False, offset=
     :param search: Looks for elements with the specified string
     :param status: Filters by agent status. Use commas to enter multiple statuses.
     :param q: Query to filter results by. For example q&#x3D;&amp;quot;status&#x3D;active&amp;quot;
-
-    :return: Data
+    :return: AllItemsResponseAgents
     """
     f_kwargs = {'offset': offset,
                 'limit': limit,
@@ -771,7 +765,7 @@ def post_group(group_id, pretty=False, wait_for_complete=False):
     :param pretty: Show results in human-readable format
     :param wait_for_complete: Disable timeout response
     :param group_id: Group ID.
-    :return: message
+    :return: ApiResponse
     """
     f_kwargs = {'group_id': group_id}
 
@@ -790,20 +784,15 @@ def post_group(group_id, pretty=False, wait_for_complete=False):
 
 
 @exception_handler
-def get_group_config(group_id, pretty=False, wait_for_complete=False, offset=0, limit=database_limit):
+def get_group_config(group_id, pretty=False, wait_for_complete=False):
     """Get group configuration defined in the `agent.conf` file.
 
     :param pretty: Show results in human-readable format
     :param wait_for_complete: Disable timeout response
     :param group_id: Group ID.
-    :param offset: First element to return in the collection
-    :param limit: Maximum number of elements to return
-    :return: Data
+    :return: GroupConfiguration
     """
-    f_kwargs = {'group_list': [group_id],
-                'offset': offset,
-                'limit': limit}
-
+    f_kwargs = {'group_list': [group_id]}
     dapi = DistributedAPI(f=agent.get_agent_conf,
                           f_kwargs=remove_nones_to_dict(f_kwargs),
                           request_type='local_master',

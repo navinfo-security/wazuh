@@ -1,5 +1,3 @@
-
-
 # Copyright (C) 2015-2019, Wazuh Inc.
 # Created by Wazuh, Inc. <info@wazuh.com>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
@@ -129,3 +127,4 @@ max_groups_per_multigroup = 256
 rbac: ContextVar[Dict] = ContextVar('rbac', default=dict())
 system_agents: ContextVar[List] = ContextVar('system_agents', default=list())
 broadcast: ContextVar[bool] = ContextVar('broadcast', default=False)
+system_groups: ContextVar[List] = ContextVar('system_groups', default=list())
