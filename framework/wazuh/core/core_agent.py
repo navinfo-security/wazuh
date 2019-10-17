@@ -280,12 +280,12 @@ class Agent:
 
         # Check if agent is active
         if self.status.lower() != 'active':
-            raise WazuhError(1707, extra_message='{0} - {1}'.format(self.id, self.status))
+            raise WazuhError(1707, extra_message=f'Status: {self.status}')
 
         # Check if agent has active-response enabled
         agent_conf = self.getconfig('com', 'active-response')
         if agent_conf['active-response']['disabled'] == 'yes':
-            raise WazuhException(1750)
+            raise WazuhError(1750)
 
         return send_restart_command(self.id)
 

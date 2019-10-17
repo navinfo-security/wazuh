@@ -16,6 +16,7 @@ from wazuh.exception import WazuhError, WazuhInternalError, WazuhException, crea
 from wazuh.rbac.decorators import expose_resources
 from wazuh.utils import chmod_r, chown_r, get_hash, mkdir_with_mode, md5, process_array
 from wazuh.core.core_agent import Agent
+from wazuh.results import AffectedItemsWazuhResult
 
 
 @expose_resources(actions=["agent:read"], resources=["agent:id:*"], post_proc_func=None)
@@ -86,20 +87,18 @@ def restart_agents(agent_list=None):
     :param agent_list: List of agents ID's.
     :return: Message.
     """
-    affected_agents = list()
-    failed_ids = list()
+    result = AffectedItemsWazuhResult(none_msg='Could not send command to any agent',
+                                      all_msg='Restart command sent to all agents',
+                                      some_msg='Could not send command to some agents')
+
     for agent_id in agent_list:
         try:
             Agent(agent_id).restart()
-            affected_agents.append(agent_id)
+            result.affected_items.append(agent_id)
         except WazuhException as e:
-            failed_ids.append(create_exception_dic(agent_id, e))
+            result.add_failed_item(id_=agent_id, error=e)
 
-    return {'affected_items': affected_agents,
-            'failed_items': failed_ids,
-            'str_priority': ['Restart command sent to all agents',
-                             'Could not send command to some agents',
-                             'Could not send command to any agent']}
+    return result
 
 
 @expose_resources(actions=["agent:read"], resources=["agent:id:{agent_list}"])
