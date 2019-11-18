@@ -1977,7 +1977,7 @@ void * w_decode_syscheck_thread(__attribute__((unused)) void * args){
         if (msg = queue_pop_ex(decode_queue_syscheck_input), msg) {
             int res = 0;
             os_calloc(1, sizeof(Eventinfo), lf);
-            os_calloc(Config.decoder_order_size, sizeof(DynamicField), lf->fields);
+            os_calloc(FIM_NFIELDS, sizeof(DynamicField), lf->fields);
 
             /* Default values for the log info */
             Zero_Eventinfo(lf);
