@@ -85,7 +85,7 @@ void fim_scan() {
         fim_print_info(start, end, cputime_start);
     }
 
-#ifdef DEBUG
+#ifdef DEBUGAD
     print_rbtree();
 #ifndef WIN32
     print_inodes();
@@ -142,15 +142,44 @@ void fim_checker(char *path, fim_element *item, whodata_evt *w_evt, int report) 
         if (saved_data = (fim_entry_data *) rbtree_get(syscheck.fim_entry, path), saved_data) {
             json_event = fim_json_event(path, NULL, saved_data, item->index, FIM_DELETE, item->mode, w_evt);
             fim_delete(path);
+
+            if (json_event && report) {
+                char *json_formated = cJSON_PrintUnformatted(json_event);
+                send_syscheck_msg(json_formated);
+                os_free(json_formated);
+            }
+            cJSON_Delete(json_event);
+        } else {
+            char first_entry[PATH_MAX];
+            char last_entry[PATH_MAX];
+            int i;
+
+            snprintf(first_entry, PATH_MAX, "%s/", path);
+            snprintf(last_entry, PATH_MAX, "%s0", path);
+
+            char **paths = rbtree_range(syscheck.fim_entry, first_entry, last_entry);
+
+
+            for(i = 0; paths[i] != NULL; i++) {
+                int config = fim_configuration_directory(paths[i], "file");
+                if (config == node) {
+                    if (saved_data = (fim_entry_data *) rbtree_get(syscheck.fim_entry, paths[i]), saved_data) {
+                        json_event = fim_json_event(paths[i], NULL, saved_data, item->index, FIM_DELETE, item->mode, w_evt);
+                        fim_delete (paths[i]);
+                        if (json_event && report) {
+                            char *json_formated = cJSON_PrintUnformatted(json_event);
+                            send_syscheck_msg(json_formated);
+                            os_free(json_formated);
+                        }
+                        cJSON_Delete(json_event);
+
+                    }
+                }
+            }
+            free_strarray(paths);
         }
         w_mutex_unlock(&syscheck.fim_entry_mutex);
 
-        if (json_event && report) {
-            char *json_formated = cJSON_PrintUnformatted(json_event);
-            send_syscheck_msg(json_formated);
-            os_free(json_formated);
-        }
-        cJSON_Delete(json_event);
 
         return;
     }
@@ -1241,7 +1270,7 @@ void fim_print_info(struct timespec start, struct timespec end, clock_t cputime_
     return;
 }
 
-#ifdef DEBUG
+#ifdef DEBUGAD
 // LCOV_EXCL_START
 #ifndef WIN32
 void print_inodes() {

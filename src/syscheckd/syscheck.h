@@ -135,6 +135,7 @@ void fim_delete(char *file_name);
 //
 void fim_print_info(struct timespec start, struct timespec end, clock_t cputime_start);
 
+#ifdef DEBUGAD
 //
 void print_rbtree();
 
@@ -143,6 +144,7 @@ void print_inodes();
 
 //
 void print_dirtb();
+#endif
 
 //
 void check_deleted_files();
