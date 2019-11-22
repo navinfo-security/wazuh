@@ -643,3 +643,69 @@ char* decode_hex_buffer_2_ascii_buffer(const char * const encoded_buffer, const 
 
     return decoded_buffer;
 }
+
+// Length of the initial segment of s which consists entirely of non-escaped bytes different from reject
+
+size_t strcspn_escaped(const char * s, char reject) {
+    char charset[3] = { '\\', reject };
+
+    size_t len = strlen(s);
+    size_t spn_len = 0;
+
+    do {
+        spn_len += strcspn(s + spn_len, charset);
+
+        if (s[spn_len] == '\\') {
+            spn_len += 2;
+        } else {
+            return spn_len;
+        }
+    } while (spn_len < len);
+
+    return len;
+}
+
+// Escape JSON reserved characters
+
+char * wstr_escape_json(const char * string) {
+    const char escape_map[] = {
+        ['\b'] = 'b',
+        ['\t'] = 't',
+        ['\n'] = 'n',
+        ['\f'] = 'f',
+        ['\r'] = 'r',
+        ['\"'] = '\"',
+        ['\\'] = '\\'
+    };
+
+    size_t i = 0;   // Read position
+    size_t j = 0;   // Write position
+    size_t z;       // Span length
+
+    char * output;
+    os_malloc(1, output);
+
+    do {
+        z = strcspn(string + i, "\b\t\n\f\r\"\\");
+
+        if (string[i + z] == '\0') {
+            // End of string
+            os_realloc(output, j + z + 1, output);
+            strncpy(output + j, string + i, z);
+        } else {
+            // Reserved character
+            os_realloc(output, j + z + 3, output);
+            strncpy(output + j, string + i, z);
+            output[j + z] = '\\';
+            output[j + z + 1] = escape_map[(int)string[i + z]];
+            z++;
+            j++;
+        }
+
+        j += z;
+        i += z;
+    } while (string[i] != '\0');
+
+    output[j] = '\0';
+    return output;
+}
