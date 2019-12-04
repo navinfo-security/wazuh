@@ -16,18 +16,7 @@ VERSION = "4.0.0"
 # prerequisite: setuptools
 # http://pypi.python.org/pypi/setuptools
 
-REQUIRES = ["connexion[swagger-ui]==2.4.0",
-            "python_dateutil==2.6.0",
-            "PyYAML==3.13",
-            "python-jose[cryptography]==3.0.1",
-            "setuptools>=21.0.0",
-            "sqlalchemy==1.3.0",
-            "defusedxml==0.6.0",
-            "aiohttp==3.6.2",
-            "aiohttp-cache==1.0.3",
-            "aiohttp-jinja2==1.2.0",
-            "aiohttp-cors==0.7.0"
-            ]
+REQUIRES = []
 
 setup(
     name=NAME,
