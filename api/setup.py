@@ -7,7 +7,7 @@
 from setuptools import setup, find_packages
 
 NAME = "api"
-VERSION = "3.11.0"
+VERSION = "4.0.0"
 
 # To install the library, run the following
 #
@@ -17,18 +17,16 @@ VERSION = "3.11.0"
 # http://pypi.python.org/pypi/setuptools
 
 REQUIRES = ["connexion[swagger-ui]==2.2.0",
-            "Flask-Cors==3.0.7",
-            "Flask-Caching==1.7.0",
-            "Flask==1.0.2",
             "python_dateutil==2.6.0",
             "PyYAML==3.13",
             "python-jose[cryptography]==3.0.1",
             "setuptools>=21.0.0",
             "sqlalchemy==1.3.0",
-            "uWSGI==2.0.18",
             "defusedxml==0.6.0",
-            "flask-sqlalchemy==2.4.0",
-            "flask-migrate==2.5.1"
+            "aiohttp==3.6.2",
+            "aiohttp-cache==1.0.3",
+            "aiohttp-jinja2==1.2.0",
+            "aiohttp-cors==0.7.0"
             ]
 
 setup(
