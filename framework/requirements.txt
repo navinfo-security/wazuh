@@ -13,7 +13,7 @@ cffi==1.12.2
 chardet==3.0.4
 Click==7.0
 clickclick==1.2.2
-connexion==2.2.0
+connexion==2.4.0
 cryptography==2.6.1
 docker==3.7.0
 docker-pycreds==0.4.0

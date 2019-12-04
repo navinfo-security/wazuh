@@ -16,7 +16,7 @@ VERSION = "4.0.0"
 # prerequisite: setuptools
 # http://pypi.python.org/pypi/setuptools
 
-REQUIRES = ["connexion[swagger-ui]==2.2.0",
+REQUIRES = ["connexion[swagger-ui]==2.4.0",
             "python_dateutil==2.6.0",
             "PyYAML==3.13",
             "python-jose[cryptography]==3.0.1",
