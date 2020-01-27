@@ -38,6 +38,8 @@ extern int sock_fail_time;
 
 int StartMQ(const char *key, short int type) __attribute__((nonnull));
 
+int StartMQWithRetry(const char *path, short int type, short int retry_times);
+
 int SendMSG(int queue, const char *message, const char *locmsg, char loc) __attribute__((nonnull));
 
 int SendMSGtoSCK(int queue, const char *message, const char *locmsg, char loc, logtarget * target) __attribute__((nonnull (2, 3, 5)));
