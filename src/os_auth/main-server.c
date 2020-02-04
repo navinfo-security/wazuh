@@ -1035,9 +1035,9 @@ void* run_dispatcher(__attribute__((unused)) void *arg) {
 
             /* Check for agents limit */
 
-            if (config.flags.register_limit && keys.keysize >= (MAX_AGENTS - 2) ) {
+            if (config.flags.register_limit && keys.keysize >= (MAX_AGENTS - 3) ) {
                 w_mutex_unlock(&mutex_keys);
-                merror(AG_MAX_ERROR, MAX_AGENTS - 2);
+                merror(AG_MAX_ERROR, MAX_AGENTS - 3);
                 snprintf(response, 2048, "ERROR: The maximum number of agents has been reached\n\n");
                 SSL_write(ssl, response, strlen(response));
                 snprintf(response, 2048, "ERROR: Unable to add agent.\n\n");
