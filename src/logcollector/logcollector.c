@@ -1813,6 +1813,11 @@ void * w_output_thread(void * args){
                 #endif
 
                 while(1) {
+
+                    if(logr_queue > 0) {
+                        close(logr_queue);
+                    }
+
                     if(logr_queue = StartMQ(DEFAULTQPATH, WRITE), logr_queue > 0) {
                         if (SendMSGtoSCK(logr_queue, message->buffer, message->file, message->queue_mq, message->log_target) == 0) {
                             minfo("Successfully reconnected to '%s'", DEFAULTQPATH);

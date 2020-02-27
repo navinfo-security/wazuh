@@ -426,6 +426,10 @@ static void HandleSecureMessage(char *buffer, int recv_b, struct sockaddr_in *pe
                 SECURE_MQ) < 0) {
         merror(QUEUE_ERROR, DEFAULTQUEUE, strerror(errno));
 
+        if(logr.m_queue > 0) {
+            close(logr.m_queue );
+        }
+
         if ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
             merror_exit(QUEUE_FATAL, DEFAULTQUEUE);
         }
